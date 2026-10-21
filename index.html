@@ -69,6 +69,9 @@ ul.check li{display:flex;gap:10px;align-items:flex-start}
 ul.check input{width:18px;height:18px;margin-top:4px;accent-color:var(--green);flex:none}
 .video{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:var(--green-soft);padding:8px 14px;border-radius:8px}
 .video::before{content:"▶";font-size:.8em}
+.destaque{margin:28px 0;border:3px solid var(--warn-line);border-radius:14px;padding:6px 18px 4px;background:#fffbef;box-shadow:0 4px 0 var(--warn-line)}
+.destaque h3{margin:14px 0 6px;font-size:1.35rem;color:#8a5a00}
+.destaque .note{border-left:0;background:transparent;padding:4px 0 10px;margin:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -200,8 +203,10 @@ Fazendo isso, o aplicativo vai funcionar certinho o tempo todo, sem ser interrom
   <p><a class="video" href="https://www.youtube.com/watch?v=cWonmi8q_PE" target="_blank" rel="noopener">Vídeo: como instalar o driver da impressora</a></p>
   <div class="note"><b>Acesso remoto:</b> peça o acesso remoto para o lojista, caso ele não tenha ainda conseguido configurar a impressora, para você configurar para ele.</div>
 
-  <h3>Antes do robô: ferramentas de desconto</h3>
+  <div class="destaque">
+  <h3>✨ Antes do robô: ferramentas de desconto ✨</h3>
   <div class="note"><b>Antes de configurar o robô:</b> incentive o lojista a ativar alguma ferramenta de desconto para os clientes dele, por exemplo <b>Cashback</b>, <b>Desconto progressivo</b> ou <b>Cupom</b>. Isso vale tanto para a <b>mensagem automática do WhatsApp Business</b> (4.2) quanto para o <b>Robô do WhatsApp da WhatsMenu</b> (4.3): ajuste as linhas de desconto e cashback da mensagem de saudação conforme o que ele ativar, e retire as que ele não for usar.<br><br><b>Incentive a ativação:</b> explique ao lojista que vale a pena ativar, porque é uma ferramenta que interessa aos clientes dele. Com um benefício para quem pede pelo cardápio da WhatsMenu, os clientes passam a consumir mais pelo link, o que aumenta o faturamento e também a base de clientes da loja.<br><br><b>Mostre na prática:</b><ul style="margin:6px 0 0"><li>Você mesmo pode ativar um desses descontos (Cashback, Desconto progressivo ou Cupom) para o lojista ver na prática como funciona.</li><li>Se o cardápio dele já estiver pronto, coloque <b>3 produtos em destaque</b> (estrela no Cardápio) para ele ver como o cardápio fica mais atrativo.</li></ul></div>
+  </div>
 
   <h3>4.2 Robô pelo celular – mensagem automática do WhatsApp Business</h3>
   <p>No celular, o robô é a mensagem automática do <b>WhatsApp Business</b> (tem que ser o Business). Envie as duas mensagens abaixo, nesta ordem.</p>
