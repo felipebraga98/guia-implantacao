@@ -1,7 +1,10 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
-
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" href="logo.png">
 <title>Guia de Implantação WhatsMenu</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap">
 <style>
@@ -69,6 +72,91 @@ ul.check input{width:18px;height:18px;margin-top:4px;accent-color:var(--green);f
 .destaque{margin:28px 0;border:3px solid var(--warn-line);border-radius:14px;padding:6px 18px 4px;background:#fffbef;box-shadow:0 4px 0 var(--warn-line)}
 .destaque h3{margin:14px 0 6px;font-size:1.35rem;color:#8a5a00}
 .destaque .note{border-left:0;background:transparent;padding:4px 0 10px;margin:0}
+.card h3 .et{display:inline-block;font:700 .72rem/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;background:var(--green);color:#fff;padding:5px 9px;border-radius:999px;margin-right:10px;vertical-align:3px}
+.card h4{font:700 1rem/1.3 var(--f-body);margin:20px 0 4px;color:var(--ink)}
+.must{display:inline-block;font:700 .82rem var(--f-body);background:#fde3e3;color:#a11b1b;border:1.5px solid #e05252;border-radius:999px;padding:3px 12px}
+.msg .tag.audio{background:#c62828}
+ol.steps-list li{margin:6px 0}
+.msg pre{padding-right:92px}
+@media (max-width:560px){.msg pre{padding-right:18px;padding-top:40px}}
+.pdf h2{font:800 1.45rem/1.2 var(--f-display);margin:0 0 10px}
+.pdf h2.pdf-title{font-size:1.7rem}
+.pdf>h2{display:block;margin:-28px calc(-1 * clamp(18px,4vw,36px)) 20px;padding:20px clamp(18px,4vw,36px) 18px;background:#0f3b22;color:#fff;border-radius:14px 14px 0 0;border-bottom:5px solid #ffd23f;letter-spacing:.01em}
+.pdf h3{font:700 1.25rem/1.3 var(--f-display);color:var(--ink);margin:30px 0 8px}
+.pdf p{max-width:none}
+.pdf .quote{position:relative;border-left:3px solid var(--line);padding:2px 96px 2px 16px;margin:8px 0 12px}
+.pdf .quote.audio{padding-right:0}
+.pdf .quote .qcopy{position:absolute;top:2px;right:0;font:600 .8rem var(--f-body);background:#fff;color:var(--green-deep);border:1.5px solid var(--green);border-radius:6px;padding:4px 10px;cursor:pointer}
+.pdf .quote .qcopy:hover,.pdf .quote .qcopy.ok{background:var(--green);color:#fff}
+.pdf .quote .qcopy:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
+@media (max-width:560px){.pdf .quote{padding:36px 0 2px 14px}}
+
+.pdf .quote p{margin:6px 0}
+.pdf .blue{color:#1f3fcf}
+mark.hl{background:#ffff00;color:inherit;padding:0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.hl.red{color:#e00000;font-weight:700}
+nav.steps details.flow{position:relative}
+nav.steps details.flow>summary{list-style:none;cursor:pointer;color:#fff;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:6px}
+nav.steps details.flow>summary::-webkit-details-marker{display:none}
+nav.steps details.flow>summary::after{content:"▾";font-size:.8em}
+nav.steps details.flow[open]>summary,nav.steps details.flow>summary:hover,nav.steps details.flow>summary:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+nav.steps .flow-menu{position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:max-content;max-width:min(360px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column}
+nav.steps .flow-menu a{color:var(--ink);border:0;border-radius:8px;padding:8px 12px;font-weight:500;font-size:.9rem;text-decoration:none;white-space:normal}
+nav.steps .flow-menu a.fl-top{font-weight:700;color:var(--green-deep);border-bottom:1px solid var(--line);border-radius:8px 8px 0 0;margin-bottom:4px}
+nav.steps .flow-menu a:hover,nav.steps .flow-menu a:focus-visible{background:var(--green-soft);color:var(--green-deep);outline:none}
+.pdf h3[id]{scroll-margin-top:16px;background:var(--green);color:#fff;border-radius:10px;padding:10px 16px;margin:36px 0 12px;box-shadow:0 3px 0 var(--green-deep)}
+.pdf h4{background:var(--green-soft);color:var(--green-deep);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:6px 12px;margin:24px 0 8px}
+/* Legenda, busca e barra de posição */
+.pdf .quote:not(.audio)::before{content:"💬";position:absolute;left:-15px;top:-2px;background:#fff;font-size:.95rem;line-height:1.4;padding:2px 0}
+.pdf .quote.audio::before{content:"🎙️";position:absolute;left:-15px;top:-2px;background:#fff;font-size:.95rem;line-height:1.4;padding:2px 0}
+.pdf .quote{margin-left:12px}
+.pdf mark.hl:not(.red)::before{content:"⚠️ "}
+.pdf mark.ic-audio::before{content:"🎙️ "}
+.pdf mark.ic-acao::before{content:"❗ "}
+.guia-uso .gu-title{font:800 1.3rem/1.2 var(--f-display);margin:0 0 12px}
+.gs-label{display:block;font-weight:700;font-size:.9rem;color:var(--green-deep);margin-bottom:6px}
+.gs-box{display:flex;gap:10px;align-items:center}
+.gs-box input{flex:1;min-width:0;font:inherit;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.gs-box input:focus-visible{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
+.gs-count{color:var(--muted);font-size:.85rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.gs-results{margin-top:8px;border:1px solid var(--line);border-radius:10px;max-height:340px;overflow:auto;background:#fff}
+.gs-results a{display:block;padding:10px 14px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:400}
+.gs-results a:last-child{border-bottom:0}
+.gs-results a:hover,.gs-results a:focus-visible{background:var(--green-soft);outline:none}
+.gs-results .gs-where{display:block;font-size:.78rem;font-weight:700;color:var(--green-deep);text-transform:uppercase;letter-spacing:.04em}
+.gs-results .gs-t{display:block;font-weight:700}
+.gs-results .gs-snip{display:block;font-size:.88rem;color:var(--muted)}
+.gs-results b.gs-hit{background:#ffff00;color:var(--ink)}
+.gs-results .gs-none{padding:12px 14px;color:var(--muted)}
+.gu-legend{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:10px 14px;font-size:.92rem;align-items:center;border-top:1px solid var(--line);padding-top:16px}
+.gu-legend li{display:contents}
+.lg{display:inline-block;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:6px;color:#fff}
+.lg-flow{background:#0f3b22;border-bottom:3px solid #ffd23f}
+.lg-etapa{background:var(--green)}
+.lg-ic{white-space:nowrap}
+.lg-ic .blue{color:#1f3fcf}
+.lg-blue{color:#1f3fcf;font-weight:700}
+mark.lg-mark{font-weight:600}
+.pdf h3.gs-flash,.pdf h2.gs-flash{animation:gsflash 1.8s ease-out}
+@keyframes gsflash{0%,30%{box-shadow:0 0 0 5px #ffd23f}100%{box-shadow:0 3px 0 var(--green-deep)}}
+.gbar{position:fixed;left:0;right:0;top:0;z-index:30;background:#0f3b22;color:#fff;padding-top:env(safe-area-inset-top,0px);box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.gbar-in{display:flex;align-items:center;gap:12px;max-width:1080px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+.gbar-loc{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9rem}
+.gbar-flow{font-weight:800;color:#ffd23f}
+.gbar-sep{margin:0 6px;opacity:.7}
+.gbar-act{display:flex;gap:6px;flex:none}
+.gbar-act button{font:600 .82rem var(--f-body);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);border-radius:999px;padding:5px 12px;cursor:pointer}
+.gbar-act button:hover,.gbar-act button:focus-visible{background:#fff;color:#0f3b22;outline:none}
+.gbar-prog{height:4px;background:rgba(255,255,255,.15)}
+.gbar-prog span{display:block;height:100%;width:0;background:#ffd23f;transition:width .15s linear}
+.pdf h3[id],.pdf[id]{scroll-margin-top:64px}
+@media (max-width:560px){.gbar-flow{display:none}.gbar-sep{display:none}.gbar-loc{font-size:.82rem}}
+.gbar-panel{max-width:1080px;margin:0 auto;padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
+.gbar-panel .gs-box input{border-color:transparent}
+.gbar-panel .gs-count{color:#d9efe0}
+.gbar-panel .gs-results{max-height:min(60vh,420px);color:var(--ink)}
+#gbar-search[aria-expanded="true"]{background:#fff;color:#0f3b22}
+@media (prefers-reduced-motion:reduce){.pdf h3.gs-flash,.pdf h2.gs-flash{animation:none}.gbar-prog span{transition:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* Respostas rápidas */
 .rr-back{font:600 .9rem var(--f-body);background:var(--green-soft);color:var(--green-deep);border:0;border-radius:8px;padding:8px 14px;cursor:pointer;margin-bottom:16px}
@@ -110,213 +198,383 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
 .rr-empty{color:var(--muted);padding:12px 0}
 </style>
 
+</head>
+<body style="margin:0">
+<div class="gbar" id="gbar" hidden>
+  <div class="gbar-in">
+    <div class="gbar-loc"><span class="gbar-flow" id="gbar-flow"></span><span class="gbar-sep" id="gbar-sep">›</span><span class="gbar-etapa" id="gbar-etapa"></span></div>
+    <div class="gbar-act"><button type="button" id="gbar-search" aria-expanded="false" aria-controls="gbar-panel">🔍 Buscar</button><button type="button" id="gbar-top">↑ Topo</button></div>
+  </div>
+  <div class="gbar-panel" id="gbar-panel" hidden>
+    <div class="gs-box"><input id="gb-q" type="search" placeholder="Buscar no guia: impressora, senha, caixa, cupom…" autocomplete="off" aria-label="Buscar no guia"><span class="gs-count" id="gb-count" aria-live="polite"></span></div>
+    <div class="gs-results" id="gb-results" hidden></div>
+  </div>
+  <div class="gbar-prog"><span id="gbar-fill"></span></div>
+</div>
 <div class="wrap">
 <header>
   <div class="head-text">
   <div class="eyebrow">Suporte · WhatsMenu</div>
   <h1>Guia de Implantação</h1>
-  <p>Toda implantação segue estes 4 passos, nesta ordem. Ao final, faça o pedido teste e ajude o lojista a divulgar o link do cardápio.</p>
+  <p>Guia de procedimentos para o Consultor de Implantação</p>
   <nav class="steps" aria-label="Passos">
-    <a href="#p1">1 · Meu Perfil</a><a href="#p2">2 · Cardápio</a><a href="#p3">3 · Instalação</a><a href="#p4">4 · Impressora e robô</a><a href="#teste">Finalização e divulgação</a><a href="#respostas" class="rr-nav">⚡ Respostas rápidas</a>
+    <a href="#como-usar">🔍 Buscar</a><a href="#bia">1. Fluxo da Bia</a><details class="flow"><summary>2. Fluxo do Consultor</summary><div class="flow-menu"><a href="#consultor" class="fl-top">2. FLUXO DO CONSULTOR DE IMPLANTAÇÃO</a><a href="#consultor-1">Etapa 1 — Recepção e apresentação</a><a href="#consultor-2">Etapa 2 — Instalação e acesso ao sistema</a><a href="#consultor-3">Etapa 3 — Preenchimento do perfil e envio do cardápio à produção</a><a href="#consultor-4">Etapa 4 — Conferência e finalização do perfil</a><a href="#consultor-5">Etapa 5 — Configuração do robô ou mensagens automáticas</a><a href="#consultor-6">Etapa 6 — Configuração da impressora</a><a href="#consultor-7">Etapa 7 — Acompanhamento da produção do cardápio</a><a href="#consultor-8">Etapa 8 — Conferência e entrega do cardápio</a><a href="#consultor-9">Etapa 9 — Liberação do cardápio e pedido de teste</a><a href="#consultor-10">Etapa 10 — Treinamento prático do PDV</a></div></details><details class="flow"><summary>3. Etapa Comercial</summary><div class="flow-menu"><a href="#comercial" class="fl-top">3. ETAPA COMERCIAL — MÁQUINA DE VENDAS DELIVERY</a><a href="#comercial-1">Etapa 1 — Apresentação da Máquina de Vendas</a><a href="#comercial-2">Etapa 2 — Configuração do cupom de primeira compra</a><a href="#comercial-3">Etapa 3 — Configuração do cashback</a><a href="#comercial-4">Etapa 4 — Marketing automático</a><a href="#comercial-5">Etapa 5 — Criação da arte do folder</a><a href="#comercial-6">Etapa 6 — Oferta de impressão do folder</a><a href="#comercial-7">Etapa 7 — Tratamento de objeções</a></div></details><details class="flow"><summary>4. Instagram</summary><div class="flow-menu"><a href="#instagram" class="fl-top">4. ÚLTIMA ETAPA — ORGANIZAÇÃO DO INSTAGRAM</a><a href="#instagram-1">Etapa 1 — Solicitar o Instagram</a><a href="#instagram-2">Etapa 2 — Organizar a biografia</a><a href="#instagram-3">Etapa 3 — Colocar o link da WhatsMenu</a><a href="#instagram-4">Etapa 4 — Criação de artes para Stories</a></div></details><details class="flow"><summary>5. Finalização e Registro</summary><div class="flow-menu"><a href="#finalizacao" class="fl-top">5. FINALIZAÇÃO E REGISTRO</a><a href="#finalizacao-1">Diretrizes obrigatórias para o consultor</a></div></details><a href="#respostas" class="rr-nav">⚡ Respostas rápidas</a>
   </nav>
   </div>
   <img class="logo" src="logo.png" alt="WhatsMenu" width="190" height="190">
 </header>
 
-<section class="card">
-  <h2>Visão geral</h2>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Passo</th><th>O que fazer</th><th>Quem faz</th></tr></thead>
-    <tbody>
-      <tr><td class="n">1</td><td>Preencher <b>Meu Perfil</b></td><td>Lojista, com nosso auxílio (Pagamento só o lojista)</td></tr>
-      <tr><td class="n">2</td><td>Montar o <b>Cardápio</b></td><td>Freelancer (pago) ou lojista com nosso auxílio</td></tr>
-      <tr><td class="n">3</td><td><b>Instalar o sistema</b> no computador ou no celular</td><td><b>O suporte faz</b> (por acesso remoto). Só no celular o lojista faz, com o nosso auxílio</td></tr>
-      <tr><td class="n">4</td><td>Configurar <b>impressora e robô</b></td><td><b>O suporte faz</b> (por acesso remoto). Impressora pelo celular: o lojista faz, com o nosso auxílio. No robô, o próprio lojista precisa escanear o QR Code</td></tr>
-      <tr><td class="n">✓</td><td><b>Finalização e divulgação:</b> pedido teste e link do cardápio no Instagram</td><td>Lojista faz, suporte acompanha</td></tr>
-    </tbody>
-  </table></div>
-  <div class="note tip"><b>Dica:</b> os textos marcados com <code>/atalho</code> (ex.: <code>/atualizar</code>, <code>/celular</code>) são mensagens prontas para enviar ao lojista pela touschat.</div>
-</section>
-
-<section class="card" id="p1">
-  <h2><span class="num">1</span>Preencher “Meu Perfil”</h2>
-  <p class="where"><b>Onde fica:</b> menu lateral › Meu Perfil</p>
-  <figure><img src="perfil.png" alt="Tela Meu Perfil com as abas Estabelecimento, Layout da Loja, Endereço, Horário de funcionamento, Frete, Taxas e Pagamento"><figcaption>Tela Meu Perfil e suas abas</figcaption></figure>
-  <p>Ajude o lojista a preencher todas as abas, uma de cada vez, clicando em <b>Salvar</b> ao final de cada uma:</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Aba</th><th>O que preencher</th></tr></thead>
-    <tbody>
-      <tr><td>Estabelecimento</td><td>Nome da loja, link da loja, telefone de contato, descrição, pedido mínimo de entrega e de retirada</td></tr>
-      <tr><td>Layout da Loja</td><td>Logo, capa e cores da loja</td></tr>
-      <tr><td>Endereço</td><td>Endereço completo do estabelecimento</td></tr>
-      <tr><td>Horário de funcionamento</td><td>Dias e horários em que a loja recebe pedidos</td></tr>
-      <tr><td>Frete</td><td>Taxas de entrega por região ou distância</td></tr>
-      <tr><td>Pagamento</td><td>Formas de pagamento aceitas</td></tr>
-    </tbody>
-  </table></div>
-  <div class="note"><b>Atenção:</b> a aba <b>Pagamento</b> precisa ser preenchida <b>pelo próprio lojista</b>, por segurança e porque as definições de pagamento são decisão dele. O suporte só orienta.</div>
-  <p><a class="video" href="https://www.youtube.com/watch?v=a7kfhg0lKFM&amp;t=2s" target="_blank" rel="noopener">Vídeo explicando: como preencher o Meu Perfil</a></p>
-</section>
-
-<section class="card" id="p2">
-  <h2><span class="num">2</span>Cardápio</h2>
-  <p>O lojista escolhe uma de duas opções:</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Opção</th><th>Como funciona</th><th>Prazo</th></tr></thead>
-    <tbody>
-      <tr><td>Cardápio pago</td><td>O freelancer monta o cardápio de até <b>100 itens</b> por <b>R$ 29,90</b>, acompanhado no Trello. Se for mais de 100 itens, consulte antes um suporte para verificar o valor a ser cobrado.</td><td><b>1 dia útil</b></td></tr>
-      <tr><td>Lojista monta</td><td>O próprio lojista cadastra em <b>Cardápio</b>, com nosso auxílio</td><td>Depende do lojista</td></tr>
-    </tbody>
-  </table></div>
-  <div class="note tip"><b>Dica:</b> enquanto o cardápio está em produção no Trello pelo freelancer, <b>não pare a implantação</b>: siga com os passos 3 e 4.</div>
-  <div class="note"><b>Atenção:</b> antes de enviar o cardápio para produção, <b>sempre confirme com o lojista se tem mais algum produto</b> e peça para ele mandar tudo do jeito que quer que seja cadastrado (nomes, preços, complementos e fotos). Assim evitamos alterações depois por erro ou por informações que não foram passadas.<br><br><b>Cardápio de outro sistema:</b> se o lojista enviar o link de um cardápio de outro sistema ou plataforma, sempre confirme com ele:<ul style="margin:6px 0 0"><li>se existem <b>itens pausados</b> nesse cardápio (que não aparecem no link);</li><li>se estão completos os <b>nomes, tamanhos, adicionais, preços e fotos</b> (se tiver).</li></ul></div>
-</section>
-
-<section class="card" id="p3">
-  <h2><span class="num">3</span>Instalar o sistema</h2>
-  <p>Pergunte ao lojista onde ele vai usar o sistema:</p>
-  <div class="choice">
-    <div><strong>Tem computador com Windows 10 ou 11?</strong>Instalar no computador e enviar <code>/atualizar</code>.</div>
-    <div><strong>Não tem computador?</strong>Instalar no celular (Android) e enviar <code>/celular</code>.</div>
+<section class="card guia-uso" id="como-usar">
+  <h2 class="gu-title">Buscar no procedimento</h2>
+  <div class="gu-search">
+    <label for="gs-q" class="gs-label">Digite uma palavra para encontrar a etapa</label>
+    <div class="gs-box"><input id="gs-q" type="search" placeholder="Ex.: impressora, senha, caixa, cupom, Instagram" autocomplete="off"><span class="gs-count" id="gs-count" aria-live="polite"></span></div>
+    <div class="gs-results" id="gs-results" hidden></div>
   </div>
-
-  <h3>Opção A – Computador</h3>
-  <div class="msg"><span class="tag">/atualizar</span><button class="copy" type="button">Copiar</button><pre>Você pode instalar o seu sistema da WhatsMenu clicando neste link NO SEU COMPUTADOR
-
-https://github.com/Grove-Company/.github/releases/download/v3.0.15/whatsmenu-desktop-3.0.15-setup.exe
-
-1️⃣ Copie e cole o link no Google Chrome, ele vai baixar o app que vai aparecer na setinha para baixo do lado da barra de busca
-2️⃣ Após baixar e abrir, na tela azul, clique em “Mais informações” e depois em “Executar mesmo assim”
-
-✅ Pronto! Sistema instalado.
-Depois me avise aqui como ficou, por favor 😊</pre></div>
-  <div class="note"><b>Acesso remoto:</b> se o lojista tiver dificuldade, se você perceber que ele não está conseguindo (por exemplo, por estar atarefado) ou se ele mesmo pedir para a gente fazer, <b>peça o acesso remoto na mesma hora</b> e faça a instalação para ele.</div>
-
-  <h3>Opção B – Celular</h3>
-  <p>Com esse passo a passo o lojista já instala o app e configura a impressora.</p>
-  <div class="note"><b>Atenção:</b> a impressora precisa ser <b>Bluetooth</b>, estar <b>carregada, com bobina, ligada e pareada</b> com o celular da loja.</div>
-  <div class="msg"><span class="tag">/celular</span><button class="copy" type="button">Copiar</button><pre>Vamos iniciar a configuração no celular da loja 📱
-
-Para fazer a instalação, precisamos que:
-1️⃣ Você esteja com o celular da loja em mãos
-2️⃣ O celular tenha WhatsApp Business instalado
-
-Agora instale o WhatsMenu Mobile (Android) pelo link:
-https://github.com/Grove-Company/.github/releases/download/mobile-v1.0.9/application-1bbac0f4-69bc-476c-a887-c55c54091ed2.apk
-
-📖 Passo a passo da configuração:
-https://youtu.be/uxXoyyGW5mk
-
-Se tiver impressora, ela precisa ser Bluetooth e estar pareada no celular da loja 🖨️</pre></div>
-  <p>Depois que o lojista instalar, envie esta segunda mensagem para o app não ser pausado pelo celular:</p>
-  <div class="msg"><span class="tag">Ajustes do celular</span><button class="copy" type="button">Copiar</button><pre>- Vai nas configurações do seu celular e abre a parte de "Apps" ou "Aplicativos".
-- Procure pelo "WhatsMenu Mobile" na lista.
-- Dentro das opções do app, desmarque a opção “Pausar atividade do app quando sem uso”.
-- Na aba "Bateria", deixa a opção "Sem restrições" ou "Não restrito" marcada.
-- Depois, entra nas “Permissões do app” e desmarque também “Remover permissões e liberar espaço”.
-
-Fazendo isso, o aplicativo vai funcionar certinho o tempo todo, sem ser interrompido pelo celular. Se precisar de qualquer ajuda no passo a passo, me chama aqui que te ajudo rapidinho!</pre></div>
-  <div class="note tip"><b>Confira:</b> peça ao lojista um print ou confirmação de que fez os 5 ajustes. Sem eles, o celular pausa o app e os pedidos param de imprimir.</div>
 </section>
 
-<section class="card" id="p4">
-  <h2><span class="num">4</span>Impressora e robô</h2>
+<section class="card pdf" id="objetivo">
+  <h2 class="pdf-title">FLUXO DE IMPLANTAÇÃO — WHATSMENU</h2>
+  <p><b>Guia de procedimentos para o Consultor de Implantação</b></p>
+  <h3>Objetivo</h3>
+  <p>Garantir que o cliente comece a utilizar a WhatsMenu o mais rápido possível, preferencialmente no mesmo dia da contratação e, no máximo, até o dia seguinte.</p>
+  <p>O consultor será responsável por acompanhar toda a implantação, realizar as configurações necessárias, garantir o funcionamento da plataforma e preparar o cliente para receber pedidos e utilizar as ferramentas de vendas.</p>
+  <p><b>Regra principal:</b> o cliente não deve precisar descobrir sozinho como configurar o sistema. Nossa equipe deve conduzir o atendimento, antecipar as próximas etapas e realizar o máximo possível por ele.</p>
+</section>
 
-  <h3>4.1 Impressora</h3>
-  <p>Primeiro confira o <b>driver de impressão</b> no sistema em <b>Configurações › Gerais › Driver de Impressão</b>:</p>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Onde o lojista usa o sistema</th><th>Driver correto</th></tr></thead>
-    <tbody>
-      <tr><td>Celular (app)</td><td><b>Aplicativo de Impressão</b></td></tr>
-      <tr><td>Computador</td><td><b>Generic / Text Only</b></td></tr>
-    </tbody>
-  </table></div>
-  <p><b>Se usa pelo celular:</b> a instalação e a impressora já foram configuradas no Passo 3. Só confirme com o lojista se o app está instalado e <b>imprimindo automaticamente</b>.</p>
-  <p><b>Se usa pelo computador (<code>/generic</code>):</b> auxilie o lojista a instalar o driver Generic / Text Only, caso ainda não tenha.</p>
-  <p><a class="video" href="https://www.youtube.com/watch?v=cWonmi8q_PE" target="_blank" rel="noopener">Vídeo: como instalar o driver da impressora</a></p>
-  <div class="note"><b>Acesso remoto:</b> peça o acesso remoto para o lojista, caso ele não tenha ainda conseguido configurar a impressora, para você configurar para ele.</div>
-
-  <div class="destaque">
-  <h3>✨ Antes do robô: ferramentas de desconto ✨</h3>
-  <div class="note"><b>Antes de configurar o robô:</b> incentive o lojista a ativar alguma ferramenta de desconto para os clientes dele, por exemplo <b>Cashback</b>, <b>Desconto progressivo</b> ou <b>Cupom</b>. Isso vale tanto para a <b>mensagem automática do WhatsApp Business</b> (4.2) quanto para o <b>Robô do WhatsApp da WhatsMenu</b> (4.3): ajuste as linhas de desconto e cashback da mensagem de saudação conforme o que ele ativar, e retire as que ele não for usar.<br><br><b>Incentive a ativação:</b> explique ao lojista que vale a pena ativar, porque é uma ferramenta que interessa aos clientes dele. Com um benefício para quem pede pelo cardápio da WhatsMenu, os clientes passam a consumir mais pelo link, o que aumenta o faturamento e também a base de clientes da loja.<br><br><b>Mostre na prática:</b><ul style="margin:6px 0 0"><li>Você mesmo pode ativar um desses descontos (Cashback, Desconto progressivo ou Cupom) para o lojista ver na prática como funciona.</li><li>Se o cardápio dele já estiver pronto, coloque <b>3 produtos em destaque</b> (estrela no Cardápio) para ele ver como o cardápio fica mais atrativo.</li></ul><br><b>Pergunte ao lojista qual ferramenta de desconto ele quer usar e envie a mensagem correspondente para ajudá-lo a ativar:</b><div class="msg"><span class="tag">/cashback</span><button class="copy" type="button">Copiar</button><pre>Este é um vídeo bem curtinho explicando sobre uma das novas funções do WhatsMenu, o cashback para fidelizar seus clientes! 😎
-https://youtu.be/CBBI_YDzuoU</pre></div><div class="msg"><span class="tag">/desconto-progressivo</span><button class="copy" type="button">Copiar</button><pre>Com o desconto progressivo, seu cliente vai ter um incentivo visual na hora que adicionar um produto no carrinho!
-Ele vai conseguir ver o valor que falta, para que ele consiga um desconto maior na compra dele, incentivando a adicionar mais itens, e aumentando o ticket médio!!  💚
-
-Vou deixar aqui um vídeo para você verificar como funciona o desconto progressivo no seu painel: https://drive.google.com/file/d/1dun5ProKOk_5bFDPaqnioy7pLM_yT1cX/view?usp=drive_link
-
-Se tiver qualquer dúvida, pode voltar aqui comigo, combinado?</pre></div><div class="msg"><span class="tag">/cupom_de_desconto</span><button class="copy" type="button">Copiar</button><pre>Como criar cupom de desconto
-
-https://youtu.be/LfQ4cyVQp8s</pre></div></div>
-  </div>
-
-  <h3>4.2 Robô pelo celular – mensagem automática do WhatsApp Business</h3>
-  <p>No celular, o robô é a mensagem automática do <b>WhatsApp Business</b> (tem que ser o Business). Envie as duas mensagens abaixo, nesta ordem.</p>
-  <p><b>1º</b> – troque os campos em maiúsculo e o link pelos dados da loja:</p>
-  <div class="msg"><span class="tag">/mensagemautomatica1</span><button class="copy" type="button">Copiar</button><pre>Olá ! Seja bem vindo ao NOME DA LOJA 🥳
-
-👇Veja o nosso cardápio e faça seu pedido👇
-https://whatsmenu.com.br/burguerino
-
-*Fazendo o primeiro pedido pelo link ganhe X% de desconto com o cupom NOME DO CUPOM*🚀
-E ganhe 5% de cashback em cada pedido realizado pelo link
-
-Equipe NOME DA LOJA</pre></div>
-  <p><b>2º</b> – em seguida:</p>
-  <div class="msg"><span class="tag">/mensagemautomatica2</span><button class="copy" type="button">Copiar</button><pre>🚀Agora seus clientes vão receber automaticamente o link para fazer pedidos! 🥳
-Siga o passo a passo abaixo para configurar no WhatsApp Business:
-📌 Passo a passo:
-1️⃣ Copie a mensagem que enviamos acima (com o link do cardápio)
-2️⃣ Acesse o WhatsApp Business da loja
-3️⃣ Toque na casinha no canto inferior direito e vá em Ferramentas
-4️⃣ Vá em Mensagem de Ausência e Mensagem de Saudação
-5️⃣ Cole a mensagem nas duas opções
-6️⃣ Ative: "Enviar sempre" e "Enviar para todos"
-7️⃣ Clique em Salvar
-✅ Quando finalizar, envie a mensagem “FINALIZEI” aqui para concluirmos juntos! 😎</pre></div>
-  <div class="note tip"><b>Confira:</b> quando o lojista responder “FINALIZEI”, faça um teste com ele: mande uma mensagem para o WhatsApp da loja e veja se a mensagem automática chega certa.</div>
-
-  <h3>4.3 Robô pelo computador – Robô do WhatsApp</h3>
-  <p>No sistema instalado no computador, abra a aba <b>Robô do WhatsApp</b> e conecte o WhatsApp da loja:</p>
-  <figure><img src="robo_qr.png" alt="Tela Robô do WhatsApp com o QR Code (1) e o botão Importar sessão (2)"><figcaption>(1) escanear o QR Code · (2) clicar em Importar sessão</figcaption></figure>
+<section class="card pdf" id="bia">
+  <h2>1. FLUXO DA BIA — IA DE IMPLANTAÇÃO</h2>
+  <p>A Bia será responsável pelo primeiro contato e pela organização das informações necessárias para iniciar a implantação.</p>
+  <p>O atendimento seguirá esta sequência:</p>
   <ol>
-    <li><b>Escanear o QR Code (seta 1):</b> no celular da loja, o lojista abre o WhatsApp › <b>Aparelhos conectados</b> › <b>Conectar um aparelho</b> e aponta a câmera para o QR Code da tela.</li>
-    <li><b>Aguardar o WhatsApp Web carregar</b> as conversas na tela.</li>
-    <li><b>Clicar em “Importar sessão” (destaque 2)</b>, no canto superior direito. É isso que cria a conexão do WhatsApp com o robô.</li>
+    <li><b>Identificação:</b> verificar se o cliente está iniciando a implantação ou retornando para continuar um atendimento anterior.</li>
+    <li><b>Boas-vindas:</b> recepcionar o cliente e enviar o áudio explicando brevemente o processo.</li>
+    <li><b>E-mail:</b> solicitar e registrar o e-mail utilizado na contratação.</li>
+    <li><b>Cardápio:</b> encaminhar o formulário <a href="https://tally.so/r/81PNJY" target="_blank" rel="noopener">https://tally.so/r/81PNJY</a> para envio do cardápio e informar que a equipe cadastrará até 100 itens.</li>
+    <li><b>Confirmação:</b> verificar o recebimento do formulário para que o material seja encaminhado à produção.</li>
+    <li><b>Disponibilidade:</b> verificar se o cliente está com o dispositivo utilizado na loja e a impressora, quando aplicável.</li>
+    <li><b>Instalação:</b> enviar o link do Desktop ou Mobile, conforme o dispositivo, orientando o acesso com o e-mail cadastrado e a senha inicial 123456.</li>
+    <li><b>Transferência:</b> encaminhar o atendimento para o consultor com as informações e pendências registradas.</li>
   </ol>
-  <p>Se deu certo, a tela muda para <b>“Robô conectado”</b> e mostra as configurações do bot:</p>
-  <figure><img src="robo_config.png" alt="Robô conectado com as opções Envio do cardápio pelo robô (1) e Não permitir falar com atendente (2)"><figcaption>Configurações do bot</figcaption></figure>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Nº</th><th>Opção</th><th>Como deixar</th><th>Por quê</th></tr></thead>
-    <tbody>
-      <tr><td class="n">1</td><td>Envio do cardápio pelo robô</td><td><b>Sempre ativada</b></td><td>É o que faz o robô enviar a mensagem de saudação com o cardápio assim que o cliente chama para pedir</td></tr>
-      <tr><td class="n">2</td><td>Não permitir falar com atendente</td><td>Ativar <b>só se o lojista quiser</b></td><td>Usada quando o lojista não quer receber pedidos pelo chat do WhatsApp: a cada mensagem do cliente, o robô envia de novo a saudação com o link do cardápio</td></tr>
-    </tbody>
-  </table></div>
-  <div class="note tip"><b>Teste do robô:</b> depois de conectar e clicar em Importar sessão, faça um teste: mande uma mensagem de outro número para o WhatsApp da loja e confira se a mensagem de saudação com o link do cardápio chega certinha. Só siga para o pedido teste depois disso.</div>
+  <p>Se o cliente não estiver disponível, a Bia deverá solicitar o melhor horário para realizar as configurações, considerando o atendimento de segunda a sábado, das 9h às 21h.</p>
+  <p><b>Pontos de atenção:</b> a Bia deverá consultar o histórico antes de solicitar informações. Clientes que estão continuando a implantação não deverão repetir etapas já concluídas. Caso o formulário não tenha sido enviado ou exista alguma dificuldade, a situação deverá ser registrada e encaminhada ao consultor, sem deixar o atendimento parado.</p>
 </section>
 
-<section class="card" id="teste">
-  <h2><span class="num">✓</span>Finalização e divulgação</h2>
-  <h3>Pedido teste</h3>
-  <p>Com os 4 passos feitos, peça para o <b>próprio lojista</b> fazer um pedido pelo link da loja e acompanhe com ele:</p>
-  <ul class="check">
-    <li><input type="checkbox" id="t1"><label for="t1">O pedido chegou no painel (tela Pedidos)</label></li>
-    <li><input type="checkbox" id="t2"><label for="t2">A comanda saiu na impressora</label></li>
-    <li><input type="checkbox" id="t3"><label for="t3">As mensagens de status chegaram no WhatsApp do cliente depois dele ter apertado “Recebido” e “Entregando”</label></li>
-    <li><input type="checkbox" id="t4"><label for="t4">O robô / mensagem automática respondeu com o cardápio</label></li>
+<section class="card pdf" id="consultor">
+  <h2>2. FLUXO DO CONSULTOR DE IMPLANTAÇÃO</h2>
+  <p>O consultor será responsável por acompanhar o cliente até que sua loja esteja preparada para receber pedidos.</p>
+  <p>O atendimento deverá ser ativo, próximo e resolutivo. O consultor deverá conduzir cada etapa e realizar diretamente todas as configurações possíveis.</p>
+
+  <h3 id="consultor-1">Etapa 1 — Recepção e apresentação</h3>
+  <p>Ao assumir o atendimento, o consultor deverá consultar o histórico da Bia, identificar o que já foi realizado e verificar possíveis pendências.</p>
+  <p>A primeira mensagem deverá ser simpática, demonstrando que o consultor será responsável por acompanhar toda a implantação.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Oi! Tudo bem? 💚</span></p>
+    <p class="blue">Eu sou o [nome do consultor] e vou ser responsável por acompanhar sua implantação aqui na WhatsMenu!</p>
+    <p class="blue">Vou te ajudar com todas as configurações para deixar sua loja pronta para começar a receber pedidos o quanto antes.</p>
+    <p><span class="blue">Como posso te chamar? 😊</span>"</p>
+  </div>
+  <p>Após receber o nome, deverá utilizá-lo naturalmente durante o atendimento.</p>
+  <p>Se o cliente estiver disponível, deverá iniciar imediatamente. Caso tenha solicitado um horário, deverá confirmar o agendamento e orientar que esteja com o dispositivo da loja e a impressora, se utilizar.</p>
+  <p><mark class="hl"><b>Ponto de atenção: não repetir perguntas já respondidas à Bia e não deixar o cliente sem direcionamento.</b></mark></p>
+
+  <h3 id="consultor-2">Etapa 2 — Instalação e acesso ao sistema</h3>
+  <p>O consultor deverá confirmar se o cliente conseguiu instalar o WhatsMenu Desktop ou Mobile e acessar a plataforma.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"Show, [nome]! 💚</p>
+    <p>Você conseguiu instalar e acessar a WhatsMenu com seu e-mail e a senha inicial 123456?"</p>
+  </div>
+  <p><mark class="hl"><b>Caso o cliente tenha dificuldade, o consultor deverá oferecer ajuda imediatamente. Em computadores, deverá oferecer acesso remoto sempre que necessário.</b></mark></p>
+  <p><mark class="hl"><b>Não deverá apenas reenviar o link ou tutorial. Se o cliente demonstrar dificuldade, deverá assumir a configuração e buscar resolver.</b></mark></p>
+  <p>Após o primeiro acesso, deverá orientar a substituição da senha inicial por uma senha exclusiva.</p>
+
+  <h3 id="consultor-3">Etapa 3 — Preenchimento do perfil e envio do cardápio à produção</h3>
+  <p>O áudio deverá explicar onde acessar o perfil, quais informações precisam ser preenchidas e que o cliente deverá avisar assim que finalizar.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Agora vamos preencher as informações do perfil da sua loja! 💚</span></p>
+    <p class="blue">Te enviei um áudio explicando como fazer.</p>
+    <p class="blue">Enquanto você preenche, já vou encaminhar seu cardápio para nosso time de produção começar o cadastro dos produtos!</p>
+    <p><span class="blue">Quando finalizar seu perfil, me avisa aqui para eu conferir se ficou tudo certinho e continuarmos juntos! 😊</span>"</p>
+  </div>
+  <p><mark class="hl"><b>Ponto de atenção:</b> o cardápio deverá ser encaminhado à produção assim que possível, sem esperar a finalização do perfil. Se a produção identificar informações ausentes, o consultor deverá solicitar os dados necessários ao cliente.</mark></p>
+
+  <h3 id="consultor-4">Etapa 4 — Conferência e finalização do perfil</h3>
+  <p>Quando o cliente informar que finalizou, o consultor deverá acessar a plataforma e conferir as informações.</p>
+  <p><mark class="hl"><b>Não basta perguntar se o cliente terminou. É necessário validar o preenchimento.</b></mark></p>
+  <p>Caso exista alguma informação incompleta que o consultor consiga preencher, deverá fazê-lo diretamente. Se precisar de algum dado específico, deverá solicitá-lo ao cliente e concluir a configuração.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"Perfeito, [nome]! 💚</p>
+    <p>Vou conferir as informações do seu perfil e já ajustar o que for necessário por aqui, para deixarmos tudo prontinho e seguirmos com as próximas configurações!"</p>
+  </div>
+  <p><mark class="hl"><b>Ponto de atenção: não devolver ao cliente tarefas que o próprio consultor consegue executar.</b></mark></p>
+
+  <h3 id="consultor-5">Etapa 5 — Configuração do robô ou mensagens automáticas</h3>
+  <p>Com o perfil concluído, o consultor deverá configurar o robô ou as mensagens automáticas, conforme a modalidade utilizada pelo estabelecimento.</p>
+  <p><mark class="hl"><b>Essa configuração poderá ser realizada mesmo que o cardápio ainda esteja em produção.</b></mark></p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"Agora vou preparar as mensagens automáticas da sua loja, [nome]! 💚</p>
+    <p>Assim já deixamos essa parte configurada enquanto nosso time prepara seu cardápio!"</p>
+  </div>
+  <p>O consultor deverá realizar as configurações, verificar o funcionamento e explicar brevemente a finalidade dos recursos.</p>
+
+  <h3 id="consultor-6">Etapa 6 — Configuração da impressora</h3>
+  <p>Após configurar as mensagens, o consultor deverá verificar como o estabelecimento receberá os pedidos.</p>
+  <p>Se utilizar impressora, deverá realizar a configuração e testar a impressão. Caso apresente dificuldades, deverá oferecer acesso remoto e buscar resolver imediatamente.</p>
+  <p>Se não utilizar impressora, deverá demonstrar como acompanhar os pedidos pelo Desktop ou Mobile.</p>
+  <p><mark class="hl"><b>Ponto de atenção:</b> não basta deixar o dispositivo instalado. O cliente precisa saber como identificar um pedido recebido e dar continuidade à operação.</mark></p>
+
+  <h3 id="consultor-7">Etapa 7 — Acompanhamento da produção do cardápio</h3>
+  <p>Durante as configurações anteriores, o time de produção deverá estar realizando o cadastro do cardápio.</p>
+  <p>O consultor será responsável por acompanhar o andamento, identificar pendências e manter o cliente informado.</p>
+  <p>A equipe cadastrará até 100 itens. Caso o cliente tenha mais produtos, deverá ser orientado sobre como cadastrar os demais com o auxílio do Suporte.</p>
+  <p><mark class="hl"><b>Ponto de atenção: o consultor não deve apenas aguardar o cardápio ficar pronto. Deve aproveitar esse período para concluir todas as outras configurações possíveis.</b></mark></p>
+
+  <h3 id="consultor-8">Etapa 8 — Conferência e entrega do cardápio</h3>
+  <p>Antes de entregar o cardápio ao cliente, o consultor deverá conferir se ele está completo, organizado e visualmente apresentável.</p>
+  <p><b>Conferências obrigatórias:</b></p>
+  <ul>
+    <li>Logo da loja cadastrada corretamente.</li>
+    <li>Imagem de capa configurada e visualmente adequada.</li>
+    <li>Produtos organizados nas categorias corretas.</li>
+    <li>Produtos em destaque configurados.</li>
+    <li>Flags e identificações dos produtos configuradas, quando aplicáveis.</li>
+    <li>Nomes, descrições e preços dos produtos corretos.</li>
+    <li>Adicionais e opções de escolha configurados corretamente.</li>
+    <li>Imagens dos produtos cadastradas e com boa apresentação.</li>
+    <li>Informações gerais e identidade visual do cardápio revisadas.</li>
   </ul>
-  <p>Assim o lojista vê na prática como o cliente faz o pedido, como ele recebe no painel e como sai a impressão.</p>
+  <p>O cardápio deve estar bonito, organizado e preparado para transmitir uma boa primeira impressão ao consumidor.</p>
+  <p>Caso tenham sido utilizadas imagens ilustrativas, o consultor deverá informar que o cliente poderá substituí-las posteriormente.</p>
+  <p><mark class="hl"><b>Atenção:</b> o cardápio não deve ser entregue apenas porque todos os produtos foram cadastrados. É necessário conferir sua apresentação e organização.</mark></p>
+  <p>Após essa validação, o consultor deverá apresentar o cardápio ao cliente.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"[Nome], seu cardápio já está pronto! 🎉💚</p>
+    <p>Nossa equipe cadastrou seus produtos e deixou tudo organizado para sua loja começar a receber pedidos!</p>
+    <p>Vou te encaminhar o link do seu cardápio para você dar uma olhadinha.</p>
+    <p>Me avisa assim que abrir para conferirmos juntos! 😊"</p>
+  </div>
+  <p>Caso o cliente identifique alguma informação incorreta, o consultor deverá realizar o ajuste diretamente, sempre que possível.</p>
 
-  <h3>Divulgar o link do cardápio</h3>
-  <p>Com tudo funcionando, ajude o lojista a divulgar o link do cardápio nas redes sociais. O link fica no topo da tela <b>Cardápio</b> (“Link de divulgação”) e tem o formato <code>whatsmenu.com.br/nome-da-loja</code>.</p>
-  <p><b>Colocar o link na bio do Instagram:</b></p>
-  <ol>
-    <li>No WhatsMenu, abra <b>Cardápio</b> e copie o link de divulgação.</li>
-    <li>No Instagram da loja, vá no <b>perfil</b> e toque em <b>Editar perfil</b>.</li>
-    <li>Toque em <b>Links</b> › <b>Adicionar link externo</b>, cole o link e dê um título, por exemplo “Faça seu pedido”.</li>
-    <li>Salve e confira se o link aparece na bio e abre o cardápio.</li>
-  </ol>
-  <div class="note tip"><b>Dica:</b> sugira também colocar o link no <b>status do WhatsApp</b>, nos <b>stories</b> (figurinha de link) e na descrição dos posts. A tela <b>Mídia Social</b> do WhatsMenu tem artes prontas para baixar e postar junto com o link.</div>
+  <h3 id="consultor-9">Etapa 9 — Liberação do cardápio e pedido de teste</h3>
+  <p>Após a conferência, o consultor deverá preparar o cardápio para receber pedidos.</p>
+  <p>Primeiro, deverá verificar e configurar os horários de funcionamento, garantindo que o cardápio esteja disponível para a realização do teste.</p>
+  <p>Em seguida, deverá encaminhar o link do cardápio ao cliente e orientá-lo a realizar um pedido de teste <b>como se fosse um consumidor comprando pelo estabelecimento</b>.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Agora vamos fazer um teste para garantir que está tudo funcionando! 💚</span></p>
+    <p class="blue">Já vou deixar seu cardápio disponível para receber pedidos.</p>
+    <p class="blue">Quero que você abra o link e faça um pedido como se fosse um cliente comprando na sua loja.</p>
+    <p><span class="blue">Assim conseguimos conferir juntos como o pedido chega no seu sistema. Me avisa quando finalizar! 😊</span>"</p>
+  </div>
+  <p>O consultor deverá acompanhar o pedido e verificar se ele foi recebido corretamente no Desktop ou Mobile, incluindo a impressão quando aplicável.</p>
+  <p>Se houver alguma falha, deverá corrigir e repetir o teste.</p>
+
+  <h3 id="consultor-10">Etapa 10 — Treinamento prático do PDV</h3>
+  <p>Após o pedido de teste, o consultor deverá ensinar o cliente a utilizar o PDV.</p>
+  <p><mark class="hl"><b>Essa etapa deverá ser feita junto com o cliente, orientando cada ação. Não é permitido apenas enviar um vídeo e deixar que ele aprenda sozinho.</b></mark></p>
+  <p>O consultor deverá demonstrar as principais funcionalidades e acompanhar o cliente executando as ações.</p>
+
+  <h4>10.1 — Lançamento de pedidos pelo PDV</h4>
+  <p>O consultor deverá orientar o cliente a acessar o PDV e realizar um pedido de teste, explicando cada etapa do lançamento.</p>
+  <p>Deverá mostrar como selecionar os produtos, adicionar as informações necessárias e finalizar o pedido.</p>
+  <p>O cliente deverá realizar as ações enquanto o consultor acompanha e orienta.</p>
+
+  <h4>10.2 — Venda sem cadastro</h4>
+  <p>O consultor deverá apresentar a funcionalidade de venda sem cadastro e explicar sua finalidade.</p>
+  <p>Essa opção poderá ser utilizada para registrar vendas sem a necessidade de cadastrar um cliente, como em atendimentos rápidos ou vendas presenciais.</p>
+  <p>Deverá demonstrar na prática como utilizar essa funcionalidade.</p>
+
+  <h4>10.3 — Funcionamento do caixa</h4>
+  <p>O consultor deverá explicar que, inicialmente, o estabelecimento estará utilizando o sistema sem o gerenciamento de caixa ativo.</p>
+  <p>Nesse formato, ao iniciar a operação do dia, o sistema trabalhará com o caixa padrão, aberto automaticamente quando necessário, e os pedidos serão registrados nele.</p>
+  <p>Também deverá explicar que, caso o estabelecimento tenha mais de uma pessoa realizando lançamentos, poderá ativar o gerenciamento de caixa.</p>
+  <p><b>Exemplo prático para explicar ao cliente:</b></p>
+  <div class="quote">
+    <p>"Imagina que você tenha duas pessoas trabalhando no caixa da sua loja.</p>
+    <p>Você pode ativar o gerenciamento de caixa e criar dois usuários, como Caixa 1 e Caixa 2.</p>
+    <p>Assim, os pedidos lançados pelo Caixa 1 ficam registrados no relatório daquele caixa, e os pedidos lançados pelo Caixa 2 ficam no relatório correspondente.</p>
+    <p>Dessa forma, você consegue acompanhar separadamente os lançamentos realizados por cada um."</p>
+  </div>
+  <p>O consultor também deverá explicar que:</p>
+  <ul>
+    <li>Os pedidos de delivery serão registrados no primeiro caixa aberto.</li>
+    <li>Se nenhum caixa estiver aberto quando um pedido de delivery chegar, o sistema abrirá automaticamente o caixa padrão para registrar esse pedido.</li>
+    <li>O gerenciamento de caixa poderá ser ativado posteriormente, conforme a necessidade da operação.</li>
+  </ul>
+  <p>O consultor deverá utilizar exemplos próximos à realidade do estabelecimento e garantir que o cliente compreenda a diferença entre trabalhar com o caixa padrão e utilizar o gerenciamento de caixa.</p>
+
+  <h4>10.4 — Confirmação do aprendizado</h4>
+  <p>Antes de finalizar o treinamento, o consultor deverá verificar se o cliente conseguiu realizar um lançamento pelo PDV e compreendeu como acompanhar os pedidos.</p>
+  <p><mark class="hl"><b>Preferencialmente, deverá utilizar áudios durante a demonstração, explicando as ações enquanto o cliente as executa</b></mark>.</p>
+  <p><b>Ponto de atenção:</b> não basta demonstrar uma vez. O cliente precisa conseguir executar os procedimentos com a orientação do consultor.</p>
+  <p>A implantação operacional estará concluída quando o estabelecimento estiver preparado para receber pedidos e o cliente compreender os procedimentos essenciais para utilizar a plataforma.</p>
+</section>
+
+<section class="card pdf" id="comercial">
+  <h2>3. ETAPA COMERCIAL — MÁQUINA DE VENDAS DELIVERY</h2>
+  <p>Após finalizar as configurações operacionais e o treinamento do PDV, o consultor deverá iniciar a Máquina de Vendas Delivery, seguindo a abordagem elaborada pelo Fabiano.</p>
+  <p>O objetivo é preparar estratégias para atrair clientes, incentivar a recompra e fortalecer as vendas diretas pelo cardápio WhatsMenu.</p>
+
+  <h3 id="comercial-1">Etapa 1 — Apresentação da Máquina de Vendas</h3>
+  <p><mark class="hl red ic-audio">Obrigatório enviar por áudio.</mark></p>
+  <div class="quote audio">
+    <p>"Agora chegamos à etapa mais importante: configurar sua Máquina de Vendas Delivery!</p>
+    <p>Ela funciona com duas engrenagens.</p>
+    <p>A primeira atrai clientes do iFood e do seu bairro utilizando um cupom especial.</p>
+    <p>A segunda faz esses clientes comprarem de novo, de novo e de novo, utilizando cashback e marketing automático pelo WhatsApp!</p>
+    <p>Você quer vender mais e ganhar mais dinheiro com a WhatsMenu do seu restaurante?"</p>
+  </div>
+  <p>O consultor deverá aguardar a confirmação antes de avançar.</p>
+
+  <h3 id="comercial-2">Etapa 2 — Configuração do cupom de primeira compra</h3>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"Perfeito, (nome do cliente) para atrair novos clientes para seu cardápio, na primeira compra você prefere oferecer frete grátis ou R$10 de desconto? 🎁"</p>
+  </div>
+  <p>vai colocar valor minimo de acordo estiver configurado no perfil do cliente</p>
+  <p>Após a escolha, o consultor deverá configurar o benefício no sistema, verificando suas condições de utilização.</p>
+
+  <h3 id="comercial-3">Etapa 3 — Configuração do cashback</h3>
+  <p><mark class="hl red ic-audio">Obrigatório enviar por áudio.</mark></p>
+  <div class="quote audio">
+    <p>"Agora vamos para a segunda parte!</p>
+    <p>Imagina um cliente que compra R100 <i>por mês com você. Se ele passar a comprar R</i>200, você autoriza o sistema a dar 5% de cashback na compra, para incentivar esse cliente a voltar ao seu cardápio em vez de comprar pelo iFood ou outra loja?"</p>
+  </div>
+  <p>Após a autorização, o consultor deverá configurar o cashback de 5%.</p>
+
+  <h3 id="comercial-4">Etapa 4 — Marketing automático</h3>
+  <p>O consultor deverá configurar e ativar as automações de marketing pelo WhatsApp, conforme as funcionalidades disponíveis e as autorizações aplicáveis.</p>
+  <p><b>Mensagem após a ativação:</b></p>
+  <div class="quote">
+    <p>"Pronto! 💚</p>
+    <p>Ativei os 5% de cashback e agora o marketing automático pelo WhatsApp vai ajudar a trazer esses clientes de volta para comprar diretamente no seu cardápio, em vez de retornar ao iFood ou um concorrente!"</p>
+  </div>
+  <p><mark class="hl"><b>Essa mensagem deverá ser enviada somente depois que os recursos estiverem efetivamente configurados.</b></mark></p>
+
+  <h3 id="comercial-5">Etapa 5 — Criação da arte do folder</h3>
+  <p>Após configurar as estratégias de venda, o consultor deverá criar a arte do folder para incentivar os clientes do iFood a realizarem os próximos pedidos diretamente pela WhatsMenu.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"Agora, para fechar essa parte, estou criando a arte impressa do seu folder para você fidelizar os clientes do iFood na sua WhatsMenu e ter acesso aos dados desses clientes!</p>
+    <p>Me dá 10 minutinhos que já te envio para aprovar, combinado? 💚"</p>
+  </div>
+  <p><mark class="hl red ic-acao">O consultor deverá preparar o material com as informações do estabelecimento e o link ou QR Code do cardápio WhatsMenu, encaminhando a arte para aprovação.</mark></p>
+
+  <h3 id="comercial-6">Etapa 6 — Oferta de impressão do folder</h3>
+  <p>Após a aprovação, deverá apresentar a opção de impressão.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">A arte é um presente meu para você! 🎁</span></p>
+    <p class="blue">Agora, para a impressão, consegui uma gráfica que cobra R$87,90 pela impressão e pelo frete.</p>
+    <p><span class="blue">Tudo bem para você?</span>"</p>
+  </div>
+  <p>Se o cliente aceitar, deverá confirmar o endereço e CEP de entrega.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Perfeito! 💚</span></p>
+    <p><span class="blue">Me confirma se o endereço e o CEP cadastrados estão corretos e se os Correios podem realizar a entrega nesse local?</span>"</p>
+  </div>
+  <p>Após a confirmação, o consultor deverá encaminhar o link da gráfica para que o cliente realize o pagamento e solicite a impressão.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Show, [nome]! 💚</span></p>
+    <p class="blue">Agora é só finalizar o pedido da impressão diretamente pelo link da gráfica:</p>
+    <p class="blue">[LINK DA GRÁFICA]</p>
+    <p class="blue">Assim você já consegue preparar o material para enviar junto com os pedidos do iFood e incentivar seus clientes a comprarem diretamente pelo seu cardápio WhatsMenu!</p>
+    <p><span class="blue">Me avisa quando finalizar para eu conferir se ficou tudo certo! 😊</span>"</p>
+  </div>
+  <p><mark class="hl"><b>Ação do consultor: acompanhar o cliente até a finalização do pedido da impressão. Após a confirmação, deverá registrar que o pagamento foi realizado ou, caso o cliente não finalize, deixar a pendência documentada.</b></mark></p>
+  <p>O preço, a disponibilidade e as condições da gráfica deverão ser confirmados antes da apresentação da oferta.</p>
+
+  <h3 id="comercial-7">Etapa 7 — Tratamento de objeções</h3>
+  <p>Quando o cliente apresentar resistência às configurações comerciais ou ao investimento em impressão, o consultor deverá utilizar as argumentações definidas pelo Fabiano.</p>
+  <p><b>Se o cliente questionar o custo:</b></p>
+  <div class="quote">
+    <p>"Quanto você paga para o iFood em cada venda?</p>
+    <p>Esse valor da impressão você paga uma única vez e pode utilizar o material para atrair clientes para seu próprio cardápio por muito tempo.</p>
+    <p>Todo empresário precisa investir em marketing para atrair clientes e fazer seu negócio crescer.</p>
+    <p>Você prefere continuar pagando até 27,5% para o iFood ou oferecer 5% de cashback para incentivar seus clientes a comprarem diretamente de você?"</p>
+  </div>
+  <p>A taxa do iFood deverá ser confirmada com o estabelecimento antes de utilizá-la como comparação específica.</p>
+  <p><b>Se o cliente quiser utilizar apenas o cardápio para testar:</b></p>
+  <div class="quote">
+    <p>"Para testar de verdade a ferramenta, precisamos trazer clientes para seu cardápio!</p>
+    <p>Sem ativar o marketing, você pode acabar achando que a plataforma não funciona, quando na verdade precisamos gerar movimento para conseguir avaliar os resultados.</p>
+    <p>Vamos começar da maneira certa, deixando tudo configurado desde agora, tudo bem?"</p>
+  </div>
+  <p>Caso o cliente mantenha a objeção, o consultor deverá buscar orientação com Bonfim ou Fabiano para trabalhar a argumentação, respeitando a decisão do cliente.</p>
+</section>
+
+<section class="card pdf" id="instagram">
+  <h2>4. ÚLTIMA ETAPA — ORGANIZAÇÃO DO INSTAGRAM</h2>
+  <p>Após a apresentação do folder e da proposta de impressão, o consultor deverá ajudar o estabelecimento a preparar seu Instagram para divulgar o cardápio WhatsMenu.</p>
+
+  <h3 id="instagram-1">Etapa 1 — Solicitar o Instagram</h3>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"[Nome], agora vamos fazer mais uma coisa importante para ajudar sua loja a vender! 🚀💚</p>
+    <p>Vamos preparar seu Instagram para que seus seguidores consigam fazer pedidos diretamente pelo seu cardápio WhatsMenu!</p>
+    <p>Me envia o @ do Instagram da sua loja?"</p>
+  </div>
+
+  <h3 id="instagram-2">Etapa 2 — Organizar a biografia</h3>
+  <p>Após receber o perfil, o consultor deverá conferir a bio atual, identificar os links existentes e preparar uma sugestão adaptada ao estabelecimento.</p>
+  <p>A biografia deverá destacar o negócio e incentivar os clientes a realizarem pedidos pelo link.</p>
+  <p><b>Exemplo:</b></p>
+  <div class="quote">
+    <p>"🍔 [Nome do restaurante]<br>📍 [Cidade ou bairro]<br>💚 Peça direto pelo nosso cardápio!<br>👇 Faça seu pedido no link abaixo"</p>
+  </div>
+
+  <h3 id="instagram-3">Etapa 3 — Colocar o link da WhatsMenu</h3>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Show, [nome]! 💚</span></p>
+    <p class="blue">Já preparei uma sugestão para sua bio, destacando onde seus clientes podem fazer pedidos!</p>
+    <p class="blue">Agora vamos deixar o link da WhatsMenu no seu Instagram para facilitar que seus seguidores comprem diretamente de você.</p>
+    <p><span class="blue">Você está com o Instagram aberto para fazermos esse ajuste juntos?</span>"</p>
+  </div>
+  <p>O consultor deverá orientar a alteração da biografia e a inclusão do link WhatsMenu no perfil.</p>
+  <p>O link deverá ficar em destaque para facilitar os pedidos diretos. Depois da alteração, o consultor deverá acessar o perfil e testar o funcionamento do link.</p>
+  <p>Não deverá solicitar a senha do Instagram.</p>
+
+  <h3 id="instagram-4">Etapa 4 — Criação de artes para Stories</h3>
+  <p>Após organizar o perfil, o consultor deverá verificar a possibilidade de criar artes para divulgar o cardápio WhatsMenu.</p>
+  <p>As artes poderão divulgar o cardápio online, o cupom de primeira compra ou incentivar os clientes a pedir diretamente pelo link da bio.</p>
+  <p><b>Mensagem sugerida:</b></p>
+  <div class="quote">
+    <p>"<span class="blue">Agora que seu Instagram está preparado, vamos ajudar seus clientes a conhecerem seu cardápio! 💚</span></p>
+    <p><span class="blue">Vou verificar a criação de algumas artes para você divulgar nos Stories e começar a atrair pedidos diretamente pelo seu link!</span>"</p>
+  </div>
+  <p>Sempre que possível, o consultor deverá preparar as artes, encaminhá-las para aprovação e orientar o cliente sobre como publicar, inclusive utilizando o adesivo de link nos Stories.</p>
+  <p>Não deverá prometer quantidade ou prazo de entrega sem confirmar a possibilidade de produção.</p>
+</section>
+
+<section class="card pdf" id="finalizacao">
+  <h2>5. FINALIZAÇÃO E REGISTRO</h2>
+  <p>Após concluir o processo, o consultor deverá registrar no histórico do atendimento todas as configurações realizadas, os recursos ativados, o resultado dos testes e as pendências.</p>
+  <p>Também deverá registrar a situação da Máquina de Vendas, a aprovação do folder, o pagamento da impressão quando confirmado e as alterações realizadas no Instagram.</p>
+  <p>Se alguma configuração comercial ou material de divulgação ficar pendente, deverá registrar o motivo e encaminhar para acompanhamento, sem impedir que o cliente comece a utilizar a plataforma.</p>
+
+  <h3 id="finalizacao-1">Diretrizes obrigatórias para o consultor</h3>
+  <ul>
+    <li><b>Atendimento ativo:</b> conduzir as ações e não esperar que o cliente tome a iniciativa.</li>
+    <li><b>Autonomia:</b> executar diretamente todas as tarefas possíveis, sem transferir dificuldades desnecessárias ao cliente.</li>
+    <li><b>Comunicação próxima:</b> manter o cliente informado, utilizar áudios explicativos e demonstrar disponibilidade para ajudar.</li>
+    <li><b>Agilidade:</b> aproveitar atividades paralelas para adiantar a implantação.</li>
+    <li><b>Acompanhamento:</b> conferir tudo o que o cliente realizar, sem apenas confiar na informação de que terminou.</li>
+    <li><b>Treinamento prático:</b> ensinar o cliente a utilizar o PDV passo a passo, acompanhando sua execução. Não substituir o treinamento por vídeos.</li>
+    <li><b>Resolução:</b> oferecer acesso remoto e buscar solucionar as dificuldades no próprio atendimento.</li>
+    <li><b>Qualidade:</b> conferir a apresentação do cardápio, incluindo capa, logo, destaques, flags e organização dos produtos.</li>
+    <li><b>Registro:</b> documentar o andamento, as configurações concluídas e o que ficou pendente.</li>
+    <li><b>Foco no resultado:</b> garantir que o cliente saia da implantação preparado para receber pedidos e conhecendo as principais ferramentas para aumentar suas vendas.</li>
+  </ul>
+  <p><b>O consultor não é apenas alguém que ensina a utilizar o sistema. Ele é responsável por preparar a operação do cliente, garantir que tudo funcione e ajudá-lo a começar a vender pela WhatsMenu.</b></p>
 </section>
 <section class="card" id="respostas" hidden>
   <button type="button" class="rr-back" id="rr-back">← Voltar ao guia de implantação</button>
@@ -332,6 +590,89 @@ Siga o passo a passo abaixo para configurar no WhatsApp Business:
 </section>
 </div>
 
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var norm=function(t){return (t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();};
+  var smooth=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+  // Blocos de busca: cada etapa (h3) ou o fluxo inteiro quando não tem etapas
+  var blocks=[];
+  [].forEach.call(document.querySelectorAll('section.card.pdf'),function(sec){
+    var h2=sec.querySelector('h2'), flow=h2?h2.textContent.trim():'';
+    var hs=[].slice.call(sec.querySelectorAll('h3'));
+    var intro=[],n=h2?h2.nextElementSibling:sec.firstElementChild;
+    while(n&&n.tagName!=='H3'){intro.push(n);n=n.nextElementSibling;}
+    blocks.push({el:h2||sec,target:sec,flow:flow,title:flow,text:intro.map(function(e){return e.innerText;}).join(' ')});
+    hs.forEach(function(h,i){
+      var parts=[],x=h.nextElementSibling;
+      while(x&&x.tagName!=='H3'){parts.push(x.innerText);x=x.nextElementSibling;}
+      blocks.push({el:h,target:h,flow:flow,title:h.textContent.trim(),text:parts.join(' ')});
+    });
+  });
+  blocks.forEach(function(b){b.n=norm(b.title+' '+b.text);});
+  var esc=function(t){return t.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  function snippet(text,q){
+    var i=norm(text).indexOf(q); if(i<0)return '';
+    var a=Math.max(0,i-60),b=Math.min(text.length,i+q.length+80);
+    return (a>0?'… ':'')+esc(text.slice(a,i))+'<b class="gs-hit">'+esc(text.slice(i,i+q.length))+'</b>'+esc(text.slice(i+q.length,b))+(b<text.length?' …':'');
+  }
+  function go(b){
+    var t=b.target; t.scrollIntoView({behavior:smooth,block:'start'});
+    var h=b.el; h.classList.remove('gs-flash'); void h.offsetWidth; h.classList.add('gs-flash');
+  }
+  function makeSearch(inp,box,cnt,after){
+    function run(){
+      var q=norm(inp.value.trim());
+      if(q.length<2){box.hidden=true;box.textContent='';cnt.textContent='';return;}
+      var hits=blocks.filter(function(b){return b.n.indexOf(q)>=0;});
+      cnt.textContent=hits.length+(hits.length===1?' resultado':' resultados');
+      box.hidden=false;
+      if(!hits.length){box.innerHTML='<p class="gs-none">Nada encontrado no procedimento. Tente outra palavra ou procure nas ⚡ Respostas rápidas.</p>';return;}
+      box.innerHTML=hits.map(function(b){var i=blocks.indexOf(b);
+        var sn=snippet(b.text,q)||snippet(b.title,q);
+        return '<a href="#" data-i="'+i+'">'+(b.title!==b.flow?'<span class="gs-where">'+esc(b.flow)+'</span>':'')+'<span class="gs-t">'+esc(b.title)+'</span>'+(sn?'<span class="gs-snip">'+sn+'</span>':'')+'</a>';}).join('');
+    }
+    inp.addEventListener('input',run);
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter'){var f=box.querySelector('a');if(f){e.preventDefault();f.click();}}});
+    box.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;e.preventDefault();if(after)after();go(blocks[+a.dataset.i]);});
+  }
+  makeSearch($('gs-q'),$('gs-results'),$('gs-count'));
+  var panel=$('gbar-panel'), sbtn=$('gbar-search');
+  function closePanel(){panel.hidden=true;sbtn.setAttribute('aria-expanded','false');}
+  makeSearch($('gb-q'),$('gb-results'),$('gb-count'),closePanel);
+  // Barra de posição
+  var bar=$('gbar'), header=document.querySelector('header'), rr=$('respostas');
+  var heads=[].slice.call(document.querySelectorAll('section.card.pdf h2, section.card.pdf h3'));
+  var ticking=false;
+  function update(){
+    ticking=false;
+    var show=header.getBoundingClientRect().bottom<0 && !(rr&&!rr.hidden);
+    bar.hidden=!show; if(!show){if(typeof closePanel==='function')closePanel();return;}
+    var line=80, cur=null;
+    heads.forEach(function(h){if(h.getBoundingClientRect().top<=line)cur=h;});
+    var flow='',et='';
+    if(cur){var sec=cur.closest('section'), h2=sec.querySelector('h2'); flow=h2?h2.textContent.trim():''; et=cur.tagName==='H3'?cur.textContent.trim():'';}
+    $('gbar-flow').textContent=flow; $('gbar-etapa').textContent=et||(flow?'Introdução':'');
+    $('gbar-sep').hidden=!et&&!flow;
+    if(innerWidth<=560&&!et){$('gbar-etapa').textContent=flow;}
+    var doc=document.documentElement, max=doc.scrollHeight-innerHeight;
+    $('gbar-fill').style.width=(max>0?Math.min(100,scrollY/max*100):0)+'%';
+  }
+  addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});
+  addEventListener('resize',update); addEventListener('hashchange',function(){setTimeout(update,50);});
+  document.addEventListener('click',function(){setTimeout(update,50);});
+  $('gbar-top').addEventListener('click',function(){scrollTo({top:0,behavior:smooth});});
+  sbtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    var open=panel.hidden; panel.hidden=!open; sbtn.setAttribute('aria-expanded',open?'true':'false');
+    if(open)$('gb-q').focus();
+  });
+  panel.addEventListener('click',function(e){e.stopPropagation();});
+  document.addEventListener('click',function(e){if(!panel.hidden&&!bar.contains(e.target))closePanel();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden){closePanel();sbtn.focus();}});
+  update();
+})();
+</script>
 <script id="rr-data" type="application/json">[{"a":"24h","n":"24h","t":"Pode ficar tranquilo [nome], realizei uma liberação de emergência que dura 24h, para você continuar com suas vendas! 😀\nPara pagamentos via pix, a liberação é automática! Já para pagamentos via boleto, teria um período de até 48h até ser dado baixa, tudo bem?","f":"","c":"Financeiro"},{"a":"99food","n":"99food","t":"Para você realizar a integração da 99food, basta seguir esse passo a passo:\n\n1 - Clique no botão da 99food, na coluna do lado esquerdo do seu painel da WhatsMenu\n\n2 - Clique em \"Quero integrar minha loja\" (Assim que você clicar, vai abrir uma janela no seu navegador da 99food)\n\n3 - Clique em \"Confirmar autorização e continuar\"\n\n4 - Você vai selecionar a sua loja, clicando no quadradinho, para marcar a sua loja da 99food e logo em seguida, clicar em \"Autorizar\"\n\n5 - Vai aparecer uma mensagem para você confirmar a autorização, clique em \"Confirmar\"\n\n6 - Logo em seguida, você vai clicar em \"99foodAdmin\" na parte superior, do lado esquerdo da página\n\n7 - Vá na coluna do lado esquerdo e clique em \"Lojas\"\n\n8 - Depois, clique em \"Configurações\", abaixo de Ações\n\n9 - Feito isso, você vai copiar o seu \"ID do Loja\" que aparecer e colar na parte do \"ID da Loja\" no sistema da WhatsMenu e clicar em \"Integrar com a 99food\"\n\nProntinho! Integração feita com sucesso! 💚","f":"","c":"Integrações"},{"a":"acesso_remoto","n":"Acesso remoto","t":"Para realizarmos um acesso preciso que instale o programa abaixo:\n\nSegue o link para baixar: https://anydesk.com/pt/downloads/windows \nApós baixar peço que envie o código de 9 dígitos que aparecerá na tela inicial do aplicativo, para que o técnico já tenha acesso ao código quando entrar em contato!","f":"","c":"Acesso remoto"},{"a":"adm_antigo","n":"adm antigo","t":"Vi que acessou pelo link adm.whatsmenu.com.br, este link foi descontinuado em novembro/2023, verifiquei que ao acessar você não foi redirecionado automaticamente pelo navegador, nesse caso peço que clique neste link para acessar seu painel Whatsmenu: \nhttps:/\nnext.whatsmenu.com.br/login  \nMe avisa se deu certinho por favor! 🤗","f":"","c":"Atendimento e suporte"},{"a":"alterarcomplementos","n":"Alterarcomplementos","t":"Um vídeo bem rápido de como realizar a alteração de produtos e complementos pelo painel 😊\nPasso a passo: https://youtu.be/YhtOdFIFKgk","f":"","c":"Cardápio"},{"a":"anydesk","n":"anydesk","t":"Passo a passo para baixar e instalar o anydesk *no seu computador*\n\n1 - Clique neste link para baixar: https://anydesk.com/pt/downloads/thank-you?dv=win_exe\n2 - Verifique na parte de downloads ou na pasta de downloads do windows o arquivo do anydesk que foi baixado\n3 - Clique no arquvio com o nome \"anydesk\" para instalar \n4 - Na janela que abrir, clique em \"Aceitar & instalar\"\n5 - Na mensagem que aparecer, clique em \"Sim\"\n \nProntinho! Anydesk instalado no seu computador.","f":"","c":"Acesso remoto"},{"a":"atualizar-nova-versao","n":"atualizar-nova-versao","t":"Certo [nome], vou pedir para você atualizar o seu sistema da WhatsMenu clicando neste link *NO SEU COMPUTADOR*\n\nhttps://github.com/Grove-Company/.github/releases/download/v3.0.15/whatsmenu-desktop-3.0.15-setup.exe\n\n1️⃣ Copie e cole o link no Google Chrome, ele vai baixar o app que vai aparecer na setinha para baixo do lado da barra de busca\n2️⃣ Após baixar e abrir, na tela azul, clique em “Mais informações” e depois em “Executar mesmo assim”\n\n✅ Pronto! Sistema atualizado.\nDepois me avise aqui como ficou, por favor 😊\n","f":"","c":"Computador/Desktop"},{"a":"autorizarnotas","n":"Autorizarnotas","t":"Para autorizar sua NFe voce precisa:\n1- Acesse a página da Fazenda do seu estado\n2- Acesse no menu lateral esquerdo a opção UPD>Autorização de Uso>Cadastro de Autorização de uso\n\n3- Informe o CNPJ do Fornecedor de Sistemas (CNPJ da Acras: 07504505000132) e clique no botão “Continuar”.\n\n4- Selecione qual o sistema deverá ser utilizado\nCódigo 72962 (FNFCE) – Emissão de NFCe\n\n5- Informe os dados do seu estabelecimento (I.E e CNPJ) e clique no botão “Continuar”.\n\n6- Confirme os dados do seu estabelecimento.\n\n7- Marcar todas as opções de documentos fiscais que aparecer e clicar no botão “Continuar”.a","f":"","c":"Notas"},{"a":"cadastrando-combo-de-pizza","n":"Cadastrando-Combo-de-pizza","t":"https://whatsmenu.com.br/videoaulas/cadastro/aula/4\nUma Imagem vale mais que 1.000 palavras! ;)","f":"","c":"Cardápio"},{"a":"cadastrando-produtos","n":"cadastrando-produtos","t":"Um video bem curtinho de como cadastrar seus produtos \nhttps://www.youtube.com/watch?v=WGaGvntV0i4","f":"","c":"Cardápio"},{"a":"cadastrando_açaí_e_sorvetes","n":"cadastrando açaí e sorvetes","t":"Cadastrando açaí e sorvetes\nhttps://youtu.be/-q9IyNjfdQ0","f":"","c":"Cardápio"},{"a":"cadastrando_bebidas","n":"cadastrando bebidas","t":"Cadastrando bebidas:\nhttps://youtu.be/aFJxzkenaYU","f":"","c":"Cardápio"},{"a":"cadastrando_combos","n":"Cadastrando combos","t":"Cadastrando combos:\nhttps://youtu.be/PfOQuhCfR5A","f":"","c":"Cardápio"},{"a":"cadastrando_hortifruit","n":"Cadastrando hortifruit","t":"Cadastrando produtos de hortifruit:\nhttps://youtu.be/9drpc_IgYrM","f":"","c":"Cardápio"},{"a":"cadastrando_marmitas","n":"cadastrando marmitas","t":"Cadastrando marmitas\nhttps://youtu.be/GgQy6o3k3MU","f":"","c":"Cardápio"},{"a":"cadastrando_marmitas_com_diversos_tamanhos","n":"Cadastrando marmitas com diversos tamanhos","t":"Cadastrando marmitas com escolha de tamanhos\nhttps://youtu.be/MSR366YYiXQ","f":"","c":"Cardápio"},{"a":"cadastrando_pizzas","n":"Cadastrando pizzas","t":"Cadastrando pizzas\nhttps://youtu.be/zVAarMwsCHI","f":"","c":"Cardápio"},{"a":"cadastrando_produtos_por_kg","n":"cadastrando produtos por kg","t":"Cadastrando itens por kg:\n\nhttps://youtu.be/LQg6D_OnvN4","f":"","c":"Cardápio"},{"a":"caixa","n":"caixa","t":"Veja agora como abrir e fechar seu caixa:\nhttps://youtu.be/vIxOQZu3QKk\nQualquer dúvida é só chamar!","f":"","c":"Recursos"},{"a":"caixacegas","n":"caixacegas","t":"Para você ativar ou desativar o caixa cegas (não mostrar nenhum valor e pedido no caixa), basta ir em *Configurações* > Caixas > E desativar a opção \"Mostrar operações de caixa apenas para gerentes\", nisso ele vai pedir a senha financeira para confirmar 💚","f":"","c":"Recursos"},{"a":"cancelamento_-_telefone","n":"cancelamento - Telefone","t":"Certo, [nome].\n\nCompreendi sua solicitação e o cancelamento da sua conta já foi realizado.\n\nVou te enviar um e-mail apenas confirmando que a conta foi cancelada, combinado? Não será necessário responder esse e-mail.\nVamos sentir sua falta por aqui.\n\nCaso precise novamente no futuro, estaremos à disposição.","f":"","c":"Cancelamento"},{"a":"cardapio","n":"cardapio","t":"Perfeito, [nome]! 💚\n\nRecebemos as informações e agora nosso time de produção vai conferir tudo.\n\nSe faltar algum dado no formulário, entraremos em contato por aqui antes de seguir com o cadastro.\n\nO prazo de entrega do seu cardápio é de até 1 dia útil.\n\nDepois que você me confirmar com um ok, qualquer alteração futura ficará sob responsabilidade do lojista, combinado?\n\nPode me confirmar com um “ok”, por favor?","f":"","c":"Cardápio"},{"a":"vendacardapio","n":"vendacardapio","t":"A gente pode seguir de dois jeitos: você cadastra agora comigo te guiando passo a passo, ou nossa equipe faz a montagem do primeiro cardápio por R$ 29,90 (até 100 itens).\nQual opção você prefere?","f":"","c":"Cardápio"},{"a":"cashback","n":"cashback","t":"Este é um vídeo bem curtinho explicando sobre uma das novas funções do WhatsMenu, o cashback para fidelizar seus clientes! 😎\nhttps://youtu.be/CBBI_YDzuoU","f":"","c":"Ferramentas de descontos"},{"a":"cashback_e_cupom","n":"cashback e cupom","t":"[nome]. deixa eu te mostrar 2 recursos que geram mais pedidos e faz o cliente voltar a comprar mais vezes 🚀\n\n1️⃣ Cashback: a cada pedido o cliente gera um crédito para usar na próxima compra. Você define a porcentagem (ex: 2% ou 5%) e também a validade para usar, isso faz o cliente sempre voltar para aproveitar o saldo.\n\n2️⃣ Cupom de primeira compra: quando um cliente novo chama pelo WhatsMenu Desktop, o robô identifica que ele ainda não fez pedidos e já libera automaticamente um cupom para incentivar o primeiro pedido.\n\nQual você prefere ativar: Cashback ou Cupom de primeira compra? 💚","f":"","c":""},{"a":"celular","n":"celular","t":"Vamos iniciar a configuração no celular da loja 📱\n\nPara fazer a instalação, precisamos que:\n1️⃣ Você esteja com o celular da loja em mãos\n2️⃣ O celular tenha WhatsApp Business instalado\n\nAgora instale o WhatsMenu Mobile (Android) pelo link:\nhttps://github.com/Grove-Company/.github/releases/download/mobile-v1.0.9/application-1bbac0f4-69bc-476c-a887-c55c54091ed2.apk \n\n📖 Passo a passo da configuração:\nhttps://youtu.be/uxXoyyGW5mk\n\n*Se tiver impressora, ela precisa ser Bluetooth e estar pareada no celular da loja* 🖨️\n\nVocê já está com o celular da loja aí?","f":"","c":"Celular"},{"a":"clientepedido","n":"clientepedido","t":"Neste vídeo curtinho, mostramos como seu cliente pode realizar um pedido no cardápio digital 😉 https://www.youtube.com/watch?v=_jYvhbJFylI","f":"","c":"Garçom"},{"a":"comoregistrardominio","n":"comoregistrardominio","t":"Depois que o domínio estiver pago, você deve:\n1 - Acessar o next.whatsmenu.com.br | Menu Configurações | Domínios e insira o domínio que você registrou\n2 - Acesse o painel do registro.br, clique em cima do domínio e altere os servidores DNS para:\na) Servidor 1 - melissa.ns.cloudflare.com\nb) Servidor 2 - viddy.ns.cloudflare.com\n\nCaso sobre dúvidas assita esse vídeo: https://youtu.be/rRlIHSyykuE\nPronto 🥳   \nAgora é só aguardar o prazo de propagação do domínio de 2h a 48h. \nQualquer dúvida, só me mandar uma mensagem! 😉","f":"","c":"Integrações"},{"a":"complementos_geral_(obrigatório_e_não_obrigatório)","n":"complementos geral (obrigatório e não obrigatório)","t":"Um video beem curtinho de como cadastrar complementos:\nhttps://www.youtube.com/watch?v=AZowVbOpIvw","f":"","c":"Cardápio"},{"a":"complementosdeoutrositens","n":"Complementosdeoutrositens","t":"Como usar complementos de outros itens:\nhttps://www.youtube.com/watch?v=cPXbA7NRmqs","f":"","c":"Cardápio"},{"a":"contato_asaas","n":"Contato asaas","t":"Os canais de atendimento do Asaas são:\n\n📧 E-mail: contato@asaas.com.br\n📱 WhatsApp: 0800 009 0037 (atendimento por mensagens)\n\nPara assuntos relacionados a cobranças, conta digital, PIX, cadastro ou suporte geral, recomendamos entrar em contato pelo e-mail ou WhatsApp acima.","f":"","c":"Financeiro"},{"a":"controledeestoque","n":"controledeestoque","t":"Um video beem curtinho de como habilitar e utilizar o controle de estoque. \nhttps://youtu.be/H8eZMWDN8Yg","f":"","c":"Recursos"},{"a":"controledemotoboys","n":"controledemotoboys","t":"Aqui um vídeo bem curtinho de como utilizar o controle e o relatório de entregadores \nhttps://www.loom.com/share/7efb69a1dae3458aa58da4d4c758cd01?sid=56c98008-7015-4a0d-b069-85d92e8afef0\nhttps://www.youtube.com/watch?v=DF8j9EV58rI","f":"","c":"Recursos"},{"a":"criar_atalho_celular","n":"criar atalho celular","t":"Como deixar um ícone do Whatsmenu no celular?\n  \n1.Abra o Google Chrome no seu celular \n2.Acesse o site que deseja criar um atalho; \n3.Toque nos três pontinhos no canto superior direito; \n4.Toque na opção \"Adicionar à tela inicial\";\n\nProntinho, me avisa se deu certo!","f":"","c":"Celular"},{"a":"cupom_de_desconto","n":"cupom de desconto","t":"Como criar cupom de desconto\n\nhttps://youtu.be/LfQ4cyVQp8s","f":"","c":"Ferramentas de descontos"},{"a":"dados","n":"dados","t":"Preciso que você me confirme esses dados que estão no seu painel, por favor\n\n*Nome* ou *Razão Social*\n*CPF* ou *CNPJ*\n*E-mail*\n*WhatsApp do painel*","f":"","c":"Cancelamento"},{"a":"dadosdeacesso","n":"dadosdeacesso","t":"Dados de acesso:\nLink de acesso: https://new.whatsmenu.com.br\nEmail:\nSenha:","f":"","c":"Atendimento e suporte"},{"a":"desconto-progressivo","n":"desconto-progressivo","t":"Com o desconto progressivo, seu cliente vai ter um incentivo visual na hora que adicionar um produto no carrinho!\nEle vai conseguir ver o valor que falta, para que ele consiga um desconto maior na compra dele, incentivando a adicionar mais itens, e aumentando o ticket médio!!  💚\n\nVou deixar aqui um vídeo para você verificar como funciona o desconto progressivo no seu painel: https://drive.google.com/file/d/1dun5ProKOk_5bFDPaqnioy7pLM_yT1cX/view?usp=drive_link\n\nSe tiver qualquer dúvida, pode voltar aqui comigo, combinado?","f":"","c":"Ferramentas de descontos"},{"a":"descontoeacrescimo","n":"descontoeacrescimo","t":"Desconto e acréscimo por forma de pagamento \nAssista esse passo a passo: \nhttps://www.loom.com/share/6375ef84e1064dafb53f26a1f8aa1d8d?sid=625ce696-afcf-4ba9-ac99-e2c1fa0ef3c7","f":"","c":"Meu Perfil"},{"a":"destaque","n":"destaque","t":"Vou deixar aqui um vídeo curtinho, para você verificar como funciona esse recurso de destaque para o seu cardápio! 🤩 \n\nVídeo: https://drive.google.com/file/d/1spGZC8dwSrZQdfVq8i26Iz0jZrTBy9Ks/view?usp=sharing\n\nCaso tenha ficado qualquer dúvida, pode me chamar aqui, combinado? 💚","f":"","c":"Cardápio"},{"a":"disponibilidade","n":"disponibilidade","t":"Como exibir produtos automáticamente em dias e horários específicos:\n\nhttps://www.youtube.com/watch?v=3CKI4sh9wKA\n\nUm vídeo beeeem curtinho pra te explicar melhor, me avisa se deu certinho","f":"","c":"Cardápio"},{"a":"documentos-asaas","n":"documentos-asaas","t":"Segue um vídeo bem curto de como realizar o envio dos documentos para finalizar o cadastro da sua conta do banco asaas:\nhttps://youtu.be/zw0R_sgBDnA?si=Tnm38P2unsZqZQfM&t=38\n\nCaso tenha qualquer dúvida, me avisa por aqui 💚","f":"","c":"Financeiro"},{"a":"domínio","n":"domínio","t":"O registro de um domínio é feito pelo registro.br.\nNeste vídeo tem o passo a passo completo 😉\nhttps://youtu.be/gZRYDxWuYpk","f":"","c":"Integrações"},{"a":"download-desktop","n":"download-desktop","t":"Certo, nesse caso, segue esse passo a passo por gentileza!! 😀\n\n- Passa o mouse em cima do download e clica nos 3 pontinhos\n- Clica em Manter\n- Clica em Mostrar mais, e depois em Manter mesmo assim!","f":"","c":"Computador/Desktop"},{"a":"ebook","n":"ebook","t":"Descubra todos os recursos secretos que ajudam nossos lojistas a crescer e prosperar!!\n\nhttps://drive.google.com/file/d/1fl4cr4Wtiojr4pM2MnfHQSKNGsyYcAAt/view?usp=sharing","f":"","c":"Recursos"},{"a":"encerrardesktop","n":"Encerrardesktop","t":"Como encerrar o WhatsMenu Desktop:\nhttps://www.youtube.com/watch?v=_rYjJpeTPcc","f":"","c":"Computador/Desktop"},{"a":"encomendas","n":"encomendas","t":"Sobre como funciona Encomendas por completo!\n\nhttps://www.youtube.com/watch?v=BGBA9120Y_A\n\nMe avisa aqui se ficar qualquer duvida!!","f":"","c":"Recursos"},{"a":"entrega_alteração","n":"entrega alteração","t":"Oi, [nome]! 👋\nFizemos as alterações que você pediu e seu cardápio já está atualizado 🥳\nDá uma olhadinha pra ver se ficou tudo certinho agora 👇\n👉 link do cardápio\n\nMe dê um OK pra gente finalizar essa etapa.","f":"","c":"Cardápio"},{"a":"entrega_cardapio","n":"entrega cardapio","t":"Oi, [nome]! 🥳\nSeu cardápio foi finalizado!\nDá uma olhadinha no link abaixo e me confirma se está tudo certo 👇\n👉 link do cardápio\n\nAssim que me der um OK teremos finalizado essa etapa e seguimos pros últimos passos 🚀","f":"","c":"Cardápio"},{"a":"entrega_cardápio","n":"Entrega_cardápio","t":"Prontinho, [nome]! 🥳\n\neste pelo link para ver como seu cliente vai comprar.\nAgora vou conferir se o perfil da loja já foi preenchido para seguirmos com os próximos passos 🚀","f":"","c":"Cardápio"},{"a":"envio_do_cardápio","n":"Envio do cardápio","t":"Link para envio do cardápio:https://tally.so/r/81PNJY\n\nDica: inclua nomes, tamanhos, adicionais, preços e fotos se tiver.\n\nSe for colocar link de cardápio de outras plataformas, verifique se tem itens pausados para serem cadastrados.\n\nE se no arquivo/link não tiver o produto que você quer cadastrar, coloque neste link os produtos, com os valores 💚 ","f":"","c":"Cardápio"},{"a":"fazerpedido","n":"fazerpedido","t":"Sobre essa questão de não carregar os pedidos, o meu time de TI já está verificando o ocorrido e realizando otimizações nessa parte para normalizar o funcionamento o quanto antes.\n\nVou acompanhar de perto e já retorno com você assim que tiver um posicionamento, combinado? 💚","f":"","c":"Atendimento e suporte"},{"a":"fecharestabelecimento","n":"fecharestabelecimento","t":"No caso, já temos essa opção dentro do sistema, Rosária! Onde você consegue fechar seu estabelecimento fora do horário que está programado! 😊 \n\nPasso a passo: https://youtu.be/7HiNEggvgX4","f":"","c":"Meu Perfil"},{"a":"filadeimpressao","n":"filadeimpressao","t":"No teclado, aperte a tecla do Windows \n(ela fica perto da tecla ALT)\n\nQuando abrir a pesquisa, digite:\nimpressoras\n\nVai aparecer uma opção chamada:\nImpressoras e scanners 🖨️\n\nClique nela com o mouse e me mande uma foto da tela que abrir, por favor 💚","f":"","c":"Impressão"},{"a":"finalizado","n":"finalizado","t":"Tudo certo, [Nome do cliente]! 💚\nImpressão, robô e link funcionando, sua loja já está pronta para receber pedidos pelo WhatsMenu 🚀\n\nNo dia e horário configurado no seu horário de funcionamento, o cardápio ficará disponível para seus clientes realizarem pedidos normalmente.\nParabéns por automatizar seus pedidos com o WhatsMenu! 🎉\n\nAqui estão alguns materiais de apoio para consultar quando quiser:\n📘 FAQ\nhttps://whatsmenu.tawk.help/\n📹 Como receber pedidos\nhttps://www.youtube.com/watch?v=RX-j14y3Sc0\n💡 Dicas e recursos\nhttps://drive.google.com/file/d/1WPXqj5UObwjRypqCCuwxUBQ_fK2DeI_4/view\nSe surgir qualquer dúvida, é só clicar no ícone de Suporte dentro do seu painel Whatsmenu.\n💬 Atendimento: segunda a sábado, das 8h30 às 20h30.","f":"","c":"Atendimento e suporte"},{"a":"financeira","n":"financeira","t":"Peço que clique no seu *email*, no painel da WhatsMenu, lá em cima, no canto direito, depois clique em *senhas*, logo em seguida, vá na parte de *alterar senha financeira* e clique em *recuperar senha*\n\nDepois, peço que verifique no seu email, na caixa de entrada ou na caixa de spam, um email que vai chegar para você redefinir a sua senha financeira!","f":"","c":"Financeiro"},{"a":"frete_por_bairro","n":"Frete por bairro","t":"Como cadastrar seus fretes por bairro\nhttps://youtu.be/0zdst312OkQ","f":"","c":"Meu Perfil"},{"a":"frete_por_km","n":"Frete por km","t":"Como cadastrar fretes por km\nhttps://youtu.be/7PkgbAmpJS8","f":"","c":"Meu Perfil"},{"a":"garcom-celular","n":"garcom-celular","t":"📲 Nesse passo a passo mostramos como o seu garçom pode realizar os pedidos das mesas diretamente pelo celular, de forma rápida e prática!\n🔗 Passo a passo: https://youtu.be/fjuS0YxbOcg\nCom isso, você ganha mais agilidade no atendimento e organização no salão!\nSe precisar de qualquer apoio durante a configuração, é só me chamar! 💚","f":"","c":"Garçom"},{"a":"generic","n":"generic","t":"Como instalar sua impressora no Windows:\nhttps://youtu.be/cWonmi8q_PE","f":"","c":"Impressão"},{"a":"gerais","n":"gerais","t":"Peço que vá lá no seu painel da WhatsMenu, que esta instalado no seu computador. Nessa parte, peço que vá em *Configurações* > *Gerais* > Desça um pouco e vá na parte de *Textões Padrões*, nessa parte, você vai conseguir ver a parte de *Mensagem de saudação*","f":"","c":"Robô"},{"a":"guia_dos_primeiros_passos","n":"Guia dos primeiros passos","t":"Guia de primeiros passos\nhttps://blog.whatsmenu.com.br/primeiros-passos/","f":"","c":"Atendimento e suporte"},{"a":"habilitardisponibilidade","n":"habilitardisponibilidade","t":"Como exibir os mesmos produtos para as mesa, encomenda ou delivery:\nhttps://whatsmenu.com.br/videoaulas/restante/aula/2\nUma Imagem vale mais que 1.000 palavras! ;)","f":"","c":"Cardápio"},{"a":"horariodoestabelecimento","n":"horariodoestabelecimento","t":"Veja o passo a passo para cadastrar os horários do seu estabelecimento: https://www.youtube.com/watch?v=N98FO-PGmoA","f":"","c":"Meu Perfil"},{"a":"impressao","n":"impressao","t":"Certo! Nesse caso, no aplicativo, clica em Impressão no canto superior esquerdo > seleciona sua impressora e me envia uma foto da tela inteira por gentileza !! 😊","f":"IMAGE","c":"Impressão"},{"a":"impressaopelorawbt","n":"impressaopeloRAWBT","t":"APP para Impressão manual no celular: \n1 - Baixar e instalar o Aplicativo RAWBT \n2 - Passo a Passo: https://www.youtube.com/watch?v=nRYVzEeNcKU \nQualquer dúvida, pode me chamar 😉","f":"","c":"Impressão"},{"a":"impressão_automática_celular","n":"IMPRESSÃO AUTOMÁTICA CELULAR","t":"📲 App para Impressão Automática no Celular - somente para Android\n1️⃣ Baixe e instale o app WhatsMenu Impressora\n2️⃣ Veja como usar: https://youtu.be/uxXoyyGW5mk\n\n🔗 Link para instalação: https://github.com/Grove-Company/.github/releases/download/mobile-v1.0.9/application-1bbac0f4-69bc-476c-a887-c55c54091ed2.apk\n\n(Importante: esse link é temporário, em breve estará de volta na play store!)\n\n✅ Me avisa aqui se deu tudo certo! 🤩","f":"","c":"Impressão"},{"a":"impressão_automática_pelo_navegador","n":"impressão automática pelo navegador","t":"Configurando a Impressão automática no Google Chrome:\n\nAssista esse vídeo primeiro: https://whatsmenu.com.br/videoaulas/impressao/aula/3\n\nEsse é o comando que você precisa colar depois das \" (aspas).\n\nhttps:/next.whatsmenu.com.br --kiosk-printing --autoplay-policy=no-user-gesture-required\n\nQuando configurar peço que realize um pedido de teste e me avise se imprimiu automaticamente ok?","f":"","c":"Impressão"},{"a":"informações_faltantes","n":"Informações faltantes","t":"Oi, [nome]! 👋\nSou o aqui do time de produção da WhatsMenu 💚\n\nEstou conferindo o seu cardápio e notei que ficou faltando ...\n\nPode me enviar essas informações para eu finalizar o seu cardápio? 💚\nAssim que estiver tudo certinho, te avisamos por aqui!","f":"","c":"Cardápio"},{"a":"iniciando-o-acesso","n":"iniciando-o-acesso","t":"Olá, eu sou o técnico responsável pelo seu acesso remoto. Preciso fazer 3 acordos contigo:\n\n1 - Eu consigo ficar conectado no seu computador por até 20 minutos ok? ⏱️\n2 - Preciso que esteja na frente do computador enquanto realizo o acesso, pois terei algumas dúvidas durante o acesso. 😊\n3 - Em caso de ausência por um periodo de 5 minutos, entenderemos que não é um momento adequado, o acesso será encerrado e agendaremos um horário melhor.\n*Estou 100% aqui para te ajudar.*\nEm instantes darei inicio ao seu acesso remoto.","f":"","c":"Acesso remoto"},{"a":"iniciando_acesso_remoto","n":"Iniciando Acesso Remoto","t":"Olá, eu sou o técnico responsável pelo seu acesso remoto. Preciso fazer 3 acordos contigo:\n\n1 - Eu consigo ficar conectado no seu computador por até 20 minutos ok? ⏱️\n2 - Preciso que esteja na frente do computador enquanto realizo o acesso, pois terei algumas dúvidas durante o acesso. 😊\n3 - Em caso de ausência por um periodo de 5 minutos, entenderemos que não é um momento adequado, o acesso será encerrado e agendaremos um horário melhor.\nEstou 100% aqui para te ajudar.\nEm instantes darei inicio ao seu acesso remoto.","f":"","c":"Acesso remoto"},{"a":"instagram_whatsmenu","n":"instagram whatsmenu","t":"Veja dicas e facilidades em nosso Instagram https://www.instagram.com/whatsmenu.oficial/","f":"","c":"Recursos"},{"a":"integração-99","n":"integração-99","t":"*Passo a passo para conseguir o ID do 99food:*\n\nPara obter o ID da 99Food (Store ID) do seu restaurante, faça login no portal 99Food Admin, vá ao menu \"Estabelecimentos\" e depois \"Configurações\". O ID da loja estará visível nessa seção.\n\nSeria pelo link abaixo:\n\nhttps://merchant.99app.com/pt-BR/store","f":"","c":"Integrações"},{"a":"integração-keeta","n":"integração-keeta","t":"*Passo a passo para conseguir o ID da Keeta:*\n\nAcesse o gestor da loja Keeta com seu e-mail cadastrado e vá em \"App Activation\" (Ativação do Aplicativo) para visualizar o \"Store ID\".\n\nLink: merchant.keeta-global.com","f":"","c":"Integrações"},{"a":"integração_ifood","n":"integração ifood","t":"Com a integração ifood você receberá os pedidos por dentro do painel Whatsmenu de forma rápida e simples! 🤩\nFerramentas disponíveis aos parceiros integrados:\n- Receber pedidos\n- Detalhes de Pedido\n- Plataforma de Disputa de Cancelamento\n- Controle de status do pedido (recebido, despachar, para retirar, cancelar)\n\nVeja como é fácil integrar sua loja do Ifood no Whatsmenu: https://www.youtube.com/watch?v=i9fvdWWD5rc","f":"","c":"Integrações"},{"a":"internet","n":"internet","t":"Certo! Consegue abrir esse site no seu computador, e me enviar uma foto do resultado por gentileza?? 😀\nSeria apenas para que eu consiga verificar se está tudo certinho com sua internet! 💚 \n\nhttps://fast.com/pt/","f":"","c":"Computador/Desktop"},{"a":"iphone","n":"iphone","t":"Atualmente, nosso sistema foi desenvolvido para funcionar exclusivamente em dispositivos Android.\nNo iPhone ou iPad (iOS), ele não é compatível — principalmente na integração com impressoras. Isso acontece porque o sistema do iOS tem algumas limitações técnicas e restringe o uso de impressoras térmicas via Bluetooth, dificultando a conexão.\n\nPor isso, pra garantir que o sistema rode completo, inclusive com impressão, o ideal é usar um celular ou tablet Android. Assim você utiliza todos os recursos disponíveis e conecta facilmente às impressoras compatíveis sem dor de cabeça! 💚","f":"","c":"Celular"},{"a":"iphone-whatsapp","n":"iphone-whatsapp","t":"Peço por  gentileza que vá nas Configurações do seu celular, procure o Safari, e desative a opção \"Bloquear Pop-ups\"! Fazendo isso, os botões de status de pedido vão voltar a funcionar corretamente! 💚","f":"IMAGE","c":"Celular"},{"a":"limpar_cache","n":"limpar cache","t":"No Chrome\n1 No computador, abra o Chrome.\n2 No canto superior direito, clique em Mais. Limpar dados de navegação.\n3 Escolha um intervalo de tempo, como Última hora ou Todo o período.\n4 Selecione os tipos de informação que você quer remover.\n5 Clique em Limpar dados.","f":"","c":"Computador/Desktop"},{"a":"link-garçom","n":"link-garçom","t":"Maravilha! Para encontrar o link que você vai enviar para seus garçons, basta seguir esses passos abaixo:\n\n- No menu lateral na esquerda, clica em Configurações.\n- Depois, clica em Mesas, e abre a aba \"Garçons\".\n- Lá, basta clicar no botão azul \"Link das mesas\"! O link vai ser copiado automaticamente, e basta você enviar ele para seus garçons!! 💚 \n\nSe ficar alguma dúvida, eu estou aqui para te auxiliar! 😉","f":"","c":"Garçom"},{"a":"link_testar","n":"link testar","t":"[NOME DO CLIENTE], agora preciso que faça um pedido teste rapidinho pelo link do seu cardápio pra você ver como o cliente vai comprar 😊\n\nPode escolher qualquer item e, na hora de finalizar, seleciona qualquer bairro mesmo, tá? Essa parte a gente ajusta certinho com as informações reais da sua loja no próximo passo.\n\nEsse pedido é só um teste pra garantir que está tudo funcionando direitinho 👍\n\nQuando terminar, me conta o que achou!\nE fica tranquilo: depois que tudo estiver finalizado, se quiser ajustar qualquer coisa, nosso time de suporte te ajuda e você também vai ter total autonomia pra mexer no painel 🚀","f":"","c":"Atendimento e suporte"},{"a":"mensagem_robo","n":"mensagem robo","t":"Me passa o número do WhatsApp da loja que configuramos.\n\nVou mandar um “oi” pra testar se responde automaticamente com o link do cardápio 👌","f":"","c":"Robô"},{"a":"mensagemautomatica1","n":"mensagemautomatica1","t":"Olá ! Seja bem vindo ao *NOME DA LOJA* 🥳\n👇Veja o nosso cardápio e faça seu pedido👇\nhttps://whatsmenu.com.br/burguerino\n*Fazendo o primeiro pedido pelo link ganhe X% de desconto com o cupom NOME DO CUPOM*🚀\nE ganhe 5% de cashback em cada pedido realizado pelo link\n*Equipe NOME DA LOJA*","f":"","c":"Robô"},{"a":"mensagemautomatica2","n":"mensagemautomatica2","t":"🚀Agora seus clientes vão receber automaticamente o link para fazer pedidos! 🥳\n Siga o passo a passo abaixo para configurar no *WhatsApp Business*:\n📌 Passo a passo:\n 1️⃣ Copie a mensagem que enviamos acima (com o link do cardápio)\n 2️⃣ Acesse o WhatsApp Business da loja\n 3️⃣ Toque na casinha no canto inferior direito e vá em Ferramentas\n 4️⃣ Vá em Mensagem de Ausência e Mensagem de Saudação\n 5️⃣ Cole a mensagem nas duas opções\n 6️⃣ Ative: \"Enviar sempre\" e \"Enviar para todos\"\n 7️⃣ Clique em Salvar\n✅ Quando finalizar, envie a mensagem *“FINALIZEI”* aqui para concluirmos juntos! 😎","f":"","c":"Robô"},{"a":"mesas-celular","n":"mesas-celular","t":"📽️ Preparamos um vídeo completo com o passo a passo para configurar o sistema de mesas no seu painel!\nNesse vídeo você vai aprender:\n• Como cadastrar as mesas\n• Como gerar o QR Code para cada mesa\n• Como criar taxas como couvert artístico ou taxa de garçom\n• E também como cadastrar os garçons no sistema\nTudo de forma simples e rápida para deixar sua operação ainda mais organizada! 💡\n\nPasso a passo: https://youtu.be/mT9HEQ04KrA","f":"","c":"Garçom"},{"a":"mesas-desktop","n":"Mesas-Desktop","t":"📽️ Preparamos um vídeo completo com o passo a passo para configurar o sistema de mesas no seu painel!\nNesse vídeo você vai aprender:\n• Como cadastrar as mesas\n• Como gerar o QR Code para cada mesa\n• Como criar taxas como couvert artístico ou taxa de garçom\n• E também como cadastrar os garçons no sistema\nTudo de forma simples e rápida para deixar sua operação ainda mais organizada! 💡\n\nPasso a passo: https://youtu.be/UEhEuUBRUXU","f":"","c":"Garçom"},{"a":"mesas-pedidos","n":"mesas-pedidos","t":"Aqui está um vídeo explicando certinho como abrir suas mesas, cadastrar uma comanda, e depois encerrar essa mesa! 🤗 \n\nhttps://www.youtube.com/watch?v=ODSwO7PAasI\n\nSe ficar alguma dúvida, eu estou aqui para te auxiliar! 💚","f":"","c":"Garçom"},{"a":"modem","n":"modem","t":"Peço que reinicie o seu *modem da sua internet*! Você vai tirar a tomada do seu modem de internet, aguardar 30 segundos e ligar novamente! Nesse meio tempo, peço que também já reinicie o seu computador. \n\nFeito isso, peço que volte aqui e me confirme, por favor 💚","f":"","c":"Computador/Desktop"},{"a":"monte_sua_marmita","n":"monte sua marmita","t":"Monte sua marmita\nhttps://youtu.be/ZFCIXM7V13M","f":"","c":"Cardápio"},{"a":"motivo_do_cancelamento","n":"motivo do cancelamento","t":"Ok já estou preenchendo o formulário de cancelamento, para eu poder avançar, me diga o que você mais gostou na ferramenta e os pontos fracos?💚😊","f":"","c":"Cancelamento"},{"a":"notasfiscais","n":"notasfiscais","t":"Aqui está um video bem simples que vai te explicar mais sobre a automação de notas fiscais na plataforma! \nhttps://youtu.be/Ukv_c32w_E4","f":"","c":"Notas"},{"a":"pagamento_online","n":"Pagamento online","t":"Como funciona o Pagamento Online:\nhttps://www.youtube.com/watch?v=uo7zxBqTBXE","f":"","c":"Meu Perfil"},{"a":"pagamentomanual","n":"pagamentomanual","t":"Como funciona o Pagamento Manual:\nhttps://www.youtube.com/watch?v=cVnU3b67NY0","f":"","c":"Meu Perfil"},{"a":"paracriar","n":"Paracriar","t":"Para criar seu acesso, preciso:\n*Nome* ou *Razão Social*\n*CPF* ou *CNPJ*\n*E-mail* (diferente do painel que você já possui)\n*WhatsApp*","f":"","c":"Financeiro"},{"a":"pdv","n":"PDV","t":"Separei alguns materiais essenciais pra facilitar o seu uso da plataforma no dia a dia:\n📩 Como acompanhar seus pedidos recebidos:\n https://www.youtube.com/watch?v=RX-j14y3Sc0\n🧾 Utilizando o PDV (para vendas por telefone ou balcão):\n• Com cadastro do cliente: https://www.youtube.com/watch?v=kfif91jSOHU\n• Sem cadastro: https://www.youtube.com/watch?v=-bXRO4QQx4g\n• Como lançar um pedido: https://www.youtube.com/watch?v=HRVEY780QgU\n💡 Dicas extras e recursos úteis da plataforma:\n https://drive.google.com/file/d/1fl4cr4Wtiojr4pM2MnfHQSKNGsyYcAAt/view?usp=sharing","f":"","c":"PDV"},{"a":"pedido_teste","n":"pedido teste","t":"[nome], para finalizarmos a implantação, preciso que você faça um pedido teste pelo PDV 👍\n\nEsse tipo de pedido é usado, por exemplo, quando a venda acontece por telefone ou no balcã quando o cliente não quer informar os dados.\n\nAqui vão vídeos rápidos mostrando como lançar o pedido pelo PDV:\n📹 Venda com cadastro: https://www.youtube.com/watch?v=kfif91jSOHU\n📹 Venda sem cadastro: https://youtu.be/abMcq_cCw3s\n📹 Como lançar pedido: https://www.youtube.com/watch?v=HRVEY780QgU\n\nAssim que fizer o pedido teste, me avisa aqui para eu acompanhar com você e confirmar que chegou certinho.\n\nDepois volta aqui e me conta: viu como será simples lançar seus pedidos no dia a dia? 🚀","f":"IMAGE","c":"PDV"},{"a":"perfil_novo","n":"Perfil_novo","t":"Aqui está seu acesso ao painel da WhatsMenu 💚\n👉 https://next.whatsmenu.com.br/login\nLogin:\nSenha:\nVocê pode acessar pelo computador ou celular.\nAgora vá em Meu Perfil e preencha:\n ✅ Dados da loja\n ✅ Horário de funcionamento\n ✅ Frete\n ✅ Formas de pagamento\nDentro das abas tem vídeos de ajuda para te orientar. É bem simples e isso garante que seus pedidos cheguem certinhos.\nConsegue preencher enquanto finalizamos seu cardápio?","f":"","c":"Meu Perfil"},{"a":"perfil_pendente","n":"Perfil_pendente","t":"Vi aqui que ainda falta finalizar algumas informações do perfil da loja.\nEsses dados são importantes para os pedidos chegarem certinhos, principalmente horário, frete e formas de pagamento.\nConsegue preencher agora para seguirmos com a configuração final?","f":"","c":"Meu Perfil"},{"a":"permissões","n":"permissões","t":"Eu vou te orientar rapidinho pra resolver isso, tá? 😊\n\n- Vai nas configurações do seu celular e abre a parte de \"Apps\" ou \"Aplicativos\".\n- Procure pelo \"WhatsMenu Mobile\" na lista.\n- Dentro das opções do app, desmarque a opção “Pausar atividade do app quando sem uso”.\n- Na aba \"Bateria\", deixa a opção \"Sem restrições\" ou \"Não restrito\" marcada.\n- Depois, entra nas “Permissões do app” e desmarque também “Remover permissões e liberar espaço”.\n\nFazendo isso, o aplicativo vai funcionar certinho o tempo todo, sem ser interrompido pelo celular. Se precisar de qualquer ajuda no passo a passo, me chama aqui que te ajudo rapidinho!","f":"","c":"Celular"},{"a":"portas","n":"Portas","t":"Peço que siga esse passo a passo:\n1- Abra o painel de controle no seu computador\n2 - Vá em dispositivos e impressoras\n3 - Clica com o botão direito do mouse em cima do driver da sua impressora\n4 Clique em propriedades da impressora\n5 - Vá na opção de portas\n6 - Selecione a porta USB001, USB002 ou USB003\n7 - Clica em aplicar e OK\n8- Faça uma impressão de teste","f":"","c":"Impressão"},{"a":"preencheu_formulario","n":"Preencheu formulario","t":"Perfeito, [nome]! 💚\nRecebemos as informações e agora o nosso time de produção vai conferir tudo.\nCaso falte alguma informação no formulário, o time entrará em contato por aqui antes de cadastrar, tá bem? 😊\n \nO prazo para entrega do seu cardápio é de *até 1 dia útil.*\nAssim que estiver finalizado, enviaremos o link por aqui pra você conferir e realizar um pedido teste.\n\nApós o OK, liberaremos seu login e senha para preencher seu perfil 🚀","f":"","c":"Cardápio"},{"a":"promocional","n":"promocional","t":"Segue um passo a passo rápido pra cadastrar promoções no cardápio digital:\n\n1. Acesse o painel do sistema\n2. Vá em **Cardápio**\n3. Encontre o item que deseja colocar em promoção\n4. Clique em **Editar**\n5. Acesse a opção **Promoção**\n6. Cadastre o valor promocional e salve\n\nPronto! O item já vai aparecer no cardápio para o cliente com destaque de promoção, ajudando a chamar mais atenção e aumentar as vendas 🙂","f":"","c":"Cardápio"},{"a":"qrcode","n":"qrcode","t":"Para gerar um QR code do seu cardápio, basta você clicar neste link abaixo e colocar o link do seu cardápio para gerar o qr code, depois, só clicar para baixar 💚 \n\nhttps://qrcode-whatsmenu-braga.vercel.app/","f":"","c":"Cardápio"},{"a":"recebi_cardápio","n":"recebi_cardápio","t":"Perfeito, [nome]! 💚\nRecebi o nome da loja e o cardápio.\nNosso time interno vai iniciar o cadastro dos produtos do seu cardápio.\nEnquanto isso, vou liberar seu acesso para preenchermos o perfil da loja e seguirmos com as configurações da plataforma.\nAssim conseguimos avançar com tudo em paralelo para deixar sua loja pronta ainda hoje 🚀\nPra localizar seu cadastro certinho, me confirma o e-mail usado na contratação?","f":"","c":"Cardápio"},{"a":"reordenar_cardapio","n":"reordenar cardapio","t":"Como reordenar Categorias, produtos e complementos\n\nhttps://whatsmenu.com.br/videoaulas/cadastro/aula/11","f":"","c":"Cardápio"},{"a":"retirada-no-local","n":"retirada-no-local","t":"No caso, é possível sim!! Basta ir em Configurações > Gerais > e na parte de Entregas, desativar a opção \"O cliente pode retirar o pedido no local?\".\nDepois disso, basta clicar em Salvar, e vai ficar tudo certinho! 😉","f":"IMAGE","c":"Meu Perfil"},{"a":"robo-mensagens-repetidas","n":"robo-mensagens-repetidas","t":"Certo! Nesse caso, peço por gentileza que no seu painel, acesse a aba \"Robô Whatsapp\", e verifique se a opção \"Não permitir falar com atendente\" está habilitada!\nSe ela estiver, peço por gentileza que desative ela, e não será mais enviado várias mensagens para seus clientes!!  😉","f":"","c":"Robô"},{"a":"sobremeuperfil","n":"Sobremeuperfil","t":"Visão Geral do Menu Meu Perfil (1 passo):\nhttps://youtu.be/xGvK42_sfp8","f":"","c":"Meu Perfil"},{"a":"solicitou_alteração","n":"solicitou alteração","t":"Perfeito, [NOME]! Pode me enviar por escrito todos os ajustes que precisa no cardápio?\n\nAproveita e já confere se tem mais alguma alteração, pra gente enviar tudo de uma vez para o time de produção.\nAssim que você me confirmar que está tudo listado, eu encaminho para eles. \n\nDepois que ajustarem, voltamos aqui para você validar se ficou tudo certo e seguir para os últimos passos.","f":"","c":"Cardápio"},{"a":"som_no_computador","n":"som no computador","t":"Configurando Som (Computador - Chrome) https://www.youtube.com/watch?v=eUo1c_iC3F4\n  \nCole este link no seu navegador Chrome para acessar a configuração:  \nchrome://settings/content/sound \nAo finalizar me informe se deu certinho, por favor","f":"","c":"Computador/Desktop"},{"a":"sorvete-acai-por-kg","n":"sorvete-acai-por-kg","t":"Ahhh certo Lucas, eu compreendo totalmente! No caso, temos uma opção de produtos por KG no sistema, justamente para isso!! 😀 \n\nPara fazer isso, basta você ir no seu cardápio, e criar um item chamado \"Sorvete por KG\"!\nLá, basta clicar em Editar, e ir em \"Tipo de Produto\"!\n\nBasta selecionar a opção \"Granel\", e depois definir o Valor do Kilo!! 😉 \nFazendo isso, você vai conseguir colocar o peso exato que seu cliente pegou, e o sistema já vai calcular o valor automaticamente!!","f":"IMAGE","c":"Cardápio"},{"a":"statuspedidos","n":"statuspedidos","t":"✨ Como funciona o Status dos Pedidos:\nhttps://youtu.be/ERVe2YeKRUQ","f":"","c":"Garçom"},{"a":"suporte-asaas","n":"suporte-asaas","t":"Suporte Banco Asaas  \n\n*Telefone:* 0800 009 0037 (exclusivo para contas pessoa jurídica);  \n*Chat:* acesse sua conta Asaas pela web e clique no ícone do messenger do Intercom ao lado direito da sua tela para iniciar;  \n*WhatsApp:* https://web.whatsapp.com/send?phone=558000090037 \n*E-mail:* contato@asaas.com.br;  \n*Ouvidoria:* asaas.com/ouvidoria.","f":"","c":"Financeiro"},{"a":"tamanho","n":"Tamanho","t":"Foto de capa: 768 x 307 Logo: 145 x 145  Foto do item: 600 x 450","f":"","c":"Meu Perfil"},{"a":"taxas","n":"taxas","t":"Vou deixar aqui um vídeo para você verificar como funciona a parte de *taxas* no seu painel da WhatsMenu: https://drive.google.com/file/d/1idElps5K1AvLNJbybHXvwlUmA_PvcFLh/view\n\nSe tiver qualquer dúvida, pode voltar aqui comigo, combinado?","f":"","c":"Meu Perfil"},{"a":"taxas-asaas","n":"taxas-asaas","t":"No caso, essas seriam as taxas dos pagamentos online pelo banco Asaas!\n\nSeria de R$0,99 por pagamento via Pix, e de 2,99% em cima do valor para recebimento via crédito nos próximos 32 dias. \nPara o recebimento via crédito em 2 dias úteis, a taxa seria de 4,99% em cima do valor! 💚","f":"IMAGE","c":"Meu Perfil"},{"a":"tecnico","n":"tecnico","t":"Nosso técnico está finalizando alguns acessos no momento, e vai estar disponível em cerca de 30 minutos! \nPorém, posso te auxiliar por aqui enquanto isso!!  😉","f":"","c":"Acesso remoto"},{"a":"trackfy","n":"trackfy","t":"Vou deixar aqui um link para você verificar como funciona a nova ferramenta *TrackFy*.\n\n*Link:* https://www.youtube.com/watch?v=GtgOIBTOtVM\n\nAtive-a no seu painel para facilitar o acompanhamento dos motoboys durante a operação.","f":"","c":"Integrações"},{"a":"vendas","n":"vendas","t":"Tenho certeza que o WhatsMenu fará toda diferença no seu negócio! \nClique neste link que você será direcionado ao nosso setor comercial: https://wa.me/whatsmenu\n\nAqui é o setor de suporte, ok?\nEspero que nos falemos em breve novamente 💚","f":"","c":"Setor de vendas"},{"a":"vincularcomplemento","n":"Vincularcomplemento","t":"Explicando os complementos vinculados: \nhttps://youtu.be/cPXbA7NRmqs","f":"","c":"Cardápio"},{"a":"windows_7","n":"windows 7","t":"Entendi! \nO que acontece é que o Windows 7/8 não recebe mais atualizações da Microsoft desde 2020. Com isso, muitos navegadores e programas pararam de funcionar corretamente nesse sistema, porque não têm mais suporte de segurança nem compatibilidade.  Navegadores como Chrome, Edge e até alguns recursos do próprio site deixam de funcionar corretamente em sistemas antigos como o Windows 7.  \nO ideal seria atualizar o sistema operacional para uma versão mais recente (como Windows 10 ou 11) pra garantir que tudo funcione certinho, com segurança e sem travar.","f":"","c":"Computador/Desktop"},{"a":"xml","n":"xml","t":"Basta você ir no seu painel da WhatsMenu > Relatório NFCe > Escolher se vai ser delivery, mesa ou encomenda > Clicar em Buscar > Clicar em Históricos XMLs > Colocar a o mês e o ano nos dois campos de início e fim e depois clicar em Buscar > Nisso, você pode baixar esse arquivo XML","f":"","c":"Notas"}]</script>
 <script>(function(){
   var D=JSON.parse(document.getElementById('rr-data').textContent);
@@ -396,6 +737,25 @@ Siga o passo a passo abaixo para configurar no WhatsApp Business:
 })();
 </script>
 <script>
+(function(){
+  var fl=[].slice.call(document.querySelectorAll('nav.steps details.flow'));
+  fl.forEach(function(d){d.addEventListener('toggle',function(){if(d.open)fl.forEach(function(o){if(o!==d)o.open=false;});});});
+  document.addEventListener('click',function(e){fl.forEach(function(d){if(!d.contains(e.target)||e.target.closest('.flow-menu a'))d.open=false;});});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')fl.forEach(function(d){d.open=false;});});
+})();
+</script>
+<script>
+document.querySelectorAll('.pdf .quote:not(.audio)').forEach(function(q){
+  var btn=document.createElement('button');btn.type='button';btn.className='qcopy';btn.textContent='Copiar';
+  q.appendChild(btn);
+  btn.addEventListener('click',function(){
+    var t=[].map.call(q.querySelectorAll('p'),function(p){return p.innerText.trim();}).join('\n\n').trim();
+    t=t.replace(/^"/,'').replace(/"$/,'').trim();
+    function done(){btn.textContent='Copiado';btn.classList.add('ok');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('ok');},1600);}
+    function fallback(){var r=document.createRange();r.setStartBefore(q.firstElementChild);r.setEndBefore(btn);var s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Selecionado: Ctrl+C';}
+    try{navigator.clipboard.writeText(t).then(done,fallback);}catch(e){fallback();}
+  });
+});
 document.querySelectorAll('.copy').forEach(function(btn){
   btn.addEventListener('click',function(){
     var pre=btn.parentElement.querySelector('pre');
@@ -406,4 +766,5 @@ document.querySelectorAll('.copy').forEach(function(btn){
 });
 </script>
 
-</body></html>
+</body>
+</html>
