@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" type="image/png" href="logo.png">
-<title>Guia de Implantação WhatsMenu</title>
+<style>[hidden]{display:none!important}</style>
+<title>Suporte WhatsMenu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap">
 <style>
@@ -156,6 +157,30 @@ mark.lg-mark{font-weight:600}
 .gbar-panel .gs-count{color:#d9efe0}
 .gbar-panel .gs-results{max-height:min(60vh,420px);color:var(--ink)}
 #gbar-search[aria-expanded="true"]{background:#fff;color:#0f3b22}
+nav.steps .flow-menu a.fl-group{font-weight:800;color:var(--green-deep);margin-top:4px}
+nav.steps .flow-menu a.fl-group:not(:first-child){border-top:1px solid var(--line);border-radius:0;padding-top:10px;margin-top:6px}
+nav.steps .flow-menu a.fl-sub{padding-left:24px;font-size:.86rem}
+nav.steps details.guia .flow-menu{max-width:min(420px,calc(100vw - 32px))}
+nav.steps details.flow>summary.on{background:#fff;color:var(--green-deep)}
+.home-screen{display:flex;flex-direction:column;gap:14px}
+.home-screen[hidden],section[hidden]{display:none!important}
+.hs-title{color:#fff;font:800 1.4rem/1.2 var(--f-display);margin:8px 0 0}
+.hs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.hs-tile{display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:14px;padding:20px 22px;text-decoration:none;color:var(--ink);box-shadow:0 3px 0 var(--green-deep);min-width:0}
+.hs-tile:hover,.hs-tile:focus-visible{outline:none;box-shadow:0 0 0 3px #ffd23f,0 3px 0 var(--green-deep)}
+.hs-ic{font-size:1.6rem}
+.hs-t{font:800 1.15rem/1.2 var(--f-display);color:var(--green-deep)}
+.hs-d{color:var(--muted);font-size:.92rem;font-weight:400}
+nav.steps a.home-nav[aria-current="page"],nav.steps a.cur{background:#fff;color:var(--green-deep)}
+.pdf .quote.fala{padding-right:0}
+.pdf .quote.fala::before{content:"📞";position:absolute;left:-15px;top:-2px;background:#fff;font-size:.95rem;line-height:1.4;padding:2px 0}
+.pdf .quote:not(.audio):not(.fala)::before{content:"💬"}
+@media (max-width:560px){.pdf .quote.fala{padding-top:2px}.pdf .quote.audio{padding-top:2px}}
+mark.cy{background:#00ffff;color:inherit;padding:0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.pdf h4.h-green{background:#00ff3c;color:var(--ink);border-left-color:#00b52a}
+.pdf .big-alert{font:800 1.3rem/1.35 var(--f-display);margin:22px 0}
+.pdf .notas-lines{font-size:1.05rem;line-height:1.7}
+.pdf h3.sub-h{font:800 1.35rem/1.3 var(--f-display);margin:26px 0 8px}
 @media (prefers-reduced-motion:reduce){.pdf h3.gs-flash,.pdf h2.gs-flash{animation:none}.gbar-prog span{transition:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* Respostas rápidas */
@@ -163,6 +188,8 @@ mark.lg-mark{font-weight:600}
 .rr-back:hover{background:var(--green);color:#fff}
 .rr-back:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
 nav.steps a.rr-nav{background:#ffd23f;border-color:#ffd23f;color:#14251b;font-weight:800;box-shadow:0 3px 0 var(--green-deep);padding:7px 16px}
+nav.steps a.pdv-nav{background:#fff;border-color:#fff;color:var(--green-deep);font-weight:800;box-shadow:0 3px 0 var(--green-deep);padding:7px 16px}
+nav.steps a.pdv-nav:hover,nav.steps a.pdv-nav:focus-visible{background:var(--green-soft);border-color:var(--green-soft)}
 nav.steps a.rr-nav:hover,nav.steps a.rr-nav:focus-visible{background:#fff;border-color:#fff;color:var(--green-deep)}
 .rr-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .rr-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 10px}
@@ -214,15 +241,23 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
 <div class="wrap">
 <header>
   <div class="head-text">
-  <div class="eyebrow">Suporte · WhatsMenu</div>
-  <h1>Guia de Implantação</h1>
-  <p>Guia de procedimentos para o Consultor de Implantação</p>
+  <div class="eyebrow">WhatsMenu</div>
+  <h1>Suporte</h1>
   <nav class="steps" aria-label="Passos">
-    <a href="#como-usar">🔍 Buscar</a><a href="#bia">1. Fluxo da Bia</a><details class="flow"><summary>2. Fluxo do Consultor</summary><div class="flow-menu"><a href="#consultor" class="fl-top">2. FLUXO DO CONSULTOR DE IMPLANTAÇÃO</a><a href="#consultor-1">Etapa 1 — Recepção e apresentação</a><a href="#consultor-2">Etapa 2 — Instalação e acesso ao sistema</a><a href="#consultor-3">Etapa 3 — Preenchimento do perfil e envio do cardápio à produção</a><a href="#consultor-4">Etapa 4 — Conferência e finalização do perfil</a><a href="#consultor-5">Etapa 5 — Configuração do robô ou mensagens automáticas</a><a href="#consultor-6">Etapa 6 — Configuração da impressora</a><a href="#consultor-7">Etapa 7 — Acompanhamento da produção do cardápio</a><a href="#consultor-8">Etapa 8 — Conferência e entrega do cardápio</a><a href="#consultor-9">Etapa 9 — Liberação do cardápio e pedido de teste</a><a href="#consultor-10">Etapa 10 — Treinamento prático do PDV</a></div></details><details class="flow"><summary>3. Etapa Comercial</summary><div class="flow-menu"><a href="#comercial" class="fl-top">3. ETAPA COMERCIAL — MÁQUINA DE VENDAS DELIVERY</a><a href="#comercial-1">Etapa 1 — Apresentação da Máquina de Vendas</a><a href="#comercial-2">Etapa 2 — Configuração do cupom de primeira compra</a><a href="#comercial-3">Etapa 3 — Configuração do cashback</a><a href="#comercial-4">Etapa 4 — Marketing automático</a><a href="#comercial-5">Etapa 5 — Criação da arte do folder</a><a href="#comercial-6">Etapa 6 — Oferta de impressão do folder</a><a href="#comercial-7">Etapa 7 — Tratamento de objeções</a></div></details><details class="flow"><summary>4. Instagram</summary><div class="flow-menu"><a href="#instagram" class="fl-top">4. ÚLTIMA ETAPA — ORGANIZAÇÃO DO INSTAGRAM</a><a href="#instagram-1">Etapa 1 — Solicitar o Instagram</a><a href="#instagram-2">Etapa 2 — Organizar a biografia</a><a href="#instagram-3">Etapa 3 — Colocar o link da WhatsMenu</a><a href="#instagram-4">Etapa 4 — Criação de artes para Stories</a></div></details><details class="flow"><summary>5. Finalização e Registro</summary><div class="flow-menu"><a href="#finalizacao" class="fl-top">5. FINALIZAÇÃO E REGISTRO</a><a href="#finalizacao-1">Diretrizes obrigatórias para o consultor</a></div></details><a href="#respostas" class="rr-nav">⚡ Respostas rápidas</a>
+    <a href="#inicio" class="home-nav">🏠 Home</a><a href="#como-usar">🔍 Buscar</a><details class="flow guia"><summary>📘 Guia implantação</summary><div class="flow-menu"><a href="#finalizar" class="fl-group">FINALIZAR CLIENTE EM 1 DIA! 🚀</a><a href="#etapa-1" class="fl-sub">1. Bia — E-mail e cardápio</a><a href="#etapa-2" class="fl-sub">2. Instalação — Desktop ou Mobile - SE A BEATRIZ JÁ TIVER ENVIADO, SÓ VERIFICAR SE O CLIENTE CONSEGUIU ACESSAR E DEPOIS ORIENTAR A PREENCHER O PERFIL</a><a href="#etapa-3" class="fl-sub">3. Meu Perfil - ENSINAR CLIENTE A PREENCHER DE FORMA SIMPLES</a><a href="#etapa-4" class="fl-sub">4. Impressora</a><a href="#etapa-5" class="fl-sub">5. Robô / Mensagens automáticas</a><a href="#etapa-6" class="fl-sub">6. Cardápio — Conferência e Instagram</a><a href="#etapa-7" class="fl-sub">7. Áudio — Funcionamento do dia a dia e convite para ligação</a><a href="#ligacao" class="fl-group">LIGAÇÃO — MÁQUINA DE VENDAS DELIVERY</a><a href="#etapa-8" class="fl-sub">8. Abertura da ligação</a><a href="#etapa-9" class="fl-sub">9. Cupom e cashback</a><a href="#etapa-10" class="fl-sub">10. Folder — Divulgação e fechamento</a><a href="#etapa-11" class="fl-sub">11. Aprovação do folder e finalização da implantação</a><a href="#notas" class="fl-group">TÓPICOS PARA COLOCAR NAS NOTAS INTERNAS DO CLIENTE</a></div></details><a href="#respostas" class="rr-nav">⚡ Respostas rápidas</a><a href="https://claude.ai/artifact/5QCDpfnQRWtLAjCBhzE4jR" target="_blank" rel="noopener" class="pdv-nav">🧾 Clientes PDV novo ↗</a>
   </nav>
   </div>
   <img class="logo" src="logo.png" alt="WhatsMenu" width="190" height="190">
 </header>
+
+<section class="home-screen" id="inicio">
+  <h2 class="hs-title">O que você precisa agora?</h2>
+  <div class="hs-grid">
+    <a class="hs-tile" href="#finalizar"><span class="hs-ic">📘</span><span class="hs-t">Guia implantação</span><span class="hs-d">Etapas da implantação, do 1 ao 11</span></a>
+    <a class="hs-tile" href="#respostas"><span class="hs-ic">⚡</span><span class="hs-t">Respostas rápidas</span><span class="hs-d">Mensagens prontas da touschat para copiar</span></a>
+    <a class="hs-tile" href="https://claude.ai/artifact/5QCDpfnQRWtLAjCBhzE4jR" target="_blank" rel="noopener"><span class="hs-ic">🧾</span><span class="hs-t">Clientes PDV novo ↗</span><span class="hs-d">Lista da equipe com os clientes do PDV novo</span></a>
+  </div>
+</section>
 
 <section class="card guia-uso" id="como-usar">
   <h2 class="gu-title">Buscar no procedimento</h2>
@@ -233,351 +268,262 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
   </div>
 </section>
 
-<section class="card pdf" id="objetivo">
-  <h2 class="pdf-title">FLUXO DE IMPLANTAÇÃO — WHATSMENU</h2>
-  <p><b>Guia de procedimentos para o Consultor de Implantação</b></p>
-  <h3>Objetivo</h3>
-  <p>Garantir que o cliente comece a utilizar a WhatsMenu o mais rápido possível, preferencialmente no mesmo dia da contratação e, no máximo, até o dia seguinte.</p>
-  <p>O consultor será responsável por acompanhar toda a implantação, realizar as configurações necessárias, garantir o funcionamento da plataforma e preparar o cliente para receber pedidos e utilizar as ferramentas de vendas.</p>
-  <p><b>Regra principal:</b> o cliente não deve precisar descobrir sozinho como configurar o sistema. Nossa equipe deve conduzir o atendimento, antecipar as próximas etapas e realizar o máximo possível por ele.</p>
-</section>
+<section class="card pdf" id="finalizar">
+  <h2 class="pdf-title">FINALIZAR CLIENTE EM 1 DIA! 🚀</h2>
+  <p>Configurar, testar, orientar e preparar o cliente para começar a vender.</p>
+  <p>Objetivo: concluir a implantação preferencialmente no mesmo dia da contratação, garantindo que o cliente consiga receber pedidos e conheça as estratégias para aumentar suas vendas diretas.</p>
+  <p><mark class="hl red"><b>A urgência é nossa!</b></mark> O consultor deve conduzir o cliente, antecipar as próximas etapas e resolver o máximo possível durante o mesmo atendimento.</p>
 
-<section class="card pdf" id="bia">
-  <h2>1. FLUXO DA BIA — IA DE IMPLANTAÇÃO</h2>
-  <p>A Bia será responsável pelo primeiro contato e pela organização das informações necessárias para iniciar a implantação.</p>
-  <p>O atendimento seguirá esta sequência:</p>
-  <ol>
-    <li><b>Identificação:</b> verificar se o cliente está iniciando a implantação ou retornando para continuar um atendimento anterior.</li>
-    <li><b>Boas-vindas:</b> recepcionar o cliente e enviar o áudio explicando brevemente o processo.</li>
-    <li><b>E-mail:</b> solicitar e registrar o e-mail utilizado na contratação.</li>
-    <li><b>Cardápio:</b> encaminhar o formulário <a href="https://tally.so/r/81PNJY" target="_blank" rel="noopener">https://tally.so/r/81PNJY</a> para envio do cardápio e informar que a equipe cadastrará até 100 itens.</li>
-    <li><b>Confirmação:</b> verificar o recebimento do formulário para que o material seja encaminhado à produção.</li>
-    <li><b>Disponibilidade:</b> verificar se o cliente está com o dispositivo utilizado na loja e a impressora, quando aplicável.</li>
-    <li><b>Instalação:</b> enviar o link do Desktop ou Mobile, conforme o dispositivo, orientando o acesso com o e-mail cadastrado e a senha inicial 123456.</li>
-    <li><b>Transferência:</b> encaminhar o atendimento para o consultor com as informações e pendências registradas.</li>
-  </ol>
-  <p>Se o cliente não estiver disponível, a Bia deverá solicitar o melhor horário para realizar as configurações, considerando o atendimento de segunda a sábado, das 9h às 21h.</p>
-  <p><b>Pontos de atenção:</b> a Bia deverá consultar o histórico antes de solicitar informações. Clientes que estão continuando a implantação não deverão repetir etapas já concluídas. Caso o formulário não tenha sido enviado ou exista alguma dificuldade, a situação deverá ser registrada e encaminhada ao consultor, sem deixar o atendimento parado.</p>
-</section>
-
-<section class="card pdf" id="consultor">
-  <h2>2. FLUXO DO CONSULTOR DE IMPLANTAÇÃO</h2>
-  <p>O consultor será responsável por acompanhar o cliente até que sua loja esteja preparada para receber pedidos.</p>
-  <p>O atendimento deverá ser ativo, próximo e resolutivo. O consultor deverá conduzir cada etapa e realizar diretamente todas as configurações possíveis.</p>
-
-  <h3 id="consultor-1">Etapa 1 — Recepção e apresentação</h3>
-  <p>Ao assumir o atendimento, o consultor deverá consultar o histórico da Bia, identificar o que já foi realizado e verificar possíveis pendências.</p>
-  <p>A primeira mensagem deverá ser simpática, demonstrando que o consultor será responsável por acompanhar toda a implantação.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">Oi! Tudo bem? 💚</span></p>
-    <p class="blue">Eu sou o [nome do consultor] e vou ser responsável por acompanhar sua implantação aqui na WhatsMenu!</p>
-    <p class="blue">Vou te ajudar com todas as configurações para deixar sua loja pronta para começar a receber pedidos o quanto antes.</p>
-    <p><span class="blue">Como posso te chamar? 😊</span>"</p>
-  </div>
-  <p>Após receber o nome, deverá utilizá-lo naturalmente durante o atendimento.</p>
-  <p>Se o cliente estiver disponível, deverá iniciar imediatamente. Caso tenha solicitado um horário, deverá confirmar o agendamento e orientar que esteja com o dispositivo da loja e a impressora, se utilizar.</p>
-  <p><mark class="hl"><b>Ponto de atenção: não repetir perguntas já respondidas à Bia e não deixar o cliente sem direcionamento.</b></mark></p>
-
-  <h3 id="consultor-2">Etapa 2 — Instalação e acesso ao sistema</h3>
-  <p>O consultor deverá confirmar se o cliente conseguiu instalar o WhatsMenu Desktop ou Mobile e acessar a plataforma.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"Show, [nome]! 💚</p>
-    <p>Você conseguiu instalar e acessar a WhatsMenu com seu e-mail e a senha inicial 123456?"</p>
-  </div>
-  <p><mark class="hl"><b>Caso o cliente tenha dificuldade, o consultor deverá oferecer ajuda imediatamente. Em computadores, deverá oferecer acesso remoto sempre que necessário.</b></mark></p>
-  <p><mark class="hl"><b>Não deverá apenas reenviar o link ou tutorial. Se o cliente demonstrar dificuldade, deverá assumir a configuração e buscar resolver.</b></mark></p>
-  <p>Após o primeiro acesso, deverá orientar a substituição da senha inicial por uma senha exclusiva.</p>
-
-  <h3 id="consultor-3">Etapa 3 — Preenchimento do perfil e envio do cardápio à produção</h3>
-  <p>O áudio deverá explicar onde acessar o perfil, quais informações precisam ser preenchidas e que o cliente deverá avisar assim que finalizar.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">Agora vamos preencher as informações do perfil da sua loja! 💚</span></p>
-    <p class="blue">Te enviei um áudio explicando como fazer.</p>
-    <p class="blue">Enquanto você preenche, já vou encaminhar seu cardápio para nosso time de produção começar o cadastro dos produtos!</p>
-    <p><span class="blue">Quando finalizar seu perfil, me avisa aqui para eu conferir se ficou tudo certinho e continuarmos juntos! 😊</span>"</p>
-  </div>
-  <p><mark class="hl"><b>Ponto de atenção:</b> o cardápio deverá ser encaminhado à produção assim que possível, sem esperar a finalização do perfil. Se a produção identificar informações ausentes, o consultor deverá solicitar os dados necessários ao cliente.</mark></p>
-
-  <h3 id="consultor-4">Etapa 4 — Conferência e finalização do perfil</h3>
-  <p>Quando o cliente informar que finalizou, o consultor deverá acessar a plataforma e conferir as informações.</p>
-  <p><mark class="hl"><b>Não basta perguntar se o cliente terminou. É necessário validar o preenchimento.</b></mark></p>
-  <p>Caso exista alguma informação incompleta que o consultor consiga preencher, deverá fazê-lo diretamente. Se precisar de algum dado específico, deverá solicitá-lo ao cliente e concluir a configuração.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"Perfeito, [nome]! 💚</p>
-    <p>Vou conferir as informações do seu perfil e já ajustar o que for necessário por aqui, para deixarmos tudo prontinho e seguirmos com as próximas configurações!"</p>
-  </div>
-  <p><mark class="hl"><b>Ponto de atenção: não devolver ao cliente tarefas que o próprio consultor consegue executar.</b></mark></p>
-
-  <h3 id="consultor-5">Etapa 5 — Configuração do robô ou mensagens automáticas</h3>
-  <p>Com o perfil concluído, o consultor deverá configurar o robô ou as mensagens automáticas, conforme a modalidade utilizada pelo estabelecimento.</p>
-  <p><mark class="hl"><b>Essa configuração poderá ser realizada mesmo que o cardápio ainda esteja em produção.</b></mark></p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"Agora vou preparar as mensagens automáticas da sua loja, [nome]! 💚</p>
-    <p>Assim já deixamos essa parte configurada enquanto nosso time prepara seu cardápio!"</p>
-  </div>
-  <p>O consultor deverá realizar as configurações, verificar o funcionamento e explicar brevemente a finalidade dos recursos.</p>
-
-  <h3 id="consultor-6">Etapa 6 — Configuração da impressora</h3>
-  <p>Após configurar as mensagens, o consultor deverá verificar como o estabelecimento receberá os pedidos.</p>
-  <p>Se utilizar impressora, deverá realizar a configuração e testar a impressão. Caso apresente dificuldades, deverá oferecer acesso remoto e buscar resolver imediatamente.</p>
-  <p>Se não utilizar impressora, deverá demonstrar como acompanhar os pedidos pelo Desktop ou Mobile.</p>
-  <p><mark class="hl"><b>Ponto de atenção:</b> não basta deixar o dispositivo instalado. O cliente precisa saber como identificar um pedido recebido e dar continuidade à operação.</mark></p>
-
-  <h3 id="consultor-7">Etapa 7 — Acompanhamento da produção do cardápio</h3>
-  <p>Durante as configurações anteriores, o time de produção deverá estar realizando o cadastro do cardápio.</p>
-  <p>O consultor será responsável por acompanhar o andamento, identificar pendências e manter o cliente informado.</p>
-  <p>A equipe cadastrará até 100 itens. Caso o cliente tenha mais produtos, deverá ser orientado sobre como cadastrar os demais com o auxílio do Suporte.</p>
-  <p><mark class="hl"><b>Ponto de atenção: o consultor não deve apenas aguardar o cardápio ficar pronto. Deve aproveitar esse período para concluir todas as outras configurações possíveis.</b></mark></p>
-
-  <h3 id="consultor-8">Etapa 8 — Conferência e entrega do cardápio</h3>
-  <p>Antes de entregar o cardápio ao cliente, o consultor deverá conferir se ele está completo, organizado e visualmente apresentável.</p>
-  <p><b>Conferências obrigatórias:</b></p>
+  <h3 class="sub-h">Regras obrigatórias</h3>
   <ul>
-    <li>Logo da loja cadastrada corretamente.</li>
-    <li>Imagem de capa configurada e visualmente adequada.</li>
-    <li>Produtos organizados nas categorias corretas.</li>
-    <li>Produtos em destaque configurados.</li>
-    <li>Flags e identificações dos produtos configuradas, quando aplicáveis.</li>
-    <li>Nomes, descrições e preços dos produtos corretos.</li>
-    <li>Adicionais e opções de escolha configurados corretamente.</li>
-    <li>Imagens dos produtos cadastradas e com boa apresentação.</li>
-    <li>Informações gerais e identidade visual do cardápio revisadas.</li>
+    <li>Prazo de 1 dia: priorizar a conclusão no mesmo dia da contratação. Havendo impedimento, registrar o motivo, o responsável e o próximo contato.</li>
+    <li>Atendimento ativo: não encerrar a conversa enquanto o cliente executa tarefas. Agendar retorno em 5 minutos e, se necessário, acompanhar em intervalos de aproximadamente 30 minutos, respeitando a disponibilidade do cliente.</li>
+    <li>Economia de mensagens: reunir todas as orientações necessárias em uma mensagem sempre que possível.</li>
+    <li>Áudios curtos: utilizar áudios para orientações técnicas, principalmente no Mobile.</li>
+    <li>Notas atualizadas imediatamente: a cada avanço, marcar OK na etapa correspondente nas Notas do Cliente.</li>
+    <li>Data de início: perguntar quando o cliente pretende começar a operar e registrar.</li>
+    <li>Acesso remoto: quando possível, aproveitar um único acesso autorizado para configurar a impressora e o robô.</li>
+    <li>Continuidade: em transferências, informar ao próximo consultor exatamente o que foi feito e o que falta.</li>
   </ul>
-  <p>O cardápio deve estar bonito, organizado e preparado para transmitir uma boa primeira impressão ao consumidor.</p>
-  <p>Caso tenham sido utilizadas imagens ilustrativas, o consultor deverá informar que o cliente poderá substituí-las posteriormente.</p>
-  <p><mark class="hl"><b>Atenção:</b> o cardápio não deve ser entregue apenas porque todos os produtos foram cadastrados. É necessário conferir sua apresentação e organização.</mark></p>
-  <p>Após essa validação, o consultor deverá apresentar o cardápio ao cliente.</p>
-  <p><b>Mensagem sugerida:</b></p>
+
+  <h3 id="etapa-1">1. Bia — E-mail e cardápio</h3>
+  <p>A Bia continuará realizando o primeiro contato, solicitando o e-mail e encaminhando o formulário do cardápio.</p>
+  <p>Após isso, verificará se o cliente está disponível com o dispositivo da loja para iniciar a implantação.</p>
+  <p>Se estiver disponível: transferir para um consultor.</p>
+  <p>Se não estiver disponível: identificar o melhor horário e encaminhar para confirmação do agendamento.</p>
+
+  <h3 id="etapa-2">2. Instalação — Desktop ou Mobile - SE A BEATRIZ JÁ TIVER ENVIADO, SÓ VERIFICAR SE O CLIENTE CONSEGUIU ACESSAR E DEPOIS ORIENTAR A PREENCHER O PERFIL</h3>
+  <p>Cliente disponível agora:</p>
   <div class="quote">
-    <p>"[Nome], seu cardápio já está pronto! 🎉💚</p>
-    <p>Nossa equipe cadastrou seus produtos e deixou tudo organizado para sua loja começar a receber pedidos!</p>
-    <p>Vou te encaminhar o link do seu cardápio para você dar uma olhadinha.</p>
-    <p>Me avisa assim que abrir para conferirmos juntos! 😊"</p>
+    <p>Oii, [nome]! 💚 Sou [consultor] e vou cuidar da sua implantação!</p>
+    <p>Vamos configurar sua loja agora para você começar a receber pedidos ainda hoje! 🚀</p>
+    <p>Vai utilizar Windows ou Android?</p>
   </div>
-  <p>Caso o cliente identifique alguma informação incorreta, o consultor deverá realizar o ajuste diretamente, sempre que possível.</p>
-
-  <h3 id="consultor-9">Etapa 9 — Liberação do cardápio e pedido de teste</h3>
-  <p>Após a conferência, o consultor deverá preparar o cardápio para receber pedidos.</p>
-  <p>Primeiro, deverá verificar e configurar os horários de funcionamento, garantindo que o cardápio esteja disponível para a realização do teste.</p>
-  <p>Em seguida, deverá encaminhar o link do cardápio ao cliente e orientá-lo a realizar um pedido de teste <b>como se fosse um consumidor comprando pelo estabelecimento</b>.</p>
-  <p><b>Mensagem sugerida:</b></p>
+  <p>Cliente com horário agendado:</p>
   <div class="quote">
-    <p>"<span class="blue">Agora vamos fazer um teste para garantir que está tudo funcionando! 💚</span></p>
-    <p class="blue">Já vou deixar seu cardápio disponível para receber pedidos.</p>
-    <p class="blue">Quero que você abra o link e faça um pedido como se fosse um cliente comprando na sua loja.</p>
-    <p><span class="blue">Assim conseguimos conferir juntos como o pedido chega no seu sistema. Me avisa quando finalizar! 😊</span>"</p>
+    <p>Oii, [nome]! 💚 Sou [consultor] e vou cuidar da sua implantação!</p>
+    <p>Às [horário] vou te chamar para fazermos suas configurações.</p>
+    <p>Preciso que esteja com o dispositivo da loja e a impressora, se utilizar, para finalizarmos o quanto antes! 🚀</p>
   </div>
-  <p>O consultor deverá acompanhar o pedido e verificar se ele foi recebido corretamente no Desktop ou Mobile, incluindo a impressão quando aplicável.</p>
-  <p>Se houver alguma falha, deverá corrigir e repetir o teste.</p>
-
-  <h3 id="consultor-10">Etapa 10 — Treinamento prático do PDV</h3>
-  <p>Após o pedido de teste, o consultor deverá ensinar o cliente a utilizar o PDV.</p>
-  <p><mark class="hl"><b>Essa etapa deverá ser feita junto com o cliente, orientando cada ação. Não é permitido apenas enviar um vídeo e deixar que ele aprenda sozinho.</b></mark></p>
-  <p>O consultor deverá demonstrar as principais funcionalidades e acompanhar o cliente executando as ações.</p>
-
-  <h4>10.1 — Lançamento de pedidos pelo PDV</h4>
-  <p>O consultor deverá orientar o cliente a acessar o PDV e realizar um pedido de teste, explicando cada etapa do lançamento.</p>
-  <p>Deverá mostrar como selecionar os produtos, adicionar as informações necessárias e finalizar o pedido.</p>
-  <p>O cliente deverá realizar as ações enquanto o consultor acompanha e orienta.</p>
-
-  <h4>10.2 — Venda sem cadastro</h4>
-  <p>O consultor deverá apresentar a funcionalidade de venda sem cadastro e explicar sua finalidade.</p>
-  <p>Essa opção poderá ser utilizada para registrar vendas sem a necessidade de cadastrar um cliente, como em atendimentos rápidos ou vendas presenciais.</p>
-  <p>Deverá demonstrar na prática como utilizar essa funcionalidade.</p>
-
-  <h4>10.3 — Funcionamento do caixa</h4>
-  <p>O consultor deverá explicar que, inicialmente, o estabelecimento estará utilizando o sistema sem o gerenciamento de caixa ativo.</p>
-  <p>Nesse formato, ao iniciar a operação do dia, o sistema trabalhará com o caixa padrão, aberto automaticamente quando necessário, e os pedidos serão registrados nele.</p>
-  <p>Também deverá explicar que, caso o estabelecimento tenha mais de uma pessoa realizando lançamentos, poderá ativar o gerenciamento de caixa.</p>
-  <p><b>Exemplo prático para explicar ao cliente:</b></p>
+  <p>O consultor deverá enviar o link adequado ao dispositivo, o e-mail de acesso e a senha inicial <code>123456</code> em uma única mensagem.</p>
+  <p>Explicar brevemente por áudio quando necessário e agendar retorno em 5 minutos.</p>
+  <p>Acompanhamento:</p>
   <div class="quote">
-    <p>"Imagina que você tenha duas pessoas trabalhando no caixa da sua loja.</p>
-    <p>Você pode ativar o gerenciamento de caixa e criar dois usuários, como Caixa 1 e Caixa 2.</p>
-    <p>Assim, os pedidos lançados pelo Caixa 1 ficam registrados no relatório daquele caixa, e os pedidos lançados pelo Caixa 2 ficam no relatório correspondente.</p>
-    <p>Dessa forma, você consegue acompanhar separadamente os lançamentos realizados por cada um."</p>
+    <p>Como estamos por aí, [nome]? Conseguiu entrar?</p>
   </div>
-  <p>O consultor também deverá explicar que:</p>
+  <p>Confirmar que o cliente realmente acessou o sistema, resolver dificuldades e orientar a troca da senha inicial.</p>
+  <p>Registro: Instalação e acesso — OK.</p>
+
+  <h3 id="etapa-3">3. Meu Perfil - ENSINAR CLIENTE A PREENCHER DE FORMA SIMPLES</h3>
+  <p>Orientar o cliente a preencher todas as abas: Estabelecimento, Layout, Endereço, Horário de Funcionamento, Frete e Pagamentos.</p>
+  <p>Agendar retorno em 5 minutos.</p>
+  <p>Acompanhamento:</p>
+  <div class="quote">
+    <p>Como estamos por aí, [nome]?</p>
+  </div>
+  <p>Conferência obrigatória do consultor:</p>
   <ul>
-    <li>Os pedidos de delivery serão registrados no primeiro caixa aberto.</li>
-    <li>Se nenhum caixa estiver aberto quando um pedido de delivery chegar, o sistema abrirá automaticamente o caixa padrão para registrar esse pedido.</li>
-    <li>O gerenciamento de caixa poderá ser ativado posteriormente, conforme a necessidade da operação.</li>
+    <li>Nome, telefone, descrição e pedido mínimo.</li>
+    <li>Logo, capa, cores e identidade visual.</li>
+    <li>Endereço completo e CEP.</li>
+    <li>Dias e horários de funcionamento.</li>
+    <li>Frete por bairro ou KM e valores.</li>
+    <li>Formas de pagamento e Pix.</li>
   </ul>
-  <p>O consultor deverá utilizar exemplos próximos à realidade do estabelecimento e garantir que o cliente compreenda a diferença entre trabalhar com o caixa padrão e utilizar o gerenciamento de caixa.</p>
+  <p>Corrigir diretamente o que estiver incompleto e solicitar apenas dados que dependam do cliente.</p>
+  <p>Pergunta obrigatória:</p>
+  <div class="quote">
+    <p>[Nome], em qual dia você pretende começar a utilizar a WhatsMenu para receber pedidos?</p>
+  </div>
+  <p>Registrar a data prevista nas Notas do Cliente imediatamente.</p>
+  <p>Registro: Meu Perfil — OK.</p>
 
-  <h4>10.4 — Confirmação do aprendizado</h4>
-  <p>Antes de finalizar o treinamento, o consultor deverá verificar se o cliente conseguiu realizar um lançamento pelo PDV e compreendeu como acompanhar os pedidos.</p>
-  <p><mark class="hl"><b>Preferencialmente, deverá utilizar áudios durante a demonstração, explicando as ações enquanto o cliente as executa</b></mark>.</p>
-  <p><b>Ponto de atenção:</b> não basta demonstrar uma vez. O cliente precisa conseguir executar os procedimentos com a orientação do consultor.</p>
-  <p>A implantação operacional estará concluída quando o estabelecimento estiver preparado para receber pedidos e o cliente compreender os procedimentos essenciais para utilizar a plataforma.</p>
-</section>
+  <h3 id="etapa-4">4. Impressora</h3>
+  <p>Desktop: verificar se a impressora está ligada, com papel e conectada. Solicitar acesso remoto autorizado pelo AnyDesk, configurar e realizar um teste.</p>
+  <p>Mobile: verificar se a impressora Bluetooth está ligada e pareada. Orientar por áudio a configuração e acompanhar o teste.</p>
+  <p>Durante o acesso remoto, aproveitar para adiantar o robô.</p>
+  <p>Registro: Impressora — OK / Não utiliza / Pendente.</p>
 
-<section class="card pdf" id="comercial">
-  <h2>3. ETAPA COMERCIAL — MÁQUINA DE VENDAS DELIVERY</h2>
-  <p>Após finalizar as configurações operacionais e o treinamento do PDV, o consultor deverá iniciar a Máquina de Vendas Delivery, seguindo a abordagem elaborada pelo Fabiano.</p>
-  <p>O objetivo é preparar estratégias para atrair clientes, incentivar a recompra e fortalecer as vendas diretas pelo cardápio WhatsMenu.</p>
+  <h3 id="etapa-5">5. Robô / Mensagens automáticas</h3>
+  <p>O consultor deverá identificar se será utilizado o robô da WhatsMenu ou as mensagens automáticas do WhatsApp Business.</p>
+  <p>Ações obrigatórias:</p>
+  <ul>
+    <li>Confirmar o número da loja.</li>
+    <li>Configurar a modalidade adequada.</li>
+    <li>Conferir as mensagens e o link do cardápio.</li>
+    <li>Realizar um teste.</li>
+    <li>Orientar o cliente a verificar as conexões ao iniciar o expediente.</li>
+  </ul>
+  <p>Registro: Robô/Mensagens — OK.</p>
 
-  <h3 id="comercial-1">Etapa 1 — Apresentação da Máquina de Vendas</h3>
-  <p><mark class="hl red ic-audio">Obrigatório enviar por áudio.</mark></p>
+  <h3 id="etapa-6">6. Cardápio — Conferência e Instagram</h3>
+  <p>O consultor deverá acompanhar a produção em paralelo com as outras configurações, independentemente de quem esteja cadastrando os produtos.</p>
+  <p>Conferência obrigatória: logo, capa, cores, categorias, produtos, preços, adicionais, descrições, imagens, produtos em destaque, flags e funcionamento das opções de compra.</p>
+  <p>Depois, encaminhar o link para o cliente aprovar.</p>
+  <h4 class="h-green">Instagram — Assim que o cardápio estiver pronto</h4>
+  <p>Mensagem:</p>
+  <div class="quote">
+    <p>[Nome], agora vamos deixar seu Instagram preparado para receber pedidos diretos! 🚀</p>
+    <p>Me envia o @ da loja? Vou conferir sua bio e o link de pedidos.</p>
+  </div>
+  <p>O consultor deverá verificar a biografia e sugerir uma apresentação personalizada.</p>
+  <p>Exemplo:</p>
+  <div class="quote">
+    <p>🍔 Hambúrgueres artesanais feitos com capricho!<br>📍 [Cidade/Bairro]<br>🛵 Delivery e retirada<br>👇 Peça pelo link abaixo!</p>
+    <p>[Link WhatsMenu]</p>
+  </div>
+  <p>Orientar o cliente a atualizar a bio e verificar se o link funciona.</p>
+  <p><mark class="hl"><b>VERIFICAR SE O CLIENTE FEZ!!!!</b></mark></p>
+  <p>Registro: Cardápio — OK. Instagram — OK / Não possui / Pendente.</p>
+
+  <h3 id="etapa-7">7. Áudio — Funcionamento do dia a dia e convite para ligação</h3>
+  <p>Após finalizar a parte operacional, enviar um único áudio explicando rapidamente a rotina e já convidando o cliente para a ligação de marketing.</p>
+  <h4>Roteiro completo do áudio</h4>
   <div class="quote audio">
-    <p>"Agora chegamos à etapa mais importante: configurar sua Máquina de Vendas Delivery!</p>
-    <p>Ela funciona com duas engrenagens.</p>
+    <p>Pronto, [nome]! Agora sua loja está preparada para receber pedidos! 💚</p>
+    <p>Vou te explicar rapidinho como vai funcionar.</p>
+    <p>O cliente vai mandar mensagem no seu WhatsApp e receber o link do cardápio, ou entrar no seu Instagram e clicar no link da bio.</p>
+    <p>Ele escolhe os produtos e faz o pedido sem precisar criar uma conta. Na primeira compra, informa nome, telefone e endereço, e esses dados ficam disponíveis para facilitar os próximos pedidos.</p>
+    <p>Finalizou? O pedido já chega prontinho para você! Toca a notificação, sai na impressora conforme a configuração e você já pode mandar para a cozinha.</p>
+    <p>Simples assim!</p>
+    <p>Agora, para finalizarmos sua implantação e eu te encaminhar para nossa equipe de Suporte, falta só prepararmos o marketing do seu delivery!</p>
+    <p>Vou te ligar rapidinho para configurarmos essas estratégias e já deixar sua loja preparada para atrair mais clientes.</p>
+    <p>Posso te ligar agora?</p>
+  </div>
+  <p>Orientações para o consultor:</p>
+  <ul>
+    <li>O convite para a ligação já está dentro do áudio. Não enviar outra mensagem perguntando se pode ligar.</li>
+    <li>Aguardar a confirmação e iniciar a ligação imediatamente.</li>
+    <li>Caso o cliente não possa atender, combinar um horário e registrar.</li>
+    <li>Enviar esse áudio somente após os testes operacionais essenciais.</li>
+    <li>Confirmar se o fluxo descrito corresponde às funcionalidades realmente habilitadas para aquela loja.</li>
+  </ul>
+  <p>Registro: Áudio do dia a dia — OK.</p>
+  <p class="big-alert"><mark class="hl red"><b>SE O CLIENTE FALAR QUE NÃO QUER LIGAÇÃO, DEVERÁ ENVIAR POR ÁUDIO NO MESMO MOMENTO!</b></mark></p>
+</section>
+
+<section class="card pdf" id="ligacao">
+  <h2 class="pdf-title">LIGAÇÃO — MÁQUINA DE VENDAS DELIVERY</h2>
+
+  <h3 id="etapa-8">8. Abertura da ligação</h3>
+  <p>Objetivo: apresentar a consultoria gratuita, obter a confirmação do interesse e conduzir o cliente pelas estratégias de atração, recompra e divulgação.</p>
+  <h4>Roteiro</h4>
+  <div class="quote fala">
+    <p>Oii, [nome]! Tudo bem?</p>
+    <p>Agora chegamos à etapa mais importante: configurar o marketing do seu delivery!</p>
+    <p>Estamos liberando nossa consultoria de marketing sem custo adicional para você, que acabou de entrar na WhatsMenu.</p>
+    <p>Ela funciona em duas etapas.</p>
     <p>A primeira atrai clientes do iFood e do seu bairro utilizando um cupom especial.</p>
     <p>A segunda faz esses clientes comprarem de novo, de novo e de novo, utilizando cashback e marketing automático pelo WhatsApp!</p>
-    <p>Você quer vender mais e ganhar mais dinheiro com a WhatsMenu do seu restaurante?"</p>
+    <p>Você quer vender mais e ganhar mais dinheiro com a WhatsMenu do seu restaurante?</p>
   </div>
-  <p>O consultor deverá aguardar a confirmação antes de avançar.</p>
+  <p>Aguardar o SIM do cliente e avançar.</p>
+  <p>Se o cliente não vender em marketplaces, adaptar o exemplo aos clientes do bairro, do Instagram e do WhatsApp.</p>
 
-  <h3 id="comercial-2">Etapa 2 — Configuração do cupom de primeira compra</h3>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"Perfeito, (nome do cliente) para atrair novos clientes para seu cardápio, na primeira compra você prefere oferecer frete grátis ou R$10 de desconto? 🎁"</p>
+  <h3 id="etapa-9">9. Cupom e cashback</h3>
+  <h4>Cupom de primeira compra</h4>
+  <div class="quote fala">
+    <p>Perfeito, [nome]! 🔥</p>
+    <p>Vamos começar atraindo clientes para seu cardápio.</p>
+    <p>Você prefere oferecer frete grátis ou 10% de desconto na primeira compra?</p>
   </div>
-  <p>vai colocar valor minimo de acordo estiver configurado no perfil do cliente</p>
-  <p>Após a escolha, o consultor deverá configurar o benefício no sistema, verificando suas condições de utilização.</p>
-
-  <h3 id="comercial-3">Etapa 3 — Configuração do cashback</h3>
-  <p><mark class="hl red ic-audio">Obrigatório enviar por áudio.</mark></p>
-  <div class="quote audio">
-    <p>"Agora vamos para a segunda parte!</p>
-    <p>Imagina um cliente que compra R100 <i>por mês com você. Se ele passar a comprar R</i>200, você autoriza o sistema a dar 5% de cashback na compra, para incentivar esse cliente a voltar ao seu cardápio em vez de comprar pelo iFood ou outra loja?"</p>
+  <p>Confirmar as condições, o pedido mínimo e a autorização do estabelecimento. Configurar e testar.</p>
+  <h4>Cashback</h4>
+  <div class="quote fala">
+    <p>Excelente! Agora vamos trabalhar a recompra.</p>
+    <p>O cashback incentiva o cliente a voltar ao seu restaurante em vez de procurar outra opção.</p>
+    <p>Podemos começar com 5% ou prefere outro percentual?</p>
   </div>
-  <p>Após a autorização, o consultor deverá configurar o cashback de 5%.</p>
-
-  <h3 id="comercial-4">Etapa 4 — Marketing automático</h3>
-  <p>O consultor deverá configurar e ativar as automações de marketing pelo WhatsApp, conforme as funcionalidades disponíveis e as autorizações aplicáveis.</p>
-  <p><b>Mensagem após a ativação:</b></p>
-  <div class="quote">
-    <p>"Pronto! 💚</p>
-    <p>Ativei os 5% de cashback e agora o marketing automático pelo WhatsApp vai ajudar a trazer esses clientes de volta para comprar diretamente no seu cardápio, em vez de retornar ao iFood ou um concorrente!"</p>
-  </div>
-  <p><mark class="hl"><b>Essa mensagem deverá ser enviada somente depois que os recursos estiverem efetivamente configurados.</b></mark></p>
-
-  <h3 id="comercial-5">Etapa 5 — Criação da arte do folder</h3>
-  <p>Após configurar as estratégias de venda, o consultor deverá criar a arte do folder para incentivar os clientes do iFood a realizarem os próximos pedidos diretamente pela WhatsMenu.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"Agora, para fechar essa parte, estou criando a arte impressa do seu folder para você fidelizar os clientes do iFood na sua WhatsMenu e ter acesso aos dados desses clientes!</p>
-    <p>Me dá 10 minutinhos que já te envio para aprovar, combinado? 💚"</p>
-  </div>
-  <p><mark class="hl red ic-acao">O consultor deverá preparar o material com as informações do estabelecimento e o link ou QR Code do cardápio WhatsMenu, encaminhando a arte para aprovação.</mark></p>
-
-  <h3 id="comercial-6">Etapa 6 — Oferta de impressão do folder</h3>
-  <p>Após a aprovação, deverá apresentar a opção de impressão.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">A arte é um presente meu para você! 🎁</span></p>
-    <p class="blue">Agora, para a impressão, consegui uma gráfica que cobra R$87,90 pela impressão e pelo frete.</p>
-    <p><span class="blue">Tudo bem para você?</span>"</p>
-  </div>
-  <p>Se o cliente aceitar, deverá confirmar o endereço e CEP de entrega.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">Perfeito! 💚</span></p>
-    <p><span class="blue">Me confirma se o endereço e o CEP cadastrados estão corretos e se os Correios podem realizar a entrega nesse local?</span>"</p>
-  </div>
-  <p>Após a confirmação, o consultor deverá encaminhar o link da gráfica para que o cliente realize o pagamento e solicite a impressão.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">Show, [nome]! 💚</span></p>
-    <p class="blue">Agora é só finalizar o pedido da impressão diretamente pelo link da gráfica:</p>
-    <p class="blue">[LINK DA GRÁFICA]</p>
-    <p class="blue">Assim você já consegue preparar o material para enviar junto com os pedidos do iFood e incentivar seus clientes a comprarem diretamente pelo seu cardápio WhatsMenu!</p>
-    <p><span class="blue">Me avisa quando finalizar para eu conferir se ficou tudo certo! 😊</span>"</p>
-  </div>
-  <p><mark class="hl"><b>Ação do consultor: acompanhar o cliente até a finalização do pedido da impressão. Após a confirmação, deverá registrar que o pagamento foi realizado ou, caso o cliente não finalize, deixar a pendência documentada.</b></mark></p>
-  <p>O preço, a disponibilidade e as condições da gráfica deverão ser confirmados antes da apresentação da oferta.</p>
-
-  <h3 id="comercial-7">Etapa 7 — Tratamento de objeções</h3>
-  <p>Quando o cliente apresentar resistência às configurações comerciais ou ao investimento em impressão, o consultor deverá utilizar as argumentações definidas pelo Fabiano.</p>
-  <p><b>Se o cliente questionar o custo:</b></p>
-  <div class="quote">
-    <p>"Quanto você paga para o iFood em cada venda?</p>
-    <p>Esse valor da impressão você paga uma única vez e pode utilizar o material para atrair clientes para seu próprio cardápio por muito tempo.</p>
-    <p>Todo empresário precisa investir em marketing para atrair clientes e fazer seu negócio crescer.</p>
-    <p>Você prefere continuar pagando até 27,5% para o iFood ou oferecer 5% de cashback para incentivar seus clientes a comprarem diretamente de você?"</p>
-  </div>
-  <p>A taxa do iFood deverá ser confirmada com o estabelecimento antes de utilizá-la como comparação específica.</p>
-  <p><b>Se o cliente quiser utilizar apenas o cardápio para testar:</b></p>
-  <div class="quote">
-    <p>"Para testar de verdade a ferramenta, precisamos trazer clientes para seu cardápio!</p>
-    <p>Sem ativar o marketing, você pode acabar achando que a plataforma não funciona, quando na verdade precisamos gerar movimento para conseguir avaliar os resultados.</p>
-    <p>Vamos começar da maneira certa, deixando tudo configurado desde agora, tudo bem?"</p>
-  </div>
-  <p>Caso o cliente mantenha a objeção, o consultor deverá buscar orientação com Bonfim ou Fabiano para trabalhar a argumentação, respeitando a decisão do cliente.</p>
-</section>
-
-<section class="card pdf" id="instagram">
-  <h2>4. ÚLTIMA ETAPA — ORGANIZAÇÃO DO INSTAGRAM</h2>
-  <p>Após a apresentação do folder e da proposta de impressão, o consultor deverá ajudar o estabelecimento a preparar seu Instagram para divulgar o cardápio WhatsMenu.</p>
-
-  <h3 id="instagram-1">Etapa 1 — Solicitar o Instagram</h3>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"[Nome], agora vamos fazer mais uma coisa importante para ajudar sua loja a vender! 🚀💚</p>
-    <p>Vamos preparar seu Instagram para que seus seguidores consigam fazer pedidos diretamente pelo seu cardápio WhatsMenu!</p>
-    <p>Me envia o @ do Instagram da sua loja?"</p>
+  <p>Confirmar o percentual, explicar as regras e o custo para a loja e, depois, configurar.</p>
+  <h4>Transição</h4>
+  <div class="quote fala">
+    <p>Show! Agora já temos a estratégia para atrair clientes e incentivar que voltem.</p>
+    <p>O próximo passo é fazer essas ofertas chegarem até mais pessoas!</p>
   </div>
 
-  <h3 id="instagram-2">Etapa 2 — Organizar a biografia</h3>
-  <p>Após receber o perfil, o consultor deverá conferir a bio atual, identificar os links existentes e preparar uma sugestão adaptada ao estabelecimento.</p>
-  <p>A biografia deverá destacar o negócio e incentivar os clientes a realizarem pedidos pelo link.</p>
-  <p><b>Exemplo:</b></p>
-  <div class="quote">
-    <p>"🍔 [Nome do restaurante]<br>📍 [Cidade ou bairro]<br>💚 Peça direto pelo nosso cardápio!<br>👇 Faça seu pedido no link abaixo"</p>
+  <h3 id="etapa-10">10. Folder — Divulgação e fechamento</h3>
+  <h4>Apresentação durante a ligação</h4>
+  <p>Roteiro do consultor:</p>
+  <div class="quote fala">
+    <p>Perfeito, [nome]! 🔥 Agora que configuramos suas estratégias para atrair clientes e fazer com que eles comprem novamente, vamos colocar isso para funcionar!</p>
+    <p>Uma estratégia que nossos clientes de maior destaque utilizam é divulgar o próprio cardápio através de flyers personalizados, tanto no bairro quanto nos pedidos que já entregam.</p>
+    <p>Assim, quem já compra de você conhece seu canal direto e tem um incentivo para voltar a pedir!</p>
+    <p>E a WhatsMenu vai preparar toda a arte personalizada para você, sem custo algum! É um presente nosso! 🎁</p>
+    <p>Vamos preparar seu material com o QR Code do cardápio e as ofertas que acabamos de configurar.</p>
+    <p>Me confirma uma coisa: podemos utilizar o CEP [CEP cadastrado] para calcular a entrega dos seus 2.000 flyers ou prefere outro endereço?</p>
   </div>
-
-  <h3 id="instagram-3">Etapa 3 — Colocar o link da WhatsMenu</h3>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">Show, [nome]! 💚</span></p>
-    <p class="blue">Já preparei uma sugestão para sua bio, destacando onde seus clientes podem fazer pedidos!</p>
-    <p class="blue">Agora vamos deixar o link da WhatsMenu no seu Instagram para facilitar que seus seguidores comprem diretamente de você.</p>
-    <p><span class="blue">Você está com o Instagram aberto para fazermos esse ajuste juntos?</span>"</p>
+  <h4>Após a confirmação do CEP — Encerramento da ligação</h4>
+  <div class="quote fala">
+    <p>Perfeito, [nome]! 💚</p>
+    <p>Agora nosso time de design vai preparar sua arte personalizada!</p>
+    <p>Assim que estiver pronta, vou te chamar no WhatsApp para você aprovar.</p>
+    <p>Depois da aprovação, já te passo as condições de impressão e o link da gráfica para você confirmar o pedido e receber seus 2.000 flyers o quanto antes!</p>
+    <p>Vamos colocar seu cardápio na frente de mais clientes e começar a fortalecer suas vendas diretas! 🚀</p>
   </div>
-  <p>O consultor deverá orientar a alteração da biografia e a inclusão do link WhatsMenu no perfil.</p>
-  <p>O link deverá ficar em destaque para facilitar os pedidos diretos. Depois da alteração, o consultor deverá acessar o perfil e testar o funcionamento do link.</p>
-  <p>Não deverá solicitar a senha do Instagram.</p>
-
-  <h3 id="instagram-4">Etapa 4 — Criação de artes para Stories</h3>
-  <p>Após organizar o perfil, o consultor deverá verificar a possibilidade de criar artes para divulgar o cardápio WhatsMenu.</p>
-  <p>As artes poderão divulgar o cardápio online, o cupom de primeira compra ou incentivar os clientes a pedir diretamente pelo link da bio.</p>
-  <p><b>Mensagem sugerida:</b></p>
-  <div class="quote">
-    <p>"<span class="blue">Agora que seu Instagram está preparado, vamos ajudar seus clientes a conhecerem seu cardápio! 💚</span></p>
-    <p><span class="blue">Vou verificar a criação de algumas artes para você divulgar nos Stories e começar a atrair pedidos diretamente pelo seu link!</span>"</p>
-  </div>
-  <p>Sempre que possível, o consultor deverá preparar as artes, encaminhá-las para aprovação e orientar o cliente sobre como publicar, inclusive utilizando o adesivo de link nos Stories.</p>
-  <p>Não deverá prometer quantidade ou prazo de entrega sem confirmar a possibilidade de produção.</p>
-</section>
-
-<section class="card pdf" id="finalizacao">
-  <h2>5. FINALIZAÇÃO E REGISTRO</h2>
-  <p>Após concluir o processo, o consultor deverá registrar no histórico do atendimento todas as configurações realizadas, os recursos ativados, o resultado dos testes e as pendências.</p>
-  <p>Também deverá registrar a situação da Máquina de Vendas, a aprovação do folder, o pagamento da impressão quando confirmado e as alterações realizadas no Instagram.</p>
-  <p>Se alguma configuração comercial ou material de divulgação ficar pendente, deverá registrar o motivo e encaminhar para acompanhamento, sem impedir que o cliente comece a utilizar a plataforma.</p>
-
-  <h3 id="finalizacao-1">Diretrizes obrigatórias para o consultor</h3>
+  <h4>Orientações para o consultor</h4>
   <ul>
-    <li><b>Atendimento ativo:</b> conduzir as ações e não esperar que o cliente tome a iniciativa.</li>
-    <li><b>Autonomia:</b> executar diretamente todas as tarefas possíveis, sem transferir dificuldades desnecessárias ao cliente.</li>
-    <li><b>Comunicação próxima:</b> manter o cliente informado, utilizar áudios explicativos e demonstrar disponibilidade para ajudar.</li>
-    <li><b>Agilidade:</b> aproveitar atividades paralelas para adiantar a implantação.</li>
-    <li><b>Acompanhamento:</b> conferir tudo o que o cliente realizar, sem apenas confiar na informação de que terminou.</li>
-    <li><b>Treinamento prático:</b> ensinar o cliente a utilizar o PDV passo a passo, acompanhando sua execução. Não substituir o treinamento por vídeos.</li>
-    <li><b>Resolução:</b> oferecer acesso remoto e buscar solucionar as dificuldades no próprio atendimento.</li>
-    <li><b>Qualidade:</b> conferir a apresentação do cardápio, incluindo capa, logo, destaques, flags e organização dos produtos.</li>
-    <li><b>Registro:</b> documentar o andamento, as configurações concluídas e o que ficou pendente.</li>
-    <li><b>Foco no resultado:</b> garantir que o cliente saia da implantação preparado para receber pedidos e conhecendo as principais ferramentas para aumentar suas vendas.</li>
+    <li>Consultar previamente o CEP cadastrado em Meu Perfil.</li>
+    <li>Confirmar outro endereço caso o cliente solicite.</li>
+    <li>Encaminhar a criação da arte imediatamente para o design.</li>
+    <li>Enviar a arte para aprovação assim que estiver pronta.</li>
+    <li>Apresentar as condições e o valor final da impressão antes de solicitar o pagamento.</li>
+    <li>Registrar a decisão do cliente nas Notas.</li>
   </ul>
-  <p><b>O consultor não é apenas alguém que ensina a utilizar o sistema. Ele é responsável por preparar a operação do cliente, garantir que tudo funcione e ajudá-lo a começar a vender pela WhatsMenu.</b></p>
+
+  <h3 id="etapa-11">11. Aprovação do folder e finalização da implantação</h3>
+  <h4>1. Cliente aprovou a arte</h4>
+  <p>Mensagem:</p>
+  <div class="quote">
+    <p>Perfeito, [nome]! 🎉💚 Sua arte ficou pronta e aprovada!</p>
+    <p>Agora vamos finalizar a impressão dos seus 2.000 flyers personalizados para você começar a divulgar seu delivery!</p>
+    <p>Link para pagamento: [link da gráfica]</p>
+    <p>Me avisa assim que finalizar para eu conferir se ficou tudo certo! 🚀</p>
+  </div>
+  <h4>2. Após a confirmação do pagamento</h4>
+  <p>Mensagem:</p>
+  <div class="quote">
+    <p>Maravilha, [nome]! 🎉💚</p>
+    <p>Agora está tudo encaminhado! Sua loja está configurada, seu cardápio está pronto e suas estratégias de vendas já estão preparadas!</p>
+    <p>Agora é colocar tudo isso em prática e começar a receber pedidos! 🚀</p>
+  </div>
+  <h4>3. Orientação final — Exploração da plataforma</h4>
+  <p>Mensagem:</p>
+  <div class="quote">
+    <p>[Nome], antes de encerrarmos sua implantação, quero te pedir uma última coisa! 💚</p>
+    <p>Aproveite agora para explorar a WhatsMenu! Entre nos menus, teste os recursos e conheça as funcionalidades disponíveis.</p>
+    <p>Esse é o melhor momento para tirar suas dúvidas e ficar seguro para começar a utilizar tudo no dia a dia!</p>
+    <p>Se tiver qualquer dúvida, me chama aqui que vamos resolver juntos! 🚀</p>
+  </div>
+  <h4>4. Encerramento e passagem para o Suporte</h4>
+  <p>Após o cliente confirmar que realizou os testes e não possui dúvidas pendentes:</p>
+  <p>Mensagem:</p>
+  <div class="quote">
+    <p>Prontinho, [nome]! 🎉💚</p>
+    <p>Sua implantação está finalizada!</p>
+    <p>A partir de agora, nossa equipe de Suporte estará disponível para te ajudar no dia a dia sempre que precisar.</p>
+    <p>Desejamos muito sucesso e ótimas vendas para sua loja! 🚀💚</p>
+  </div>
+  <h4>Orientações para o consultor</h4>
+  <ul>
+    <li>Confirmar que o cliente aprovou a arte antes de encaminhar o link de pagamento.</li>
+    <li>Registrar o pagamento somente após a confirmação.</li>
+    <li>Se o cliente não contratar a impressão, entregar a arte gratuita e seguir normalmente com a finalização.</li>
+    <li>Incentivar o cliente a explorar os menus e testar os recursos enquanto ainda está acompanhado pela Implantação.</li>
+    <li>Não encerrar imediatamente após enviar a orientação: combinar um momento para verificar se surgiram dúvidas.</li>
+    <li>Resolver as dúvidas e registrar as pendências antes de transferir para o Suporte.</li>
+    <li>Atualizar as Notas do Cliente e marcar a implantação como concluída somente após validar as etapas operacionais.</li>
+  </ul>
+  <p><mark class="cy"><b>Objetivo final: cliente implantado em 1 dia, sabendo utilizar a plataforma e preparado para começar a vender!</b></mark></p>
 </section>
+
+<section class="card pdf" id="notas">
+  <h2 class="pdf-title">TÓPICOS PARA COLOCAR NAS NOTAS INTERNAS DO CLIENTE</h2>
+  <p class="notas-lines">Data de atualização: QUAL FOI A ÚLTIMA DATA EM QUE VERIFICOU OS TÓPICOS<br>Data de previsão: DATA EM QUE O CLIENTE VAI UTILIZAR</p>
+  <p class="notas-lines">Bia — E-mail e cardápio:<br>Instalação Desktop/Mobile:<br>Meu Perfil:<br>Impressora:<br>Robô/Mensagens:<br>Cardápio:<br>Instagram e link na bio:<br>Áudio do dia a dia:<br>Ligação/áudio de marketing:<br>Cupom:<br>Cashback:<br>Folder — Arte aprovada:</p>
+</section>
+
 <section class="card" id="respostas" hidden>
-  <button type="button" class="rr-back" id="rr-back">← Voltar ao guia de implantação</button>
+  <button type="button" class="rr-back" id="rr-back">← Voltar para Home</button>
   <h2><span class="num">⚡</span>Respostas rápidas</h2>
   <p class="where">As respostas rápidas da touschat, separadas por assunto. Busque pelo atalho ou por uma palavra do texto e copie com um clique. Os campos como <mark class="rr-var">[nome]</mark> precisam ser trocados antes de enviar.</p>
   <div class="rr-bar">
@@ -617,6 +563,7 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
     return (a>0?'… ':'')+esc(text.slice(a,i))+'<b class="gs-hit">'+esc(text.slice(i,i+q.length))+'</b>'+esc(text.slice(i+q.length,b))+(b<text.length?' …':'');
   }
   function go(b){
+    if(window.showView)showView('guia');
     var t=b.target; t.scrollIntoView({behavior:smooth,block:'start'});
     var h=b.el; h.classList.remove('gs-flash'); void h.offsetWidth; h.classList.add('gs-flash');
   }
@@ -722,18 +669,33 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
   $('rr-q').addEventListener('input',render);
   render();
   var sec=$('respostas'), cards=[].slice.call(document.querySelectorAll('section.card')).filter(function(s){return s!==sec;});
-  function view(r){
-    sec.hidden=!r; cards.forEach(function(s){s.hidden=r;});
-    [].forEach.call(document.querySelectorAll('nav.steps a'),function(a){a.setAttribute('aria-current',(r===(a.getAttribute('href')==='#respostas'))&&r?'page':'false');});
+  var guia=document.querySelector('nav.steps details.guia');
+  function view(m){
+    sec.hidden=m!=='respostas'; cards.forEach(function(s){s.hidden=m!=='guia';});
+    var hs=$('inicio'); if(hs)hs.hidden=m!=='home';
+    var hn=document.querySelector('nav.steps a.home-nav'); if(hn)hn.setAttribute('aria-current',m==='home'?'page':'false');
+    var rr=document.querySelector('nav.steps a.rr-nav'); if(rr)rr.setAttribute('aria-current',m==='respostas'?'page':'false');
+    if(guia)guia.querySelector('summary').classList.toggle('on',m==='guia');
+    window.dispatchEvent(new Event('scroll'));
   }
+  window.showView=view;
+  function fromHash(){var h=location.hash; if(h==='#respostas')return 'respostas'; if(h==='#inicio')return 'home'; if(h&&h.length>1&&document.getElementById(h.slice(1))&&!sec.contains(document.getElementById(h.slice(1))))return 'guia'; return 'home';}
   document.querySelector('nav.steps').addEventListener('click',function(e){
     var a=e.target.closest('a'); if(!a)return;
-    if(a.getAttribute('href')==='#respostas'){e.preventDefault();view(true);try{history.replaceState(null,'','#respostas');}catch(_){}sec.scrollIntoView({block:'start'});}
-    else view(false);
+    var h=a.getAttribute('href')||'';
+    if(h==='#inicio'){e.preventDefault();view('home');if(guia)guia.open=false;try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);}
+    else if(h==='#respostas'){e.preventDefault();view('respostas');try{history.replaceState(null,'','#respostas');}catch(_){}sec.scrollIntoView({block:'start'});}
+    else if(h.charAt(0)==='#'){view('guia');}
   });
-  $('rr-back').addEventListener('click',function(){view(false);try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);});
-  window.addEventListener('hashchange',function(){view(location.hash==='#respostas');});
-  if(location.hash==='#respostas')view(true);
+  if(guia)guia.addEventListener('toggle',function(){if(guia.open)view('guia');});
+  $('inicio').addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';
+    if(h==='#respostas'){e.preventDefault();view('respostas');try{history.replaceState(null,'','#respostas');}catch(_){}window.scrollTo(0,0);}
+    else if(h==='#finalizar'){e.preventDefault();view('guia');try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);}
+  });
+  $('rr-back').addEventListener('click',function(){view('home');try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);});
+  window.addEventListener('hashchange',function(){view(fromHash());});
+  view(fromHash());
+  if(fromHash()==='guia'){var t=document.getElementById(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView({block:'start'});},0);}
 })();
 </script>
 <script>
@@ -745,7 +707,7 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
 })();
 </script>
 <script>
-document.querySelectorAll('.pdf .quote:not(.audio)').forEach(function(q){
+document.querySelectorAll('.pdf .quote:not(.audio):not(.fala)').forEach(function(q){
   var btn=document.createElement('button');btn.type='button';btn.className='qcopy';btn.textContent='Copiar';
   q.appendChild(btn);
   btn.addEventListener('click',function(){
