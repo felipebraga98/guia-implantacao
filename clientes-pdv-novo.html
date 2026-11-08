@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clientes PDV Novo</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Mesmo visual do Suporte WhatsMenu: fundo verde, título branco, cartões brancos. */
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22;
+  --card:#ffffff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fdecec;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--green);color:var(--ink);font:15px/1.55 var(--f-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.9rem)/1.05 var(--f-display);margin:.2em 0 .25em;text-wrap:balance}
+.sub{margin:0;max-width:62ch;opacity:.95}
+.stat{display:flex;align-items:baseline;gap:7px;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:6px 14px}
+.stat b{font:800 1.1rem var(--f-display);font-variant-numeric:tabular-nums}
+.stat span{font-size:.85rem;font-weight:600}
+.card{background:var(--card);border-radius:14px;padding:24px clamp(16px,3vw,32px);box-shadow:0 2px 0 var(--green-deep);display:flex;flex-direction:column;gap:16px;min-width:0}
+.card h2{margin:0;font:800 1.35rem/1.2 var(--f-display)}
+.notice{border-left:4px solid var(--warn);background:var(--warn-soft);color:var(--warn);font-weight:600;padding:10px 14px;border-radius:0 8px 8px 0}
+form.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
+form.grid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep);min-width:0}
+form.grid .wide{grid-column:1/-1}
+input,textarea{font:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0}
+textarea{resize:vertical;min-height:40px}
+input:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
+.btn{font:700 .95rem var(--f-body);background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 18px;cursor:pointer;box-shadow:0 3px 0 var(--green-deep)}
+.btn:hover{background:var(--green-deep)}.btn:disabled{opacity:.6;cursor:wait}
+.btn:focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+.msg{min-height:1.3em;margin:0;font-weight:600}.msg.ok{color:var(--green-deep)}.msg.err{color:var(--bad)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+#q{width:260px;max-width:100%}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.92rem}
+th{background:var(--green-soft);color:var(--green-deep);text-align:left;font-weight:700;padding:10px 12px;white-space:nowrap}
+td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+td.mono{font-family:var(--f-mono);font-size:.85rem;white-space:nowrap}
+td.mailc{font-weight:600;word-break:break-all}
+td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
+.who{color:var(--muted);font-size:.85rem}
+.saved{display:block;font-size:.75rem;color:var(--muted);min-height:1em}
+.del{font:600 .8rem var(--f-body);background:#fff;color:var(--bad);border:1.5px solid #e3a1a1;border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.del:hover{background:var(--bad-soft)}.del:focus-visible{outline:2px solid var(--bad);outline-offset:2px}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="./">← Voltar ao Suporte</a>
+      <div class="eyebrow">Suporte · WhatsMenu</div>
+      <h1>Clientes PDV Novo</h1>
+      <p class="sub">Lista da equipe com os clientes do PDV novo. Cadastre cada cliente e atualize as observações conforme o atendimento andar.</p>
+    </div>
+    <div class="stat"><b id="total">0</b><span id="total-l">clientes</span></div>
+  </header>
+
+  <section class="card" id="senha-card" hidden>
+    <h2>Senha da equipe</h2>
+    <form class="grid" id="senha-form">
+      <label for="senha">Digite a senha para ver e salvar os clientes<input id="senha" type="password" autocomplete="current-password"></label>
+      <div><button class="btn" type="submit">Entrar</button></div>
+    </form>
+    <p class="msg" id="senha-msg" role="status"></p>
+  </section>
+
+  <div id="app">
+  <section class="card">
+    <div class="notice" id="notice" hidden></div>
+    <h2>Adicionar cliente</h2>
+    <form class="grid" id="add" novalidate>
+      <label for="f-email">E-mail do painel<input id="f-email" type="email" autocomplete="off" placeholder="cliente@email.com"></label>
+      <label for="f-tel">Telefone (WhatsApp)<input id="f-tel" type="tel" autocomplete="off" placeholder="(11) 99999-9999"></label>
+      <label for="f-por">Seu nome<input id="f-por" autocomplete="name" placeholder="Quem está cadastrando"></label>
+      <label for="f-obs" class="wide">Observações<textarea id="f-obs" rows="2" placeholder="O que foi feito ou combinado com o cliente"></textarea></label>
+      <div><button class="btn" id="f-save" type="submit">Adicionar cliente</button></div>
+    </form>
+    <p class="msg" id="msg" role="status"></p>
+  </section>
+
+  <section class="card" style="margin-top:20px">
+    <div class="bar">
+      <h2>Clientes</h2>
+      <input id="q" type="search" placeholder="Buscar e-mail, telefone ou nome" aria-label="Buscar cliente">
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>E-mail</th><th>Telefone</th><th>Observações</th><th>Cadastrado por</th><th></th></tr></thead>
+        <tbody id="tb"><tr><td colspan="5" class="empty">Carregando a lista…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var API='/api/clientes', lista=[], senha='', chains={}, timers={};
+  try{senha=sessionStorage.getItem('pdv-senha')||'';$('f-por').value=localStorage.getItem('pdv-nome')||'';}catch(e){}
+  function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function msg(t,ok){var m=$('msg');m.textContent=t;m.className='msg'+(ok?' ok':t?' err':'');}
+  function notice(t){var n=$('notice');n.textContent=t;n.hidden=!t;}
+
+  async function api(method,body){
+    var r=await fetch(API,{method:method,headers:{'Content-Type':'application/json','x-senha':senha},body:body?JSON.stringify(body):undefined});
+    var j={};try{j=await r.json();}catch(e){}
+    if(r.status===401){pedirSenha(senha?'Senha incorreta. Tente de novo.':'');throw new Error('senha');}
+    if(!r.ok)throw new Error(j.erro||'Não foi possível acessar a lista agora.');
+    return j;
+  }
+  function pedirSenha(t){$('senha-card').hidden=false;$('app').hidden=true;$('senha-msg').textContent=t||'';$('senha-msg').className='msg'+(t?' err':'');$('senha').focus();}
+  $('senha-form').addEventListener('submit',function(e){e.preventDefault();senha=$('senha').value;try{sessionStorage.setItem('pdv-senha',senha);}catch(_){}carregar();});
+
+  async function carregar(silencioso){
+    try{
+      var j=await api('GET');
+      $('senha-card').hidden=true;$('app').hidden=false;
+      lista=j.clientes||[];render();if(!silencioso)notice('');
+    }catch(e){
+      if(e.message==='senha')return;
+      if(!silencioso)$('tb').innerHTML='<tr><td colspan="5" class="empty">'+esc(e.message)+'</td></tr>';
+    }
+  }
+  function typing(){var a=document.activeElement;return a&&a.tagName==='TEXTAREA'&&a.closest('#tb');}
+  function render(){
+    if(typing())return;
+    $('total').textContent=lista.length;$('total-l').textContent=lista.length===1?'cliente':'clientes';
+    var q=$('q').value.trim().toLowerCase(), qd=q.replace(/\D/g,'');
+    var rows=lista.filter(function(x){if(!q)return true;return String(x.email||'').toLowerCase().indexOf(q)>=0||String(x.por||'').toLowerCase().indexOf(q)>=0||(qd&&String(x.telefone||'').replace(/\D/g,'').indexOf(qd)>=0);});
+    var tb=$('tb');
+    if(!lista.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhum cliente cadastrado ainda. Use o formulário acima para adicionar o primeiro.</td></tr>';return;}
+    if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhum cliente encontrado nessa busca.</td></tr>';return;}
+    tb.innerHTML=rows.map(function(x){var id=esc(x.id);return '<tr data-id="'+id+'">'+
+      '<td class="mailc">'+esc(x.email||'—')+'</td>'+
+      '<td class="mono" style="user-select:all">'+esc(x.telefone||'—')+'</td>'+
+      '<td><textarea id="o-'+id+'" rows="1" aria-label="Observações">'+esc(x.obs||'')+'</textarea><span class="saved" id="v-'+id+'"></span></td>'+
+      '<td class="who">'+esc(x.por||'—')+'</td>'+
+      '<td><button type="button" class="del" data-del="'+id+'">Excluir</button></td></tr>';}).join('');
+  }
+  function salvarObs(id,obs){
+    var v=$('v-'+id);if(v)v.textContent='Salvando…';
+    var p=(chains[id]||Promise.resolve()).then(function(){return api('PATCH',{id:id,obs:obs});})
+      .then(function(j){var i=lista.findIndex(function(x){return x.id===id;});if(i>=0)lista[i]=j.cliente;var v=$('v-'+id);if(v)v.textContent='Salvo';notice('');})
+      .catch(function(e){var v=$('v-'+id);if(v)v.textContent='Não salvou';if(e.message!=='senha')notice(e.message);});
+    chains[id]=p;return p;
+  }
+  document.addEventListener('input',function(e){
+    var tr=e.target.closest('#tb tr');if(!tr||!e.target.matches('textarea'))return;
+    var id=tr.dataset.id,v=e.target.value;clearTimeout(timers[id]);
+    timers[id]=setTimeout(function(){salvarObs(id,v);},1500);
+    var s=$('v-'+id);if(s)s.textContent='Salva ao parar de digitar';
+  });
+  document.addEventListener('change',function(e){
+    var tr=e.target.closest('#tb tr');if(!tr||!e.target.matches('textarea'))return;
+    clearTimeout(timers[tr.dataset.id]);salvarObs(tr.dataset.id,e.target.value);
+  });
+  document.addEventListener('focusout',function(e){if(e.target.matches&&e.target.matches('#tb textarea'))setTimeout(function(){if(!typing())render();},0);});
+  document.addEventListener('click',async function(e){
+    var b=e.target.closest('[data-del]');if(!b)return;
+    if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmar exclusão';setTimeout(function(){if(b.isConnected){b.dataset.c='';b.textContent='Excluir';}},3500);return;}
+    b.disabled=true;
+    try{await api('DELETE',{id:b.dataset.del});lista=lista.filter(function(x){return x.id!==b.dataset.del;});render();}
+    catch(err){b.disabled=false;if(err.message!=='senha')notice(err.message);}
+  });
+  $('q').addEventListener('input',render);
+  $('add').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var email=$('f-email').value.trim(),tel=$('f-tel').value.trim(),por=$('f-por').value.trim(),dig=tel.replace(/\D/g,'');
+    if(!email&&!tel){msg('Preencha o e-mail ou o telefone do cliente.');$('f-email').focus();return;}
+    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg('Confira o e-mail: ele precisa ter o formato nome@dominio.com.');$('f-email').focus();return;}
+    if(tel&&(dig.length<10||dig.length>13)){msg('Confira o telefone: use DDD + número, por exemplo (11) 99999-9999.');$('f-tel').focus();return;}
+    try{localStorage.setItem('pdv-nome',por);}catch(_){}
+    $('f-save').disabled=true;msg('');
+    try{var j=await api('POST',{email:email,telefone:tel,obs:$('f-obs').value.trim(),por:por});
+      lista.unshift(j.cliente);render();
+      ['f-email','f-tel','f-obs'].forEach(function(i){$(i).value='';});msg('Cliente adicionado.',true);$('f-email').focus();
+    }catch(err){if(err.message!=='senha')msg(err.message);}
+    $('f-save').disabled=false;
+  });
+  carregar();
+  setInterval(function(){if(!document.hidden&&$('senha-card').hidden)carregar(true);},20000);
+})();
+</script>
+</body>
+</html>
