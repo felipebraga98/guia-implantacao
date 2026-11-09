@@ -48,7 +48,7 @@ input:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outlin
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 #q{width:260px;max-width:100%}
 .tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
-table{border-collapse:collapse;width:100%;min-width:760px;font-size:.92rem}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:.92rem}
 th{background:var(--green-soft);color:var(--green-deep);text-align:left;font-weight:700;padding:10px 12px;white-space:nowrap}
 td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
 td.mono{font-family:var(--f-mono);font-size:.85rem;white-space:nowrap}
@@ -103,8 +103,8 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
     </div>
     <div class="tbl">
       <table>
-        <thead><tr><th>E-mail</th><th>Telefone</th><th>Observações</th><th>Cadastrado por</th><th></th></tr></thead>
-        <tbody id="tb"><tr><td colspan="5" class="empty">Carregando a lista…</td></tr></tbody>
+        <thead><tr><th>E-mail</th><th>Telefone</th><th>Observações</th><th>Cadastrado por</th><th>Cadastrado em</th><th></th></tr></thead>
+        <tbody id="tb"><tr><td colspan="6" class="empty">Carregando a lista…</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -117,6 +117,7 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
   var API='/api/clientes', lista=[], senha='', chains={}, timers={};
   try{senha=sessionStorage.getItem('pdv-senha')||'';$('f-por').value=localStorage.getItem('pdv-nome')||'';}catch(e){}
   function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function dt(v){var d=new Date(v);if(isNaN(d))return '—';return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
   function msg(t,ok){var m=$('msg');m.textContent=t;m.className='msg'+(ok?' ok':t?' err':'');}
   function notice(t){var n=$('notice');n.textContent=t;n.hidden=!t;}
 
@@ -137,7 +138,7 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
       lista=j.clientes||[];render();if(!silencioso)notice('');
     }catch(e){
       if(e.message==='senha')return;
-      if(!silencioso)$('tb').innerHTML='<tr><td colspan="5" class="empty">'+esc(e.message)+'</td></tr>';
+      if(!silencioso)$('tb').innerHTML='<tr><td colspan="6" class="empty">'+esc(e.message)+'</td></tr>';
     }
   }
   function typing(){var a=document.activeElement;return a&&a.tagName==='TEXTAREA'&&a.closest('#tb');}
@@ -147,13 +148,14 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
     var q=$('q').value.trim().toLowerCase(), qd=q.replace(/\D/g,'');
     var rows=lista.filter(function(x){if(!q)return true;return String(x.email||'').toLowerCase().indexOf(q)>=0||String(x.por||'').toLowerCase().indexOf(q)>=0||(qd&&String(x.telefone||'').replace(/\D/g,'').indexOf(qd)>=0);});
     var tb=$('tb');
-    if(!lista.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhum cliente cadastrado ainda. Use o formulário acima para adicionar o primeiro.</td></tr>';return;}
-    if(!rows.length){tb.innerHTML='<tr><td colspan="5" class="empty">Nenhum cliente encontrado nessa busca.</td></tr>';return;}
+    if(!lista.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhum cliente cadastrado ainda. Use o formulário acima para adicionar o primeiro.</td></tr>';return;}
+    if(!rows.length){tb.innerHTML='<tr><td colspan="6" class="empty">Nenhum cliente encontrado nessa busca.</td></tr>';return;}
     tb.innerHTML=rows.map(function(x){var id=esc(x.id);return '<tr data-id="'+id+'">'+
       '<td class="mailc">'+esc(x.email||'—')+'</td>'+
       '<td class="mono" style="user-select:all">'+esc(x.telefone||'—')+'</td>'+
       '<td><textarea id="o-'+id+'" rows="1" aria-label="Observações">'+esc(x.obs||'')+'</textarea><span class="saved" id="v-'+id+'"></span></td>'+
       '<td class="who">'+esc(x.por||'—')+'</td>'+
+      '<td class="mono">'+esc(dt(x.criadoEm))+'</td>'+
       '<td><button type="button" class="del" data-del="'+id+'">Excluir</button></td></tr>';}).join('');
   }
   function salvarObs(id,obs){
