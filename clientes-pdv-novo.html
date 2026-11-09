@@ -89,7 +89,7 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
     <form class="grid" id="add" novalidate>
       <label for="f-email">E-mail do painel<input id="f-email" type="email" autocomplete="off" placeholder="cliente@email.com"></label>
       <label for="f-tel">Telefone (WhatsApp)<input id="f-tel" type="tel" autocomplete="off" placeholder="(11) 99999-9999"></label>
-      <label for="f-por">Seu nome<input id="f-por" autocomplete="name" placeholder="Quem está cadastrando"></label>
+      <label for="f-por">Seu nome<input id="f-por" autocomplete="off" placeholder="Quem está cadastrando"></label>
       <label for="f-obs" class="wide">Observações<textarea id="f-obs" rows="2" placeholder="O que foi feito ou combinado com o cliente"></textarea></label>
       <div><button class="btn" id="f-save" type="submit">Adicionar cliente</button></div>
     </form>
@@ -115,7 +115,7 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
 (function(){
   var $=function(id){return document.getElementById(id);};
   var API='/api/clientes', lista=[], senha='', chains={}, timers={};
-  try{senha=sessionStorage.getItem('pdv-senha')||'';$('f-por').value=localStorage.getItem('pdv-nome')||'';}catch(e){}
+  try{senha=sessionStorage.getItem('pdv-senha')||'';localStorage.removeItem('pdv-nome');}catch(e){}
   function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function dt(v){var d=new Date(v);if(isNaN(d))return '—';return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
   function msg(t,ok){var m=$('msg');m.textContent=t;m.className='msg'+(ok?' ok':t?' err':'');}
@@ -190,11 +190,10 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
     if(!email&&!tel){msg('Preencha o e-mail ou o telefone do cliente.');$('f-email').focus();return;}
     if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg('Confira o e-mail: ele precisa ter o formato nome@dominio.com.');$('f-email').focus();return;}
     if(tel&&(dig.length<10||dig.length>13)){msg('Confira o telefone: use DDD + número, por exemplo (11) 99999-9999.');$('f-tel').focus();return;}
-    try{localStorage.setItem('pdv-nome',por);}catch(_){}
     $('f-save').disabled=true;msg('');
     try{var j=await api('POST',{email:email,telefone:tel,obs:$('f-obs').value.trim(),por:por});
       lista.unshift(j.cliente);render();
-      ['f-email','f-tel','f-obs'].forEach(function(i){$(i).value='';});msg('Cliente adicionado.',true);$('f-email').focus();
+      ['f-email','f-tel','f-obs','f-por'].forEach(function(i){$(i).value='';});msg('Cliente adicionado.',true);$('f-email').focus();
     }catch(err){if(err.message!=='senha')msg(err.message);}
     $('f-save').disabled=false;
   });

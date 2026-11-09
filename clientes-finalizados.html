@@ -93,7 +93,7 @@ tr.dia+tr td{border-top:0}
     <form class="grid" id="add" novalidate>
       <label for="f-email">E-mail do painel<input id="f-email" type="email" autocomplete="off" placeholder="cliente@email.com"></label>
       <label for="f-tel">Telefone (WhatsApp)<input id="f-tel" type="tel" autocomplete="off" placeholder="(11) 99999-9999"></label>
-      <label for="f-por">Quem finalizou<input id="f-por" autocomplete="name" placeholder="Nome de quem finalizou"></label>
+      <label for="f-por">Quem finalizou<input id="f-por" autocomplete="off" placeholder="Nome de quem finalizou"></label>
       <div><button class="btn" id="f-save" type="submit">Registrar</button></div>
     </form>
     <p class="msg" id="msg" role="status"></p>
@@ -118,7 +118,7 @@ tr.dia+tr td{border-top:0}
 (function(){
   var $=function(id){return document.getElementById(id);};
   var API='/api/clientes?lista=finalizados', lista=[], senha='', chains={}, timers={};
-  try{senha=sessionStorage.getItem('pdv-senha')||'';$('f-por').value=localStorage.getItem('pdv-nome')||'';}catch(e){}
+  try{senha=sessionStorage.getItem('pdv-senha')||'';localStorage.removeItem('pdv-nome');}catch(e){}
   function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function chaveDia(v){var d=new Date(v);return isNaN(d)?'sem-data':d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
   function rotuloDia(v){var d=new Date(v);if(isNaN(d))return 'Sem data';
@@ -199,11 +199,10 @@ tr.dia+tr td{border-top:0}
     if(!por){msg('Preencha quem finalizou.');$('f-por').focus();return;}
     if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg('Confira o e-mail: ele precisa ter o formato nome@dominio.com.');$('f-email').focus();return;}
     if(tel&&(dig.length<10||dig.length>13)){msg('Confira o telefone: use DDD + número, por exemplo (11) 99999-9999.');$('f-tel').focus();return;}
-    try{localStorage.setItem('pdv-nome',por);}catch(_){}
     $('f-save').disabled=true;msg('');
     try{var j=await api('POST',{email:email,telefone:tel,por:por});
       lista.unshift(j.cliente);render();
-      ['f-email','f-tel'].forEach(function(i){$(i).value='';});msg('Cliente finalizado registrado.',true);$('f-email').focus();
+      ['f-email','f-tel','f-por'].forEach(function(i){$(i).value='';});msg('Cliente finalizado registrado.',true);$('f-email').focus();
     }catch(err){if(err.message!=='senha')msg(err.message);}
     $('f-save').disabled=false;
   });
