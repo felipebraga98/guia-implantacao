@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clientes Implantação</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Mesmo visual do Suporte WhatsMenu: fundo verde, título branco, cartões brancos. */
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22;
+  --card:#ffffff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fdecec;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--green);color:var(--ink);font:15px/1.55 var(--f-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.9rem)/1.05 var(--f-display);margin:.2em 0 .25em;text-wrap:balance}
+.sub{margin:0;max-width:62ch;opacity:.95}
+.stat{display:flex;align-items:baseline;gap:7px;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:6px 14px}
+.stat b{font:800 1.1rem var(--f-display);font-variant-numeric:tabular-nums}
+.stat span{font-size:.85rem;font-weight:600}
+.card{background:var(--card);border-radius:14px;padding:24px clamp(16px,3vw,32px);box-shadow:0 2px 0 var(--green-deep);display:flex;flex-direction:column;gap:16px;min-width:0}
+.card h2{margin:0;font:800 1.35rem/1.2 var(--f-display)}
+.notice{border-left:4px solid var(--warn);background:var(--warn-soft);color:var(--warn);font-weight:600;padding:10px 14px;border-radius:0 8px 8px 0}
+form.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
+form.grid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep);min-width:0}
+form.grid .wide{grid-column:1/-1}
+input,textarea{font:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0}
+textarea{resize:vertical;min-height:40px}
+input:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
+.btn{font:700 .95rem var(--f-body);background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 18px;cursor:pointer;box-shadow:0 3px 0 var(--green-deep)}
+.btn:hover{background:var(--green-deep)}.btn:disabled{opacity:.6;cursor:wait}
+.btn:focus-visible{outline:2px solid var(--forest);outline-offset:2px}
+.msg{min-height:1.3em;margin:0;font-weight:600}.msg.ok{color:var(--green-deep)}.msg.err{color:var(--bad)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+#q{width:260px;max-width:100%}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:1080px;font-size:.92rem}
+th{background:var(--green-soft);color:var(--green-deep);text-align:left;font-weight:700;padding:10px 12px;white-space:nowrap}
+td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+td.mono{font-family:var(--f-mono);font-size:.85rem;white-space:nowrap}
+td.mailc{font-weight:600;word-break:break-all}
+td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
+.who{color:var(--muted);font-size:.85rem}
+.saved{display:block;font-size:.75rem;color:var(--muted);min-height:1em}
+.del{font:600 .8rem var(--f-body);background:#fff;color:var(--bad);border:1.5px solid #e3a1a1;border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.del:hover{background:var(--bad-soft)}.del:focus-visible{outline:2px solid var(--bad);outline-offset:2px}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+
+input,textarea,select{font:inherit}
+.me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;font-size:.9rem}
+.me button{font:600 .82rem var(--f-body);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:5px 12px;cursor:pointer}
+.me button:hover{background:#fff;color:var(--green-deep)}
+.auth{max-width:440px;width:100%;margin:0 auto}
+.tabs{display:flex;background:var(--green-soft);border-radius:10px;padding:4px;gap:4px}
+.tabs button{flex:1;font:700 .9rem var(--f-body);border:0;background:transparent;color:var(--green-deep);border-radius:8px;padding:8px;cursor:pointer}
+.tabs button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.auth form{display:flex;flex-direction:column;gap:12px}
+.auth label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
+.hint{font-size:.8rem;color:var(--muted);font-weight:400}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{font:600 .84rem var(--f-body);border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:5px 12px;cursor:pointer}
+.filters button.on{background:var(--green);border-color:var(--green);color:#fff}
+.filters button b{font-variant-numeric:tabular-nums;margin-left:4px}
+td input{width:100%;font-size:.88rem;padding:6px 8px;border-radius:8px}
+td input[type=date]{min-width:130px}
+td.c-mail input{min-width:200px;font-weight:600}
+td.c-tel input{min-width:130px;font-family:var(--f-mono);font-size:.82rem}
+td.c-st input{min-width:130px}
+td input.st-fin{background:var(--green-soft);color:var(--green-deep);font-weight:700;border-color:#9fd6b1}
+td input.st-cresc{background:#e3ecff;color:#1f3f9f;font-weight:700;border-color:#b6c8f5}
+td.c-alt{font-size:.8rem;color:var(--muted);white-space:nowrap}
+td.c-alt b{color:var(--ink);font-weight:600}
+.link{background:none;border:0;padding:0;color:var(--green-deep);font:600 .78rem var(--f-body);text-decoration:underline;cursor:pointer}
+dialog{border:0;border-radius:14px;padding:22px 24px;max-width:560px;width:calc(100% - 32px);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(15,59,34,.55)}
+dialog h3{margin:0 0 4px;font:800 1.2rem var(--f-display)}
+dialog ol{list-style:none;padding:0;margin:14px 0;max-height:60vh;overflow:auto}
+dialog li{border-left:3px solid var(--line);padding:4px 0 10px 12px;font-size:.9rem}
+dialog li small{color:var(--muted);display:block}
+dialog .de{color:var(--bad);text-decoration:line-through}
+dialog .para{color:var(--green-deep);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="./">← Voltar ao Suporte</a>
+      <div class="eyebrow">Suporte · WhatsMenu</div>
+      <h1>Clientes Implantação</h1>
+      <p class="sub">Acompanhamento dos clientes em implantação. Cada alteração fica registrada com o nome de quem fez.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+      <div class="me" id="me" hidden><span id="me-nome"></span><button type="button" id="sair">Sair</button></div>
+      <div class="stat" id="stat" hidden><b id="total">0</b><span id="total-l">clientes</span></div>
+    </div>
+  </header>
+
+  <!-- LOGIN / CADASTRO -->
+  <section class="card auth" id="auth" hidden>
+    <div class="tabs" role="tablist">
+      <button type="button" class="on" data-tab="entrar">Entrar</button>
+      <button type="button" data-tab="cadastro">Criar conta</button>
+    </div>
+
+    <form id="f-entrar" autocomplete="on">
+      <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
+      <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+
+    <form id="f-cadastro" hidden autocomplete="on">
+      <label>Seu nome<span class="hint">É o nome que aparece nas alterações que você fizer.</span><input id="c-nome" required maxlength="60"></label>
+      <label>Usuário<span class="hint">Sem espaço e sem acento. Ex.: kevin, ana.souza</span><input id="c-user" autocomplete="username" autocapitalize="off" required maxlength="30"></label>
+      <label>Senha<span class="hint">Pelo menos 6 caracteres.</span><input id="c-pass" type="password" autocomplete="new-password" required></label>
+      <label>Repita a senha<input id="c-pass2" type="password" autocomplete="new-password" required></label>
+      <label id="c-eq-wrap" hidden>Senha da equipe<span class="hint">A mesma senha das listas do PDV novo.</span><input id="c-eq" type="password" autocomplete="off"></label>
+      <button class="btn" type="submit">Criar conta e entrar</button>
+    </form>
+    <p class="msg" id="auth-msg" role="status"></p>
+  </section>
+
+  <!-- LISTA -->
+  <div id="app" hidden style="display:contents">
+    <section class="card">
+      <h2>Adicionar cliente</h2>
+      <form class="grid" id="form" autocomplete="off" novalidate>
+        <label>Data entrada<input id="f-data" type="date"></label>
+        <label>E-mail<input id="f-email" type="email" placeholder="cliente@email.com"></label>
+        <label>Telefone<input id="f-tel" type="tel" placeholder="(11) 99999-9999"></label>
+        <label>Status<input id="f-status" list="status-opcoes" placeholder="Ex.: Em crescimento"></label>
+        <label class="wide">O que falta para finalizar?<textarea id="f-falta" rows="2" placeholder="Onde parou, o que falta, próximo contato"></textarea></label>
+        <div><button class="btn" id="f-save" type="submit">Adicionar cliente</button></div>
+      </form>
+      <p class="msg" id="msg" role="status"></p>
+    </section>
+
+    <section class="card">
+      <div class="bar">
+        <h2>Clientes</h2>
+        <input id="q" type="search" placeholder="Buscar e-mail, telefone ou anotação" aria-label="Buscar">
+      </div>
+      <div class="filters" id="filtros"></div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>Data entrada</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>O que falta para finalizar?</th><th>Última alteração</th><th></th></tr></thead>
+          <tbody id="tb"><tr><td colspan="7" class="empty">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<datalist id="status-opcoes">
+  <option value="Em implantação"><option value="Em crescimento"><option value="Aguardando cliente"><option value="Finalizado">
+</datalist>
+
+<dialog id="hist">
+  <h3 id="hist-t">Histórico</h3>
+  <span class="hint" id="hist-sub"></span>
+  <ol id="hist-l"></ol>
+  <button class="btn" type="button" id="hist-x">Fechar</button>
+</dialog>
+
+<script>
+(function(){
+  var API='/api/implantacao';
+  var $=function(id){return document.getElementById(id);};
+  var token='',eu=null,lista=[],filtro='',timers={};
+
+  try{token=localStorage.getItem('impl-token')||'';}catch(e){}
+  function guardaToken(t){token=t;try{t?localStorage.setItem('impl-token',t):localStorage.removeItem('impl-token');}catch(e){}}
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function msg(el,t,ok){el.textContent=t||'';el.className='msg'+(t?(ok?' ok':' err'):'');}
+  function hoje(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function quando(v){var d=new Date(v);if(isNaN(d))return '';return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+  async function api(method,acao,body){
+    var r=await fetch(API+'?acao='+acao,{method:method,headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+    var j=await r.json().catch(function(){return{};});
+    if(r.status===401&&j.precisaLogin){sairLocal();throw new Error(j.erro);}
+    if(!r.ok)throw new Error(j.erro||'Erro '+r.status);
+    return j;
+  }
+
+  // ---------- login ----------
+  document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b);});
+    $('f-entrar').hidden=b.dataset.tab!=='entrar';$('f-cadastro').hidden=b.dataset.tab!=='cadastro';msg($('auth-msg'),'');
+  });});
+
+  $('f-entrar').addEventListener('submit',async function(e){e.preventDefault();
+    try{var r=await api('POST','entrar',{usuario:$('e-user').value,senha:$('e-pass').value});guardaToken(r.token);entrou({usuario:r.usuario,nome:r.nome});}
+    catch(err){msg($('auth-msg'),err.message);}
+  });
+
+  $('f-cadastro').addEventListener('submit',async function(e){e.preventDefault();
+    if($('c-pass').value!==$('c-pass2').value){msg($('auth-msg'),'As senhas não são iguais.');return;}
+    try{var r=await api('POST','cadastro',{nome:$('c-nome').value,usuario:$('c-user').value,senha:$('c-pass').value,senhaEquipe:$('c-eq').value});guardaToken(r.token);entrou({usuario:r.usuario,nome:r.nome});}
+    catch(err){msg($('auth-msg'),err.message);}
+  });
+
+  $('sair').addEventListener('click',async function(){try{await api('POST','sair');}catch(e){}sairLocal();});
+
+  function sairLocal(){guardaToken('');eu=null;$('app').hidden=true;$('me').hidden=true;$('stat').hidden=true;$('auth').hidden=false;$('e-pass').value='';}
+  function entrou(u){eu=u;$('auth').hidden=true;$('app').hidden=false;$('me').hidden=false;$('stat').hidden=false;$('me-nome').textContent='Olá, '+u.nome;$('f-data').value=hoje();carregar();}
+
+  // ---------- lista ----------
+  async function carregar(){
+    try{var r=await api('GET','clientes');lista=r.clientes||[];render();}
+    catch(err){if(eu)$('tb').innerHTML='<tr><td colspan="7" class="empty">'+esc(err.message)+'</td></tr>';}
+  }
+
+  function editando(){var a=document.activeElement;return a&&a.closest&&a.closest('#tb')&&/INPUT|TEXTAREA/.test(a.tagName);}
+  function classeStatus(s){s=String(s||'').toLowerCase();return s.indexOf('finaliz')>=0?'st-fin':(s.indexOf('cresc')>=0?'st-cresc':'');}
+
+  function renderFiltros(){
+    var cont={};lista.forEach(function(x){var k=x.status||'Sem status';cont[k]=(cont[k]||0)+1;});
+    var h='<button type="button" data-f=""'+(filtro===''?' class="on"':'')+'>Todos<b>'+lista.length+'</b></button>';
+    Object.keys(cont).sort().forEach(function(k){h+='<button type="button" data-f="'+esc(k)+'"'+(filtro===k?' class="on"':'')+'>'+esc(k)+'<b>'+cont[k]+'</b></button>';});
+    $('filtros').innerHTML=h;
+  }
+
+  function render(){
+    if(editando())return;
+    $('total').textContent=lista.length;$('total-l').textContent=lista.length===1?'cliente':'clientes';
+    renderFiltros();
+    var q=$('q').value.trim().toLowerCase(),qd=q.replace(/\D/g,'');
+    var rows=lista.filter(function(x){
+      if(filtro&&(x.status||'Sem status')!==filtro)return false;if(!q)return true;
+      return [x.email,x.status,x.falta,x.criadoPor,x.atualizadoPor].join(' ').toLowerCase().indexOf(q)>=0||(qd.length>=3&&String(x.telefone||'').replace(/\D/g,'').indexOf(qd)>=0);
+    });
+    if(!rows.length){$('tb').innerHTML='<tr><td colspan="7" class="empty">'+(lista.length?'Nenhum cliente nesse filtro.':'Nenhum cliente ainda.')+'</td></tr>';return;}
+    $('tb').innerHTML=rows.map(function(x){var id=esc(x.id);return '<tr data-id="'+id+'">'+
+      '<td><input type="date" data-c="dataEntrada" value="'+esc(x.dataEntrada)+'" aria-label="Data entrada"></td>'+
+      '<td class="c-mail"><input data-c="email" value="'+esc(x.email)+'" aria-label="E-mail"></td>'+
+      '<td class="c-tel"><input data-c="telefone" value="'+esc(x.telefone)+'" aria-label="Telefone"></td>'+
+      '<td class="c-st"><input data-c="status" list="status-opcoes" class="'+classeStatus(x.status)+'" value="'+esc(x.status)+'" aria-label="Status"></td>'+
+      '<td><textarea data-c="falta" rows="1" aria-label="O que falta">'+esc(x.falta)+'</textarea><span class="saved" id="s-'+id+'"></span></td>'+
+      '<td class="c-alt"><b>'+esc(x.atualizadoPor||x.criadoPor||'—')+'</b><br>'+esc(quando(x.atualizadoEm))+'<br><button type="button" class="link" data-h="'+id+'">histórico</button></td>'+
+      '<td><button type="button" class="del" data-del="'+id+'">Excluir</button></td></tr>';}).join('');
+  }
+
+  $('filtros').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;filtro=b.dataset.f;render();});
+  $('q').addEventListener('input',render);
+
+  // salvar edição de uma célula
+  async function salvar(el){
+    var tr=el.closest('tr'),id=tr.dataset.id,campo=el.dataset.c,s=$('s-'+id);
+    var item=lista.find(function(x){return x.id===id;});if(!item||(item[campo]||'')===el.value.trim())return;
+    if(s)s.textContent='Salvando…';
+    try{var body={id:id};body[campo]=el.value;var r=await api('PATCH','clientes',body);
+      lista=lista.map(function(x){return x.id===id?r.cliente:x;});
+      if(s)s.textContent='Salvo ✓';
+      var alt=tr.querySelector('.c-alt');if(alt)alt.innerHTML='<b>'+esc(r.cliente.atualizadoPor)+'</b><br>'+esc(quando(r.cliente.atualizadoEm))+'<br><button type="button" class="link" data-h="'+esc(id)+'">histórico</button>';
+      if(campo==='status')el.className=classeStatus(el.value);
+    }catch(err){if(s)s.textContent=err.message;}
+  }
+  $('tb').addEventListener('change',function(e){if(e.target.dataset.c)salvar(e.target);});
+  $('tb').addEventListener('input',function(e){var el=e.target;if(el.tagName!=='TEXTAREA')return;var id=el.closest('tr').dataset.id;clearTimeout(timers[id]);timers[id]=setTimeout(function(){salvar(el);},1500);});
+  $('tb').addEventListener('focusout',function(e){if(e.target.matches('#tb textarea')){var id=e.target.closest('tr').dataset.id;clearTimeout(timers[id]);salvar(e.target);}setTimeout(function(){if(!editando())render();},50);});
+
+  // excluir (confirma clicando de novo) e histórico
+  $('tb').addEventListener('click',async function(e){
+    var h=e.target.closest('[data-h]');if(h){abrirHist(h.dataset.h);return;}
+    var b=e.target.closest('[data-del]');if(!b)return;
+    if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmar exclusão';setTimeout(function(){if(b.isConnected){b.dataset.c='';b.textContent='Excluir';}},3500);return;}
+    try{await api('DELETE','clientes',{id:b.dataset.del});lista=lista.filter(function(x){return x.id!==b.dataset.del;});render();msg($('msg'),'Cliente excluído.',true);}
+    catch(err){msg($('msg'),err.message);}
+  });
+
+  function abrirHist(id){
+    var x=lista.find(function(i){return i.id===id;});if(!x)return;
+    $('hist-t').textContent=x.email||x.telefone;
+    $('hist-sub').textContent='Adicionado por '+(x.criadoPor||'—')+' em '+quando(x.criadoEm);
+    var h=(x.hist||[]).map(function(m){return '<li><small>'+esc(quando(m.quando))+' · '+esc(m.quem)+'</small>'+esc(m.campo)+': '+(m.de?'<span class="de">'+esc(m.de)+'</span> → ':'')+'<span class="para">'+esc(m.para||'(vazio)')+'</span></li>';}).join('');
+    $('hist-l').innerHTML=h||'<li>Nenhuma alteração ainda.</li>';
+    $('hist').showModal();
+  }
+  $('hist-x').addEventListener('click',function(){$('hist').close();});
+
+  // adicionar
+  $('form').addEventListener('submit',async function(e){e.preventDefault();
+    var email=$('f-email').value.trim(),tel=$('f-tel').value.trim();
+    if(!email&&!tel){msg($('msg'),'Preencha o e-mail ou o telefone do cliente.');return;}
+    var ja=lista.find(function(x){return (email&&String(x.email).toLowerCase()===email.toLowerCase())||(tel.replace(/\D/g,'').length>=10&&String(x.telefone).replace(/\D/g,'').slice(-10)===tel.replace(/\D/g,'').slice(-10));});
+    if(ja&&!confirm('Já existe um cliente com esse e-mail ou telefone ('+(ja.email||ja.telefone)+'). Adicionar mesmo assim?'))return;
+    $('f-save').disabled=true;
+    try{var r=await api('POST','clientes',{dataEntrada:$('f-data').value,email:email,telefone:tel,status:$('f-status').value,falta:$('f-falta').value});
+      lista.unshift(r.cliente);['f-email','f-tel','f-status','f-falta'].forEach(function(i){$(i).value='';});$('f-data').value=hoje();
+      msg($('msg'),'Cliente adicionado.',true);carregar();
+    }catch(err){msg($('msg'),err.message);}
+    finally{$('f-save').disabled=false;}
+  });
+
+  // início
+  (async function(){
+    try{var c=await api('GET','config');$('c-eq-wrap').hidden=!c.pedeSenhaEquipe;$('c-eq').required=!!c.pedeSenhaEquipe;}catch(e){}
+    if(!token){sairLocal();return;}
+    try{var u=await api('GET','eu');entrou(u);}catch(e){sairLocal();}
+  })();
+  setInterval(function(){if(eu&&!document.hidden)carregar();},20000);
+})();
+</script>
+</body>
+</html>
