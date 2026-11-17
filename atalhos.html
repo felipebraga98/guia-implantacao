@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atalhos do Suporte</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --green:#00a63e;--green-deep:#007a2e;--green-soft:#e6f6ec;--forest:#0f3b22;--gold:#ffd23f;
+  --card:#fff;--ink:#14251b;--muted:#4f6357;--line:#d7e6dc;--code-bg:#f3f7f4;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}html{scroll-padding-top:150px}
+body{background:var(--green);color:var(--ink);font:15px/1.55 var(--f-body);padding:28px max(16px,env(safe-area-inset-left,0px)) 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{color:#fff}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.9rem)/1.05 var(--f-display);margin:.2em 0 .25em}
+.sub{margin:0;max-width:70ch;opacity:.95}
+.tools{position:sticky;top:0;z-index:5;background:var(--forest);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 14px rgba(0,0,0,.2);border-bottom:4px solid var(--gold)}
+.tools-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#q{flex:1 1 280px;font:inherit;border:0;border-radius:10px;padding:10px 14px;min-width:0}
+#q:focus-visible{outline:3px solid var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:700 .82rem var(--f-body);border:1.5px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips button.on{background:#fff;color:var(--green-deep);border-color:#fff}
+.chips button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}
+.nav a{flex:none;color:#fff;text-decoration:none;font:600 .8rem var(--f-body);background:rgba(255,255,255,.12);border-radius:8px;padding:5px 10px;white-space:nowrap}
+.nav a:hover{background:#fff;color:var(--green-deep)}
+.count{color:#fff;font-size:.82rem;opacity:.85;white-space:nowrap}
+.card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,30px);box-shadow:0 2px 0 var(--green-deep);min-width:0}
+.sec h2{margin:0 0 6px;font:800 1.4rem/1.2 var(--f-display);display:flex;align-items:center;gap:10px}
+.sec h2 .ic{font-size:1.4rem}
+.intro{margin:0 0 14px;color:var(--muted);max-width:90ch}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th{background:var(--green-soft);color:var(--green-deep);text-align:left;font-weight:700;padding:9px 12px;white-space:nowrap}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+td.k{width:30%;min-width:230px}
+td.k div{margin-top:6px;line-height:2}
+td.d{color:var(--muted);font-size:.87rem;width:38%}
+kbd{display:inline-block;font:700 .78rem/1 var(--f-mono);color:var(--forest);background:#fff;border:1.5px solid #b9cfc0;border-bottom-width:3px;border-radius:6px;padding:4px 7px;white-space:nowrap}
+code{font:500 .82rem var(--f-mono);background:var(--code-bg);border:1px solid var(--line);border-radius:5px;padding:2px 6px;white-space:nowrap}
+.mono{font-family:var(--f-mono)}
+.ou{font-size:.75rem;color:var(--muted);margin:0 4px}
+.os{display:inline-block;font:700 .68rem var(--f-body);letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:2px 8px}
+.os-win{background:#e3ecff;color:#1f3f9f}.os-mac{background:#eee;color:#333}.os-and{background:#e6f6ec;color:#00752c}
+.os-ios{background:#f1e8ff;color:#5b2aa6}.os-web{background:#fff3dc;color:#8a5200}.os-wpp{background:#dcf8e6;color:#0b6b33}
+.msgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.msg{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.msg-h{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--green-soft);padding:10px 12px;color:var(--green-deep)}
+.msg pre{margin:0;padding:12px 14px;white-space:pre-wrap;font:.88rem/1.5 var(--f-body);flex:1}
+.copy{font:600 .8rem var(--f-body);background:#fff;color:var(--green-deep);border:1.5px solid var(--green);border-radius:6px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.copy:hover,.copy.ok{background:var(--green);color:#fff}
+.check{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.check>div{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.check h3{margin:0 0 6px;font:800 1.05rem var(--f-display);color:var(--green-deep)}
+.check ul{margin:0;padding-left:18px}.check li{margin:4px 0}
+.vazio{text-align:center;color:#fff;font-weight:600;padding:20px}
+mark{background:#fff3a3;color:inherit;border-radius:3px}
+@media (max-width:760px){
+  .tools{position:static}html{scroll-padding-top:12px}
+  table,thead,tbody,tr,td{display:block}thead{display:none}
+  tr{border-top:1px solid var(--line);padding:10px 12px}td{border:0;padding:3px 0;width:auto!important;min-width:0!important}
+  td.k div{margin-top:4px}
+}
+@media print{body{background:#fff;padding:0}.tools,.back{display:none}.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid-page}header{color:var(--ink)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="./">← Voltar ao Suporte</a>
+    <div class="eyebrow">Suporte · WhatsMenu</div>
+    <h1>Atalhos do Suporte</h1>
+    <p class="sub">Tudo o que agiliza o atendimento: print, gravação de tela, navegador, WhatsApp, Windows, diagnóstico e mensagens prontas para pedir evidências ao cliente.</p>
+  </header>
+
+  <div class="tools">
+    <div class="tools-row">
+      <input id="q" type="search" placeholder="Buscar: print, gravar, cache, impressora, colar…" aria-label="Buscar atalho">
+      <span class="count" id="count"></span>
+    </div>
+    <div class="chips" id="sistemas" role="group" aria-label="Filtrar por sistema">
+      <button type="button" class="on" data-os="">Todos</button>
+      <button type="button" data-os="win">Windows</button>
+      <button type="button" data-os="mac">Mac</button>
+      <button type="button" data-os="web">Chrome</button>
+      <button type="button" data-os="wpp">WhatsApp</button>
+      <button type="button" data-os="and">Android</button>
+      <button type="button" data-os="ios">iPhone</button>
+    </div>
+    <nav class="nav" aria-label="Seções"><a href="#print">📸 Print</a><a href="#video">🎥 Gravar vídeo</a><a href="#chrome">🌐 Chrome</a><a href="#whatsapp">💬 WhatsApp</a><a href="#texto">⌨️ Copiar e colar</a><a href="#windows">🪟 Janelas</a><a href="#diagnostico">🛠️ Diagnóstico</a><a href="#remoto">🖥️ Acesso remoto</a><a href="#mensagens">📨 Mensagens prontas</a><a href="#boas">✅ Boas práticas</a></nav>
+  </div>
+
+  <section class="card sec" id="print"><h2><span class="ic">📸</span>Tirar print (captura de tela)</h2><p class="intro">O print é a prova mais rápida de um problema. Prefira recortar só a área que importa e, se tiver dado sensível, rabisque por cima antes de enviar.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></div></td><td>Abre a <b>Ferramenta de Captura</b>: você escolhe retângulo, janela, tela inteira ou forma livre.</td><td class="d">O print vai para a área de transferência: é só <kbd>Ctrl</kbd> + <kbd>V</kbd> no WhatsApp ou no chamado. Clique na notificação para rabiscar, destacar ou salvar.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>PrtSc</kbd></div></td><td>Captura a tela inteira (no Windows 11 atualizado, pode abrir a Ferramenta de Captura).</td><td class="d">Em notebooks a tecla pode se chamar <b>PrtSc</b>, <b>PrtScn</b> ou <b>Print</b> e às vezes precisa de <kbd>Fn</kbd> junto.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>PrtSc</kbd></div></td><td>Captura a tela inteira e <b>salva o arquivo</b> automaticamente.</td><td class="d">Fica em <b>Imagens › Capturas de Tela</b>. A tela pisca para confirmar.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Alt</kbd> + <kbd>PrtSc</kbd></div></td><td>Captura só a <b>janela ativa</b> (ex.: só o Chrome).</td><td class="d">Bom quando o cliente tem dois monitores. Vai para a área de transferência.</td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>3</kbd></div></td><td>Captura a tela inteira.</td><td class="d">Salva na Mesa (Desktop).</td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>4</kbd></div></td><td>Captura uma área: arraste para selecionar.</td><td class="d">Apertando <kbd>Espaço</kbd> depois, captura uma janela específica.</td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>4</kbd></div></td><td>Captura uma área e copia direto para a área de transferência.</td><td class="d">Depois é só <kbd>Cmd</kbd> + <kbd>V</kbd> para colar.</td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>5</kbd></div></td><td>Abre a barra de captura (print e gravação de vídeo).</td><td class="d">Em “Opções” dá para escolher onde salvar e ativar o temporizador.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>F12</kbd> → <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> → digite <b>full</b></div></td><td>Print da <b>página inteira</b> do site, mesmo a parte que precisa rolar.</td><td class="d">Escolha “Capture full size screenshot” e o PNG baixa sozinho. Ótimo para mandar o cardápio inteiro ou uma tela longa do painel.</td></tr>
+<tr data-os="and"><td class="k"><span class="os os-and">Android</span><div><kbd>Liga/desliga</kbd> + <kbd>Volume -</kbd></div></td><td>Print da tela no Android.</td><td class="d">Aperte os dois juntos e solte. Em alguns aparelhos dá para deslizar 3 dedos para baixo. Fica na Galeria › Capturas de tela.</td></tr>
+<tr data-os="ios"><td class="k"><span class="os os-ios">iPhone</span><div><kbd>Botão lateral</kbd> + <kbd>Volume</kbd> + <kbd></kbd></div></td><td>Print no iPhone com Face ID (iPhone X em diante).</td><td class="d">Aperte e solte rápido. A miniatura aparece no canto: toque para rabiscar. Fica em Fotos.</td></tr>
+<tr data-os="ios"><td class="k"><span class="os os-ios">iPhone</span><div><kbd>Botão lateral</kbd> + <kbd>Início</kbd></div></td><td>Print no iPhone com botão de início (iPhone 8, SE).</td><td class="d">Em modelos muito antigos é o botão de cima + Início.</td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="video"><h2><span class="ic">🎥</span>Gravar vídeo da tela</h2><p class="intro">Vídeo é a melhor evidência para erro que “às vezes acontece” ou fluxo com vários passos. Grave curto (até 1 minuto), mostrando o caminho desde o início.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd></div></td><td>Inicia a <b>gravação de tela</b> da Ferramenta de Captura (Windows 11 atualizado): selecione a área e clique em <b>Iniciar</b>.</td><td class="d">Se o atalho não abrir, use <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> e clique no ícone de câmera. Dá para ligar microfone e som do sistema. O vídeo fica em <b>Vídeos › Gravações de Tela</b>.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd></div></td><td>Grava o <b>aplicativo aberto</b> pela Xbox Game Bar (Windows 10 e 11).</td><td class="d">Não grava a área de trabalho nem o Explorador de Arquivos, só o programa em foco (ex.: Chrome). <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd> de novo para parar. Fica em <b>Vídeos › Capturas</b>.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>G</kbd></div></td><td>Abre a Xbox Game Bar (gravação, microfone, captura).</td><td class="d">Se não abrir: Configurações › Jogos › Xbox Game Bar e ative.</td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>5</kbd></div></td><td>Abre a barra de captura: “Gravar tela inteira” ou “Gravar parte selecionada”.</td><td class="d">Para parar, clique no ícone de parar na barra de menus. Em Opções dá para ligar o microfone.</td></tr>
+<tr data-os="and"><td class="k"><span class="os os-and">Android</span><div>Puxe a barra de notificações → <b>Gravar tela</b></div></td><td>Gravação de tela no Android (Android 11 em diante).</td><td class="d">O nome muda: “Gravador de tela” (Samsung), “Gravação de tela” (Motorola/Xiaomi). Se não aparecer, toque no lápis para adicionar o botão.</td></tr>
+<tr data-os="ios"><td class="k"><span class="os os-ios">iPhone</span><div>Central de Controle → <b>⏺ Gravação de Tela</b></div></td><td>Gravação no iPhone.</td><td class="d">Se não tiver o botão: Ajustes › Central de Controle › adicionar “Gravação de Tela”. Toque e segure para ligar o microfone. Para parar, toque na barra vermelha no topo.</td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="chrome"><h2><span class="ic">🌐</span>Navegador (Chrome) — dia a dia e resolver problemas</h2><p class="intro">Quase todo atendimento passa pelo navegador. No Mac, troque <kbd>Ctrl</kbd> por <kbd>Cmd</kbd>.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>F5</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd></div></td><td>Recarrega a página <b>sem usar o cache</b>.</td><td class="d">Primeira coisa a pedir quando “não atualizou”, “sumiu o botão” ou “ainda aparece o preço antigo”.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Delete</kbd></div></td><td>Abre <b>Limpar dados de navegação</b>.</td><td class="d">Marque “Imagens e arquivos em cache” e “Cookies”. Atenção: cookies desconectam as contas, então avise o cliente antes.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd></div></td><td>Abre uma <b>janela anônima</b>.</td><td class="d">Testa sem cache, sem extensões e sem login salvo. Se funcionar na anônima, o problema é cache ou extensão.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd></div></td><td><b>Reabre a aba</b> fechada por engano.</td><td class="d">Pode apertar várias vezes para voltar várias abas.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>L</kbd></div></td><td>Seleciona a barra de endereço.</td><td class="d">Para copiar o link exato que o cliente está vendo.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>F</kbd></div></td><td>Procura uma palavra na página.</td><td class="d">Útil para achar um produto num cardápio grande.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd></kbd> + <kbd></kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>-</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>0</kbd></div></td><td>Aumenta, diminui ou volta o <b>zoom</b> ao normal.</td><td class="d">Página “cortada” ou “gigante”? Quase sempre é zoom: <kbd>Ctrl</kbd> + <kbd>0</kbd> resolve.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>Tab</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>1…9</kbd></div></td><td>Troca de aba (próxima, ou direto pela posição).</td><td class="d"><kbd>Ctrl</kbd> + <kbd>9</kbd> vai para a última aba.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>W</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd></div></td><td>Fecha a aba ou a janela inteira.</td><td class="d"></td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>J</kbd></div></td><td>Abre os <b>Downloads</b>.</td><td class="d">Para achar o instalador ou o arquivo que o cliente “baixou e não acha”.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>H</kbd></div></td><td>Abre o histórico.</td><td class="d">Para voltar a um link visitado mais cedo.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>Ctrl</kbd> + <kbd>P</kbd></div></td><td>Imprimir a página.</td><td class="d">Bom para testar se a impressora responde fora do sistema.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>F12</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></div></td><td>Abre o <b>DevTools</b>.</td><td class="d">Aba Console mostra erros em vermelho. Mande print disso no chamado para o time técnico.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div><kbd>F12</kbd> → <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></div></td><td>Mostra o site <b>como no celular</b>.</td><td class="d">Ótimo para ver o cardápio digital do jeito que o cliente final vê.</td></tr>
+<tr data-os="web"><td class="k"><span class="os os-web">Chrome</span><div>Digite <b>chrome://version</b> na barra</div></td><td>Mostra a versão do Chrome.</td><td class="d">Útil quando o problema só acontece em um computador.</td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="whatsapp"><h2><span class="ic">💬</span>WhatsApp Web e WhatsApp Desktop</h2><p class="intro">No <b>WhatsApp Web</b> (navegador) os atalhos usam <kbd>Ctrl</kbd> + <kbd>Alt</kbd>. No <b>aplicativo Desktop</b> do Windows quase sempre é só <kbd>Ctrl</kbd>. Na dúvida, aperte <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>/</kbd> (Web) para ver a lista oficial.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>N</kbd></div></td><td>Nova conversa (Web).</td><td class="d">No Desktop: <kbd>Ctrl</kbd> + <kbd>N</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>/</kbd></div></td><td>Busca / lista de atalhos (Web).</td><td class="d">No Desktop a busca é <kbd>Ctrl</kbd> + <kbd>F</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></div></td><td>Procurar dentro da conversa aberta (Web).</td><td class="d">No Desktop: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd>. Ótimo para achar “e-mail”, “senha” ou um pedido antigo.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Tab</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd></div></td><td>Próxima / conversa anterior (Web).</td><td class="d">No Desktop: <kbd>Ctrl</kbd> + <kbd>Tab</kbd> e <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>U</kbd></div></td><td>Marcar como <b>não lida</b> (Web).</td><td class="d">Para não esquecer de retornar. No Desktop: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>U</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd></div></td><td>Fixar a conversa (Web).</td><td class="d">No Desktop: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd></div></td><td>Arquivar a conversa (Web).</td><td class="d">No Desktop: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></div></td><td>Silenciar a conversa (Web).</td><td class="d">No Desktop: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd>.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Esc</kbd></div></td><td>Fecha a conversa ou o painel aberto.</td><td class="d"></td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><kbd>Shift</kbd> + <kbd>Enter</kbd></div></td><td>Pula linha <b>sem enviar</b>.</td><td class="d">Essencial para mandar mensagens com passo a passo.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><code>*texto*</code></div></td><td><b>Negrito</b>.</td><td class="d">Use para destacar o que o cliente precisa clicar.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><code>_texto_</code></div></td><td><i>Itálico</i>.</td><td class="d"></td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><code>~texto~</code></div></td><td><s>Tachado</s>.</td><td class="d"></td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><code>```texto```</code></div></td><td><span class="mono">Monoespaçado</span>.</td><td class="d">Bom para e-mail, link ou código que o cliente precisa digitar igual.</td></tr>
+<tr data-os="wpp"><td class="k"><span class="os os-wpp">WhatsApp</span><div><code>&gt; texto</code> no começo da linha</div></td><td>Citação.</td><td class="d"></td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="texto"><h2><span class="ic">⌨️</span>Copiar, colar e escrever rápido</h2><p class="intro">Os atalhos que mais economizam tempo no atendimento. No Mac, troque <kbd>Ctrl</kbd> por <kbd>Cmd</kbd>.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>C</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>X</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>V</kbd></div></td><td>Copiar, recortar e colar.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd></div></td><td>Colar <b>sem formatação</b> (texto puro).</td><td class="d">Funciona no Chrome, WhatsApp Web e Google Docs. Evita colar cor, fonte e tamanho estranhos.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>V</kbd></div></td><td><b>Histórico</b> da área de transferência.</td><td class="d">Guarda os últimos itens copiados: dá para colar o e-mail que você copiou 5 minutos atrás. Na primeira vez, clique em “Ativar”.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>Z</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>Y</kbd></div></td><td>Desfazer e refazer.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>A</kbd></div></td><td>Selecionar tudo.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>Backspace</kbd></div></td><td>Apaga a palavra inteira à esquerda.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>←</kbd> <span class="ou">ou</span> <kbd>Ctrl</kbd> + <kbd>→</kbd></div></td><td>Pula de palavra em palavra.</td><td class="d">Com <kbd>Shift</kbd> junto, vai selecionando.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Home</kbd> <span class="ou">ou</span> <kbd>End</kbd></div></td><td>Vai para o começo ou o fim da linha.</td><td class="d"><kbd>Shift</kbd> + <kbd>Home</kbd> seleciona a linha até o cursor.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>.</kbd></div></td><td>Painel de <b>emojis</b>, símbolos e GIFs.</td><td class="d">Também tem ✓, →, ©, ★ para mensagens.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>H</kbd></div></td><td><b>Digitação por voz</b>.</td><td class="d">Para escrever um texto longo falando.</td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Ctrl</kbd> + <kbd>Espaço</kbd></div></td><td>Painel de emojis no Mac.</td><td class="d"></td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="windows"><h2><span class="ic">🪟</span>Windows — janelas, telas e organização</h2><p class="intro">Para atender com o chamado, o painel do cliente e o WhatsApp abertos ao mesmo tempo.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Alt</kbd> + <kbd>Tab</kbd></div></td><td>Alterna entre as janelas abertas.</td><td class="d">Segure <kbd>Alt</kbd> e vá apertando <kbd>Tab</kbd>.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>←</kbd> <span class="ou">ou</span> <kbd>Win</kbd> + <kbd>→</kbd></div></td><td>Encaixa a janela na metade da tela.</td><td class="d">Deixe o WhatsApp de um lado e o painel do outro.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>↑</kbd> <span class="ou">ou</span> <kbd>Win</kbd> + <kbd>↓</kbd></div></td><td>Maximiza ou restaura/minimiza a janela.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>←</kbd> <span class="ou">ou</span> <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>→</kbd></div></td><td>Leva a janela para o <b>outro monitor</b>.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>D</kbd></div></td><td>Mostra a área de trabalho (de novo para voltar).</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>E</kbd></div></td><td>Abre o Explorador de Arquivos.</td><td class="d">Para achar Downloads, Imagens e Vídeos.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>L</kbd></div></td><td><b>Bloqueia</b> o computador.</td><td class="d">Sempre que sair da mesa: o painel e as conversas têm dados de clientes.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>D</kbd> <span class="ou">ou</span> <kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>← →</kbd></div></td><td>Cria e alterna <b>áreas de trabalho virtuais</b>.</td><td class="d">Uma para atendimento, outra para estudo ou e-mail.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>N</kbd></div></td><td>Central de notificações (Não Perturbe).</td><td class="d">Ative antes de gravar vídeo para não aparecer notificação pessoal.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>P</kbd></div></td><td>Escolhe como usar o segundo monitor/projetor.</td><td class="d">Tela preta no segundo monitor? Teste “Estender”.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd></div></td><td>Reinicia o driver de vídeo.</td><td class="d">Tela preta ou travada: a tela pisca e volta, sem perder nada.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Esc</kbd></div></td><td>Abre o <b>Gerenciador de Tarefas</b>.</td><td class="d">Para fechar um programa travado (Finalizar tarefa) ou ver o que pesa no computador.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>I</kbd></div></td><td>Abre as Configurações.</td><td class="d"></td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>X</kbd></div></td><td>Menu rápido (Gerenciador de Dispositivos, Terminal, Conexões…).</td><td class="d"></td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Tab</kbd></div></td><td>Alterna entre os aplicativos no Mac.</td><td class="d"></td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>Esc</kbd></div></td><td>Forçar encerrar app travado no Mac.</td><td class="d"></td></tr>
+<tr data-os="mac"><td class="k"><span class="os os-mac">Mac</span><div><kbd>Cmd</kbd> + <kbd>Ctrl</kbd> + <kbd>Q</kbd></div></td><td>Bloqueia a tela no Mac.</td><td class="d"></td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="diagnostico"><h2><span class="ic">🛠️</span>Windows — diagnóstico rápido (Win + R)</h2><p class="intro">Aperte <kbd>Win</kbd> + <kbd>R</kbd>, digite o comando e dê Enter. Servem para orientar o cliente ou para usar no acesso remoto.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>control printers</code></div></td><td>Abre <b>Dispositivos e Impressoras</b>.</td><td class="d">Clique com o botão direito na impressora › Propriedades da impressora › <b>Imprimir página de teste</b>. Se a página de teste não sai, o problema é a impressora ou o driver, não o sistema.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>ms-settings:printers</code></div></td><td>Impressoras nas Configurações do Windows 10/11.</td><td class="d">Também mostra a fila: dá para cancelar impressão travada.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>winver</code></div></td><td>Mostra a <b>versão do Windows</b>.</td><td class="d">Para saber se é Windows 10 ou 11 antes de instalar o sistema.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>ms-settings:about</code></div></td><td>Mostra se o Windows é <b>64 bits</b> (“Tipo de sistema”).</td><td class="d">O instalador do WhatsMenu Desktop é <b>x64</b>: precisa de Windows 64 bits.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>appwiz.cpl</code></div></td><td>Programas instalados (desinstalar).</td><td class="d">Para remover uma versão antiga antes de instalar a nova.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>devmgmt.msc</code></div></td><td>Gerenciador de Dispositivos.</td><td class="d">Impressora USB com ⚠️ amarelo = problema de driver.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>ncpa.cpl</code></div></td><td>Conexões de rede.</td><td class="d">Ver se o Wi-Fi ou o cabo está conectado.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>cmd</code> → <code>ping 8.8.8.8 -t</code></div></td><td>Testa se a <b>internet</b> está caindo.</td><td class="d">Respostas com “Esgotado o tempo” = internet instável. <kbd>Ctrl</kbd> + <kbd>C</kbd> para parar.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>cmd</code> → <code>ipconfig</code></div></td><td>Mostra o IP do computador.</td><td class="d">Útil para impressora de rede (precisa estar na mesma faixa de IP).</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><code>%temp%</code></div></td><td>Abre a pasta de arquivos temporários.</td><td class="d">Pode apagar o que der: libera espaço quando o computador está lento.</td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="remoto"><h2><span class="ic">🖥️</span>Acesso remoto</h2><p class="intro">Para assumir o computador do cliente com a autorização dele.</p><div class="tbl"><table><thead><tr><th>Atalho</th><th>O que faz</th><th>Dica</th></tr></thead><tbody>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>Q</kbd></div></td><td>Abre a <b>Assistência Rápida</b> do Windows (já vem instalada).</td><td class="d">Quem ajuda clica em “Ajudar alguém” e passa o código de 6 dígitos; o cliente digita o código em “Obter ajuda” e autoriza o controle.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Del</kbd></div></td><td>Tela de segurança (bloquear, trocar usuário, Gerenciador de Tarefas).</td><td class="d">No acesso remoto, use o botão próprio da ferramenta para enviar esse comando.</td></tr>
+<tr data-os="win"><td class="k"><span class="os os-win">Windows</span><div>—</div></td><td>Nunca peça a senha do computador ou do e-mail do cliente.</td><td class="d">Se precisar de login, peça para o próprio cliente digitar enquanto você espera.</td></tr>
+</tbody></table></div></section>
+<section class="card sec" id="mensagens"><h2><span class="ic">📨</span>Mensagens prontas para o cliente</h2><p class="intro">Para quando é o cliente que precisa tirar o print, gravar o vídeo ou fazer um teste. Troque o que precisar antes de enviar.</p><div class="msgs">
+<div class="msg" data-os="msg"><div class="msg-h"><b>Pedir print — computador (Windows)</b><button type="button" class="copy" data-copy="print-win">Copiar</button></div><pre id="m-print-win">Para eu entender certinho, consegue me mandar um print da tela? 😊
+
+1️⃣ Aperte juntas as teclas *Windows + Shift + S*
+2️⃣ Arraste para selecionar a parte da tela
+3️⃣ Volte aqui na conversa e aperte *Ctrl + V* para colar
+
+Depois é só enviar!</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Pedir print — celular</b><button type="button" class="copy" data-copy="print-cel">Copiar</button></div><pre id="m-print-cel">Consegue me mandar um print da tela do celular? 😊
+
+📱 *Android:* aperte juntos o botão de *ligar* e o de *abaixar o volume*
+🍎 *iPhone:* aperte juntos o *botão lateral* e o de *aumentar o volume*
+
+O print fica na galeria, é só me enviar por aqui.</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Pedir vídeo — computador (Windows 11)</b><button type="button" class="copy" data-copy="video-win">Copiar</button></div><pre id="m-video-win">Para eu ver exatamente o que acontece, consegue gravar um vídeo curtinho da tela? 🎥
+
+1️⃣ Aperte *Windows + Shift + R*
+2️⃣ Selecione a área da tela e clique em *Iniciar*
+3️⃣ Faça o passo a passo até o erro aparecer
+4️⃣ Clique no botão de *parar* (quadrado vermelho)
+
+O vídeo fica na pasta *Vídeos &gt; Gravações de Tela*. É só me enviar por aqui!</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Pedir vídeo — celular</b><button type="button" class="copy" data-copy="video-cel">Copiar</button></div><pre id="m-video-cel">Consegue gravar um vídeo curtinho da tela do celular mostrando o que acontece? 🎥
+
+📱 *Android:* puxe a barra de notificações e toque em *Gravar tela*
+🍎 *iPhone:* abra a Central de Controle e toque no botão *⏺ Gravação de Tela*
+
+Faça o passo a passo até o problema aparecer, pare a gravação e me envie por aqui.</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Atualizar a página sem cache</b><button type="button" class="copy" data-copy="cache">Copiar</button></div><pre id="m-cache">Vamos fazer um teste rápido: com a página do sistema aberta, aperte juntas as teclas *Ctrl + F5*.
+
+Isso recarrega a página com a versão mais nova. Depois me conta se resolveu! 😊</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Testar na janela anônima</b><button type="button" class="copy" data-copy="anonima">Copiar</button></div><pre id="m-anonima">Vamos testar uma coisa: aperte *Ctrl + Shift + N* para abrir uma janela anônima do Chrome, entre no sistema por ela e veja se o problema continua.
+
+Se lá funcionar normal, já sei que é algo salvo no navegador e te ajudo a limpar. 😊</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Saber se o Windows é 64 bits</b><button type="button" class="copy" data-copy="64bits">Copiar</button></div><pre id="m-64bits">Para eu te mandar o instalador certo, faz esse teste rapidinho:
+
+1️⃣ Aperte *Windows + R*
+2️⃣ Digite *ms-settings:about* e aperte Enter
+3️⃣ Me manda um print da parte *Especificações do dispositivo* (onde fala “Tipo de sistema”)</pre></div>
+<div class="msg" data-os="msg"><div class="msg-h"><b>Página de teste da impressora</b><button type="button" class="copy" data-copy="teste-impressora">Copiar</button></div><pre id="m-teste-impressora">Vamos ver se a impressora está respondendo pelo Windows:
+
+1️⃣ Aperte *Windows + R*
+2️⃣ Digite *control printers* e aperte Enter
+3️⃣ Clique com o botão direito na sua impressora &gt; *Propriedades da impressora*
+4️⃣ Clique em *Imprimir página de teste*
+
+Me avisa se saiu a folha de teste! 🖨️</pre></div>
+</div></section>
+<section class="card sec" id="boas"><h2><span class="ic">✅</span>Boas práticas de evidência</h2><div class="check">
+<div><h3>📸 Um bom print</h3><ul>
+<li>Mostra a tela inteira do sistema, com a <b>barra de endereço</b> e a <b>hora</b> do computador, quando o problema é de horário/pedido.</li>
+<li>Destaque o erro com a caneta ou o marca-texto da Ferramenta de Captura.</li>
+<li><b>Esconda dados sensíveis</b> (CPF, cartão, telefone de cliente final) rabiscando por cima antes de enviar para fora da empresa.</li>
+</ul></div>
+<div><h3>🎥 Um bom vídeo</h3><ul>
+<li>Até <b>1 minuto</b>, começando antes do problema: mostre o caminho todo.</li>
+<li>Ative o <b>Não Perturbe</b> (<kbd>Win</kbd> + <kbd>N</kbd>) para não aparecer notificação pessoal.</li>
+<li>Mexa o mouse devagar e pare 2 segundos no erro.</li>
+<li>Vídeo grande demais para o WhatsApp? Suba no Google Drive e mande o link com acesso liberado.</li>
+</ul></div>
+<div><h3>🧾 Evidência para chamado</h3><ul>
+<li><b>Loja</b> (nome e e-mail do painel) e <b>telefone</b> do lojista.</li>
+<li><b>O que aconteceu</b> e <b>o que era esperado</b>, em uma frase cada.</li>
+<li><b>Passo a passo</b> para repetir o problema.</li>
+<li><b>Data e hora</b> em que aconteceu, e se acontece sempre ou às vezes.</li>
+<li>Print ou vídeo + print do <b>Console</b> (<kbd>F12</kbd>) se for erro no navegador.</li>
+<li>O que já foi testado (<kbd>Ctrl</kbd> + <kbd>F5</kbd>, janela anônima, outro computador).</li>
+</ul></div>
+</div></section>
+  <p class="vazio" id="vazio" hidden>Nenhum atalho encontrado. Tente outra palavra.</p>
+</div>
+
+<script>
+(function(){
+  var q=document.getElementById('q'),os='';
+  var secs=[].slice.call(document.querySelectorAll('.sec'));
+  function norm(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();}
+  function filtra(){
+    var t=norm(q.value.trim()),total=0;
+    secs.forEach(function(sec){
+      var itens=[].slice.call(sec.querySelectorAll('tr[data-os], .msg, .check > div')),vis=0;
+      var tituloBate=t&&norm(sec.querySelector('h2').textContent).indexOf(t)>=0;
+      itens.forEach(function(el){
+        var okOs=!os||el.dataset.os===os||(!el.dataset.os&&false);
+        if(el.matches('.msg, .check > div'))okOs=!os;
+        var okT=!t||tituloBate||norm(el.textContent).indexOf(t)>=0;
+        el.hidden=!(okOs&&okT);if(!el.hidden)vis++;
+      });
+      sec.hidden=vis===0;total+=sec.querySelectorAll('tr[data-os]:not([hidden])').length;
+    });
+    document.getElementById('count').textContent=total+' atalhos';
+    document.getElementById('vazio').hidden=secs.some(function(s){return !s.hidden;});
+  }
+  q.addEventListener('input',filtra);
+  document.getElementById('sistemas').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;os=b.dataset.os;
+    [].forEach.call(this.children,function(x){x.classList.toggle('on',x===b);});filtra();
+  });
+  document.addEventListener('click',async function(e){
+    var b=e.target.closest('[data-copy]');if(!b)return;
+    var txt=document.getElementById('m-'+b.dataset.copy).textContent;
+    try{await navigator.clipboard.writeText(txt);}catch(_){var a=document.createElement('textarea');a.value=txt;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();}
+    var o=b.textContent;b.textContent='Copiado!';b.classList.add('ok');setTimeout(function(){b.textContent=o;b.classList.remove('ok');},1500);
+  });
+  filtra();
+})();
+</script>
+</body>
+</html>
