@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistente WhatsMenu</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec;
+  --card:#ffffff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --err:#b42318;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--green);color:var(--ink);font:16px/1.55 var(--f-body);
+  padding:24px max(16px,env(safe-area-inset-left,0px)) 24px max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:16px;height:calc(100dvh - 48px)}
+header{color:#fff;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header img{width:56px;height:56px;background:#fff;border-radius:50%;padding:6px;box-shadow:0 2px 0 var(--green-deep)}
+header h1{font:800 clamp(1.5rem,4vw,2.1rem)/1.1 var(--f-display);margin:0}
+header p{margin:2px 0 0;opacity:.92;font-size:.95rem}
+header .voltar{margin-left:auto;color:#fff;text-decoration:none;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.9rem}
+header .voltar:hover,header .voltar:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.chat{flex:1;min-height:0;background:var(--card);border-radius:14px;box-shadow:0 2px 0 var(--green-deep);display:flex;flex-direction:column;overflow:hidden}
+.msgs{flex:1;overflow-y:auto;padding:20px clamp(14px,3vw,28px);display:flex;flex-direction:column;gap:14px}
+.m{max-width:85%;padding:12px 16px;border-radius:14px;white-space:normal;overflow-wrap:anywhere}
+.m.user{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:4px}
+.m.bot{align-self:flex-start;background:var(--green-soft);border-bottom-left-radius:4px}
+.m.err{align-self:flex-start;background:#fdecea;color:var(--err)}
+.m p{margin:0 0 8px}.m p:last-child{margin:0}
+.m ul,.m ol{margin:4px 0 8px;padding-left:22px}
+.m code{background:#fff;border:1px solid var(--line);border-radius:5px;padding:0 4px;font-size:.9em}
+.m .copiar{margin-top:8px;font:600 .8rem var(--f-body);background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer;color:var(--green-deep)}
+.vazio{margin:auto;text-align:center;color:var(--muted);max-width:520px}
+.vazio h2{font:800 1.3rem var(--f-display);color:var(--ink);margin:0 0 6px}
+.sugs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.sugs button{font:600 .88rem var(--f-body);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--ink)}
+.sugs button:hover,.sugs button:focus-visible{border-color:var(--green);outline:none}
+form.envio{display:flex;gap:10px;padding:12px;border-top:1px solid var(--line);background:#fafdfb}
+form.envio textarea{flex:1;resize:none;font:16px/1.4 var(--f-body);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;max-height:160px;min-height:46px}
+form.envio textarea:focus{outline:none;border-color:var(--green)}
+form.envio button{font:700 1rem var(--f-body);background:var(--green);color:#fff;border:0;border-radius:12px;padding:0 20px;cursor:pointer}
+form.envio button:disabled{opacity:.55;cursor:default}
+.digitando{color:var(--muted);font-style:italic}
+.aviso{color:#fff;font-size:.82rem;opacity:.9;text-align:center;margin:0}
+.senha{background:var(--card);border-radius:14px;padding:24px;box-shadow:0 2px 0 var(--green-deep)}
+.senha input{font:16px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px;width:100%;margin:8px 0}
+.senha button{font:700 1rem var(--f-body);background:var(--green);color:#fff;border:0;border-radius:10px;padding:10px 18px;cursor:pointer}
+@media (max-width:560px){.m{max-width:95%}header .voltar{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="logo.png" alt="">
+    <div>
+      <h1>Assistente WhatsMenu</h1>
+      <p>Tire dúvidas sobre o sistema. A IA responde com base no material da equipe.</p>
+    </div>
+    <a class="voltar" href="index.html">← Voltar ao início</a>
+  </header>
+
+  <form class="senha" id="senha-box" hidden>
+    <label for="senha"><strong>Senha da equipe</strong></label>
+    <input id="senha" type="password" autocomplete="current-password">
+    <button>Entrar</button>
+    <p id="senha-msg" style="color:var(--err);margin:8px 0 0"></p>
+  </form>
+
+  <div class="chat" id="chat">
+    <div class="msgs" id="msgs" aria-live="polite">
+      <div class="vazio" id="vazio">
+        <h2>Como posso ajudar?</h2>
+        <p>Pergunte como fazer algo no painel, no PDV, nos relatórios ou nas integrações.</p>
+        <div class="sugs">
+          <button type="button">Como cadastrar um operador de caixa?</button>
+          <button type="button">O relatório de entregadores está zerado, por quê?</button>
+          <button type="button">O que significa CMV muito alto?</button>
+          <button type="button">Como configurar a taxa de entrega por bairro?</button>
+        </div>
+      </div>
+    </div>
+    <form class="envio" id="envio">
+      <textarea id="pergunta" rows="1" placeholder="Digite sua dúvida…" aria-label="Sua dúvida"></textarea>
+      <button id="btn">Enviar</button>
+    </form>
+  </div>
+  <p class="aviso">A IA pode errar. Confira antes de passar ao cliente. Não cole senhas nem dados de clientes aqui.</p>
+</div>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var hist=[], senha='', ocupado=false;
+  try{senha=sessionStorage.getItem('assist-senha')||'';}catch(e){}
+
+  function esc(s){return s.replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function md(t){
+    var linhas=esc(t).split('\n'), out=[], lista=null;
+    function fecha(){if(lista){out.push('</'+lista+'>');lista=null;}}
+    linhas.forEach(function(l){
+      var ul=l.match(/^\s*[-*•]\s+(.*)/), ol=l.match(/^\s*\d+[.)]\s+(.*)/);
+      if(ul||ol){var tipo=ul?'ul':'ol';if(lista!==tipo){fecha();out.push('<'+tipo+'>');lista=tipo;}out.push('<li>'+(ul||ol)[1]+'</li>');}
+      else if(!l.trim()){fecha();}
+      else{fecha();out.push('<p>'+l.replace(/^#{1,4}\s*/,'')+'</p>');}
+    });
+    fecha();
+    return out.join('').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');
+  }
+  function add(tipo,texto){
+    var v=$('vazio'); if(v) v.remove();
+    var d=document.createElement('div'); d.className='m '+tipo;
+    if(tipo==='bot'){
+      d.innerHTML=md(texto);
+      var b=document.createElement('button'); b.className='copiar'; b.type='button'; b.textContent='Copiar resposta';
+      b.onclick=function(){navigator.clipboard.writeText(texto).then(function(){b.textContent='Copiado!';setTimeout(function(){b.textContent='Copiar resposta'},1500)})};
+      d.appendChild(b);
+    } else d.textContent=texto;
+    $('msgs').appendChild(d); $('msgs').scrollTop=$('msgs').scrollHeight; return d;
+  }
+  async function perguntar(p){
+    if(ocupado||!p.trim())return;
+    ocupado=true; $('btn').disabled=true;
+    add('user',p);
+    var pens=add('bot digitando',''); pens.className='m bot digitando'; pens.textContent='Pensando…';
+    try{
+      var r=await fetch('/api/assistente',{method:'POST',headers:{'Content-Type':'application/json','x-senha':senha},body:JSON.stringify({pergunta:p,historico:hist})});
+      var j=await r.json().catch(function(){return {}});
+      pens.remove();
+      if(r.status===401){$('senha-box').hidden=false;$('chat').hidden=true;$('senha-msg').textContent=senha?'Senha incorreta.':'';$('senha').focus();return;}
+      if(!r.ok){add('err',j.erro||('Erro '+r.status));return;}
+      add('bot',j.resposta);
+      hist.push({papel:'user',texto:p},{papel:'model',texto:j.resposta}); hist=hist.slice(-10);
+    }catch(e){pens.remove();add('err','Sem conexão. Tente de novo.');}
+    finally{ocupado=false;$('btn').disabled=false;$('pergunta').focus();}
+  }
+  $('envio').addEventListener('submit',function(e){e.preventDefault();var p=$('pergunta').value;$('pergunta').value='';auto();perguntar(p);});
+  $('pergunta').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('envio').requestSubmit();}});
+  function auto(){var t=$('pergunta');t.style.height='auto';t.style.height=Math.min(t.scrollHeight,160)+'px';}
+  $('pergunta').addEventListener('input',auto);
+  document.querySelectorAll('.sugs button').forEach(function(b){b.onclick=function(){perguntar(b.textContent)}});
+  $('senha-box').addEventListener('submit',function(e){e.preventDefault();senha=$('senha').value;try{sessionStorage.setItem('assist-senha',senha);}catch(_){}$('senha-box').hidden=true;$('chat').hidden=false;$('senha-msg').textContent='';});
+})();
+</script>
+</body>
+</html>
