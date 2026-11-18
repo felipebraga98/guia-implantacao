@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agendar atendimento — WhatsMenu</title>
+<meta name="description" content="Escolha o melhor dia e horário para o seu atendimento com a equipe WhatsMenu.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --yellow:#ffd23f;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --err:#b42318;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--green);color:var(--ink);font:16px/1.55 var(--f-body);
+  padding:28px max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{color:#fff;display:flex;align-items:center;gap:16px}
+header img{width:72px;height:72px;background:#fff;border-radius:50%;padding:7px;box-shadow:0 3px 0 var(--green-deep);flex:none}
+header h1{font:800 clamp(1.6rem,5vw,2.3rem)/1.1 var(--f-display);margin:0}
+header p{margin:4px 0 0;opacity:.95}
+.card{background:var(--card);border-radius:16px;padding:24px clamp(16px,4vw,30px);box-shadow:0 3px 0 var(--green-deep)}
+.card h2{font:800 1.25rem var(--f-display);margin:0 0 4px;display:flex;align-items:center;gap:10px}
+.card h2 .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:.95rem;flex:none}
+.sub{color:var(--muted);margin:0 0 14px;font-size:.95rem}
+.dias{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory}
+.dia{flex:none;scroll-snap-align:start;width:78px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)}
+.dia .ds{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.dia .dn{display:block;font:800 1.5rem/1.1 var(--f-display)}
+.dia .dm{display:block;font-size:.78rem;color:var(--muted)}
+.dia:hover{border-color:var(--green)}
+.dia[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.dia[aria-pressed="true"] .ds,.dia[aria-pressed="true"] .dm{color:#fff;opacity:.9}
+.dia:disabled{opacity:.4;cursor:not-allowed}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.hora{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
+.hora b{font:800 1.15rem var(--f-display);display:block}
+.hora small{color:var(--muted)}
+.hora:hover{border-color:var(--green)}
+.hora[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.hora[aria-pressed="true"] small{color:#fff}
+.hora:disabled{background:#f3f5f4;color:#9aa8a0;cursor:not-allowed;border-style:dashed}
+.hora:disabled small{color:#9aa8a0}
+form.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form.grid label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.92rem}
+form.grid input{font:16px var(--f-body);border:2px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink)}
+form.grid input:focus{outline:none;border-color:var(--green)}
+.full{grid-column:1/-1}
+.resumo{background:var(--green-soft);border-radius:12px;padding:12px 14px;font-weight:600}
+.btn{background:var(--yellow);color:var(--ink);border:0;border-radius:12px;padding:14px 20px;font:800 1.05rem var(--f-body);cursor:pointer;box-shadow:0 3px 0 #c99a00}
+.btn:hover{filter:brightness(1.05)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.msg{margin:0;font-weight:600}
+.msg.err{color:var(--err)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.ok{text-align:center;padding:36px 20px}
+.ok .big{font-size:3rem;line-height:1}
+.ok h2{justify-content:center;font-size:1.6rem;margin:10px 0}
+.ok .quando{font:800 1.3rem var(--f-display);color:var(--green-deep);margin:6px 0 12px}
+.load{color:var(--muted)}
+@media (max-width:560px){form.grid{grid-template-columns:1fr}header img{width:58px;height:58px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <img src="logo.png" alt="WhatsMenu">
+    <div>
+      <h1>Agende seu atendimento</h1>
+      <p>Escolha o melhor dia e horário para falar com a equipe WhatsMenu. Cada atendimento dura 1h30.</p>
+    </div>
+  </header>
+
+  <div id="passos">
+    <section class="card">
+      <h2><span class="n">1</span>Escolha o dia</h2>
+      <p class="sub">De segunda a sexta-feira.</p>
+      <div class="dias" id="dias"><span class="load">Carregando datas…</span></div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2><span class="n">2</span>Escolha o horário</h2>
+      <p class="sub" id="horas-sub">Selecione um dia primeiro.</p>
+      <div class="horas" id="horas"></div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2><span class="n">3</span>Seus dados</h2>
+      <p class="sub">Usamos esses dados só para confirmar e realizar o atendimento.</p>
+      <form class="grid" id="form" novalidate>
+        <label>Seu nome<input id="nome" autocomplete="name" required maxlength="80"></label>
+        <label>Nome da loja<input id="loja" autocomplete="organization" required maxlength="80"></label>
+        <label>WhatsApp (com DDD)<input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(13) 99999-9999" required maxlength="20"></label>
+        <label>E-mail<input id="email" type="email" autocomplete="email" required maxlength="120"></label>
+        <label class="hp" aria-hidden="true">Site<input id="site" tabindex="-1" autocomplete="off"></label>
+        <div class="resumo full" id="resumo">Nenhum horário escolhido ainda.</div>
+        <p class="msg full" id="msg" role="status"></p>
+        <button class="btn full" id="enviar" disabled>Confirmar agendamento</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="card ok" id="ok" hidden>
+    <div class="big">✅</div>
+    <h2>Agendamento confirmado!</h2>
+    <div class="quando" id="ok-quando"></div>
+    <p>Nossa equipe já foi avisada e vai chamar você no WhatsApp informado nesse horário.<br>Se precisar remarcar, fale com o suporte WhatsMenu.</p>
+    <p class="sub" id="ok-cod"></p>
+  </section>
+</main>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)}, agenda=[], dia=null, hora=null, enviando=false;
+  var DS=['dom','seg','ter','qua','qui','sex','sáb'], MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+  async function carregar(){
+    try{
+      var r=await fetch('/api/agendamento'); var j=await r.json();
+      if(!r.ok) throw new Error(j.erro||'erro');
+      agenda=j.agenda; desenhaDias();
+    }catch(e){ $('dias').innerHTML='<span class="msg err">Não foi possível carregar a agenda. Atualize a página.</span>'; }
+  }
+  function desenhaDias(){
+    var c=$('dias'); c.innerHTML='';
+    agenda.forEach(function(d){
+      var livres=d.horarios.some(function(h){return h.vagas>0});
+      var dt=new Date(d.data+'T12:00:00');
+      var b=document.createElement('button'); b.type='button'; b.className='dia'; b.disabled=!livres;
+      b.setAttribute('aria-pressed', dia===d.data); b.setAttribute('aria-label', d.rotulo+(livres?'':' — lotado'));
+      b.innerHTML='<span class="ds">'+DS[dt.getDay()]+'</span><span class="dn">'+dt.getDate()+'</span><span class="dm">'+(livres?MS[dt.getMonth()]:'lotado')+'</span>';
+      b.onclick=function(){dia=d.data;hora=null;desenhaDias();desenhaHoras();atualiza();};
+      c.appendChild(b);
+    });
+    if(!dia){var p=agenda.find(function(d){return d.horarios.some(function(h){return h.vagas>0})}); if(p){dia=p.data;desenhaDias();desenhaHoras();}}
+  }
+  function desenhaHoras(){
+    var d=agenda.find(function(x){return x.data===dia}), c=$('horas'); c.innerHTML='';
+    if(!d){$('horas-sub').textContent='Selecione um dia primeiro.';return;}
+    $('horas-sub').textContent=d.rotulo.charAt(0).toUpperCase()+d.rotulo.slice(1);
+    d.horarios.forEach(function(h){
+      var b=document.createElement('button'); b.type='button'; b.className='hora'; b.disabled=h.vagas<1;
+      b.setAttribute('aria-pressed', hora===h.hora);
+      b.innerHTML='<b>'+h.hora+'</b><small>até '+h.fim+(h.vagas<1?' · indisponível':'')+'</small>';
+      b.onclick=function(){hora=h.hora;desenhaHoras();atualiza();};
+      c.appendChild(b);
+    });
+  }
+  function atualiza(){
+    var d=agenda.find(function(x){return x.data===dia}), h=d&&d.horarios.find(function(x){return x.hora===hora});
+    $('resumo').textContent=h?('📅 '+d.rotulo+' · '+h.hora+' às '+h.fim):'Escolha um dia e um horário acima.';
+    $('enviar').disabled=!h||enviando;
+  }
+  $('whatsapp').addEventListener('input',function(){
+    var v=this.value.replace(/\D/g,'').slice(0,11);
+    if(v.length>6) this.value='('+v.slice(0,2)+') '+v.slice(2,v.length-4)+'-'+v.slice(-4);
+    else if(v.length>2) this.value='('+v.slice(0,2)+') '+v.slice(2);
+    else this.value=v;
+  });
+  $('form').addEventListener('submit',async function(e){
+    e.preventDefault(); if(enviando)return;
+    var msg=$('msg'); msg.className='msg full';
+    var dados={data:dia,hora:hora,nome:$('nome').value,loja:$('loja').value,whatsapp:$('whatsapp').value,email:$('email').value,site:$('site').value};
+    if(!dados.nome.trim()||!dados.loja.trim()){msg.textContent='Preencha seu nome e o nome da loja.';msg.classList.add('err');return;}
+    if(dados.whatsapp.replace(/\D/g,'').length<10){msg.textContent='Informe o WhatsApp com DDD.';msg.classList.add('err');$('whatsapp').focus();return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email.trim())){msg.textContent='Informe um e-mail válido.';msg.classList.add('err');$('email').focus();return;}
+    enviando=true; atualiza(); $('enviar').textContent='Confirmando…';
+    try{
+      var r=await fetch('/api/agendamento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+      var j=await r.json().catch(function(){return {}});
+      if(!r.ok){
+        msg.textContent=j.erro||'Não foi possível agendar.'; msg.classList.add('err');
+        if(r.status===409){hora=null;await carregar();desenhaHoras();}
+        return;
+      }
+      $('passos').hidden=true; $('ok').hidden=false;
+      $('ok-quando').textContent=j.rotulo.charAt(0).toUpperCase()+j.rotulo.slice(1)+' · '+j.hora+' às '+j.fim;
+      $('ok-cod').textContent='Código do agendamento: '+j.id;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){msg.textContent='Sem conexão. Tente de novo.';msg.classList.add('err');}
+    finally{enviando=false;$('enviar').textContent='Confirmar agendamento';atualiza();}
+  });
+  carregar();
+})();
+</script>
+</body>
+</html>

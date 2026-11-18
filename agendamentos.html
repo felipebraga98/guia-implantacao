@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agendamentos</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22; --yellow:#ffd23f;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fdecec; --blue:#1d4ed8; --blue-soft:#e8efff;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--green);color:var(--ink);font:15px/1.55 var(--f-body);padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
+.sub{margin:0;max-width:62ch;opacity:.95}
+.me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
+.me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .85rem var(--f-body);cursor:pointer}
+.card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,28px);box-shadow:0 2px 0 var(--green-deep)}
+.card h2{margin:0 0 10px;font:800 1.25rem/1.2 var(--f-display)}
+.auth form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.auth label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
+.auth input{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+.auth input:focus{outline:none;border-color:var(--green)}
+.btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:700 .95rem var(--f-body);cursor:pointer}
+.btn.y{background:var(--yellow);color:var(--ink)}
+.msg{margin:8px 0 0;font-weight:600;color:var(--bad)}
+.link-box{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.link-box code{background:var(--green-soft);border-radius:8px;padding:8px 12px;font-size:.92rem;flex:1;min-width:220px;overflow-wrap:anywhere}
+.prox{background:var(--forest);color:#fff;border-radius:14px;padding:18px clamp(16px,3vw,26px);display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;box-shadow:0 2px 0 #062414}
+.prox .lb{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-weight:700}
+.prox .qm{font:800 1.4rem/1.15 var(--f-display)}
+.prox .cd{margin-left:auto;font:800 1.6rem var(--f-display);color:var(--yellow);font-variant-numeric:tabular-nums}
+.prox.agora{background:#7a4a00;animation:pisca 1.2s ease-in-out infinite alternate}
+@keyframes pisca{to{background:#a86400}}
+@media (prefers-reduced-motion:reduce){.prox.agora{animation:none}}
+.avisos{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;font-weight:600}
+.avisos.ok{background:var(--green-soft);color:var(--green-deep)}
+.filtros{display:flex;gap:8px;flex-wrap:wrap}
+.filtros button{border:1.5px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font:700 .88rem var(--f-body);cursor:pointer}
+.filtros button[aria-pressed="true"]{background:#fff;color:var(--green-deep);border-color:#fff}
+.dia h2{display:flex;align-items:baseline;gap:10px}
+.dia h2 small{font:600 .9rem var(--f-body);color:var(--muted)}
+.item{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.hr{font:800 1.35rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.hr small{display:block;font:600 .8rem var(--f-body);color:var(--muted);margin-top:4px}
+.qm b{font-size:1.05rem}
+.qm .ct{color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.qm .ct a{color:var(--green-deep);font-weight:700}
+.tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;margin-left:6px;vertical-align:middle}
+.t-aguardando{background:var(--blue-soft);color:var(--blue)}
+.t-atendido{background:var(--green-soft);color:var(--green-deep)}
+.t-nao-atendeu{background:var(--warn-soft);color:var(--warn)}
+.t-cancelado{background:var(--bad-soft);color:var(--bad)}
+.por{display:block;font-size:.78rem;color:var(--muted);margin-top:2px}
+.acoes{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.acoes a,.acoes button{font:700 .82rem var(--f-body);border-radius:8px;padding:7px 10px;cursor:pointer;text-decoration:none;border:1.5px solid var(--line);background:#fff;color:var(--ink);white-space:nowrap}
+.acoes .wa{background:#25d366;border-color:#25d366;color:#fff}
+.acoes button:hover{border-color:var(--green)}
+.item.cancelado{opacity:.55}
+.item.passou .hr{color:var(--muted)}
+.vazio{color:var(--muted);margin:0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;max-width:calc(100vw - 32px)}
+@media (max-width:680px){.auth form{grid-template-columns:1fr}.item{grid-template-columns:70px 1fr}.acoes{grid-column:1/-1;justify-content:flex-start}.prox .cd{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="./">← Voltar ao Suporte</a>
+      <div class="eyebrow">Suporte · WhatsMenu</div>
+      <h1>Agendamentos</h1>
+      <p class="sub">Clientes que marcaram horário pelo link. Deixe esta página aberta: ela avisa quando chega agendamento novo e quando está na hora de chamar o cliente.</p>
+    </div>
+    <div class="me" id="me" hidden><span id="me-nome"></span><button type="button" id="sair">Sair</button></div>
+  </header>
+
+  <section class="card auth" id="auth" hidden>
+    <h2>Entrar</h2>
+    <form id="f-entrar" autocomplete="on">
+      <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
+      <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+    <p class="sub" style="color:var(--muted);margin-top:10px">É o mesmo login da página <a href="clientes-implantacao.html">Clientes Implantação</a>. Não tem conta? Crie lá.</p>
+    <p class="msg" id="auth-msg" role="status"></p>
+  </section>
+
+  <div id="app" hidden style="display:contents">
+    <section class="card">
+      <h2>Link para mandar ao cliente</h2>
+      <div class="link-box"><code id="link"></code><button class="btn y" type="button" id="copiar-link">Copiar link</button><button class="btn" type="button" id="copiar-msg">Copiar mensagem pronta</button></div>
+    </section>
+
+    <div class="avisos" id="avisos"><span id="avisos-tx">Ative os avisos para receber notificação na hora de chamar o cliente.</span><button class="btn" type="button" id="ativar">Ativar avisos</button><button class="btn y" type="button" id="testar" hidden>Testar som</button></div>
+
+    <div class="prox" id="prox" hidden><div><div class="lb" id="prox-lb">Próximo atendimento</div><div class="qm" id="prox-qm"></div></div><div class="cd" id="prox-cd"></div></div>
+
+    <div class="filtros" role="group" aria-label="Filtro">
+      <button type="button" data-f="proximos" aria-pressed="true">Próximos</button>
+      <button type="button" data-f="hoje" aria-pressed="false">Hoje</button>
+      <button type="button" data-f="passados" aria-pressed="false">Últimos 7 dias</button>
+    </div>
+    <div id="lista" style="display:contents"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)}, API='/api/agendamento', token='', lista=[], filtro='proximos', conhecidos=null, avisados={};
+  var ROT={aguardando:'Aguardando',atendido:'Atendido','nao-atendeu':'Não atendeu',cancelado:'Cancelado'};
+  // link do site de agendamento separado (troque aqui se o endereço do projeto no Vercel for outro)
+  var LINK='https://agenda-whatsmenu.vercel.app';
+  try{token=localStorage.getItem('impl-token')||'';avisados=JSON.parse(localStorage.getItem('ag-avisados')||'{}');}catch(e){}
+  function guardaToken(t){token=t;try{t?localStorage.setItem('impl-token',t):localStorage.removeItem('impl-token');}catch(e){}}
+  function salvaAvisados(){try{localStorage.setItem('ag-avisados',JSON.stringify(avisados));}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},4000);}
+
+  // horário de Brasília (UTC-3) independente do relógio do computador
+  function agoraMs(){return Date.now();}
+  function quandoMs(r){return Date.parse(r.data+'T'+r.hora+':00-03:00');}
+  function hojeBR(){return new Date(Date.now()-3*3600e3).toISOString().slice(0,10);}
+
+  async function api(method,acao,body){
+    var r=await fetch(API+'?acao='+acao,{method:method,headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+    var j=await r.json().catch(function(){return {}});
+    if(r.status===401){guardaToken('');mostraLogin();throw new Error('login');}
+    if(!r.ok)throw new Error(j.erro||('Erro '+r.status));
+    return j;
+  }
+  function mostraLogin(){$('auth').hidden=false;$('app').hidden=true;$('me').hidden=true;}
+
+  // ---- som e notificação ----
+  var ctx=null;
+  function bip(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();[0,0.25,0.5].forEach(function(t,i){var o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=i===2?1175:880;g.gain.setValueAtTime(0.0001,ctx.currentTime+t);g.gain.exponentialRampToValueAtTime(0.3,ctx.currentTime+t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+t+0.22);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.25);});}catch(e){}}
+  function notifica(titulo,corpo,r){
+    bip(); toast(titulo+' — '+corpo);
+    if('Notification' in window && Notification.permission==='granted'){
+      try{var n=new Notification(titulo,{body:corpo,icon:'logo.png',tag:r?r.id+titulo:undefined,requireInteraction:true});n.onclick=function(){window.focus();if(r)window.open(wa(r),'_blank');n.close();};}catch(e){}
+    }
+  }
+  function estadoAvisos(){
+    var ok='Notification' in window && Notification.permission==='granted';
+    $('avisos').classList.toggle('ok',ok);
+    $('avisos-tx').textContent=ok?'Avisos ativados: você recebe notificação 10 min antes, na hora do atendimento e quando chega agendamento novo (com esta página aberta).':
+      ('Notification' in window && Notification.permission==='denied'?'As notificações estão bloqueadas neste navegador. Clique no cadeado ao lado do endereço do site e permita "Notificações". O som e o aviso na tela continuam funcionando.':'Ative os avisos para receber notificação na hora de chamar o cliente.');
+    $('ativar').hidden=ok||!('Notification' in window)||Notification.permission==='denied'; $('testar').hidden=false;
+  }
+  $('ativar').onclick=function(){bip();Notification.requestPermission().then(estadoAvisos);};
+  $('testar').onclick=function(){notifica('Teste de aviso','É assim que você será avisado.');};
+
+  function wa(r){
+    var n=String(r.whatsapp||'').replace(/\D/g,''); if(n.length<=11)n='55'+n;
+    var txt='Olá, '+r.nome.split(' ')[0]+'! Aqui é do suporte WhatsMenu. Estou entrando em contato para o atendimento agendado de hoje às '+r.hora+'. Podemos começar?';
+    return 'https://wa.me/'+n+'?text='+encodeURIComponent(txt);
+  }
+
+  // ---- lista ----
+  async function carregar(silencioso){
+    try{
+      var j=await api('GET','lista'); lista=j.lista;
+      $('me-nome').textContent=j.eu; $('me').hidden=false; $('auth').hidden=true; $('app').hidden=false;
+      var ids=lista.map(function(r){return r.id});
+      if(conhecidos){lista.forEach(function(r){if(conhecidos.indexOf(r.id)<0&&r.status!=='cancelado')notifica('📅 Novo agendamento',r.nome+' ('+r.loja+') — '+r.rotulo+' às '+r.hora,null);});}
+      conhecidos=ids; render(); verificaHorarios();
+    }catch(e){if(e.message!=='login'&&!silencioso)toast(e.message);}
+  }
+  function render(){
+    var hoje=hojeBR(), agora=agoraMs(), grupos={}, ordem=[];
+    var itens=lista.filter(function(r){
+      var fim=quandoMs(r)+90*60e3;
+      if(filtro==='hoje')return r.data===hoje;
+      if(filtro==='passados')return fim<agora;
+      return fim>=agora;
+    });
+    if(filtro==='passados')itens.reverse();
+    itens.forEach(function(r){if(!grupos[r.data]){grupos[r.data]=[];ordem.push(r.data);}grupos[r.data].push(r);});
+    var out=ordem.map(function(d){
+      var g=grupos[d], amanha=new Date(Date.parse(hoje+'T12:00:00Z')+86400e3).toISOString().slice(0,10);
+      var nome=d===hoje?'Hoje':d===amanha?'Amanhã':'';
+      var rot=g[0].rotulo.charAt(0).toUpperCase()+g[0].rotulo.slice(1);
+      return '<section class="card dia"><h2>'+(nome||rot)+(nome?' <small>'+esc(rot)+'</small>':'')+' <small>· '+g.filter(function(r){return r.status!=='cancelado'}).length+' agendado(s)</small></h2>'+
+        g.map(function(r){
+          var passou=quandoMs(r)+90*60e3<agora;
+          return '<div class="item '+r.status+(passou?' passou':'')+'"><div class="hr">'+r.hora+'<small>até '+r.fim+'</small></div>'+
+            '<div class="qm"><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+
+            '<div class="ct">'+esc(r.whatsapp)+' · <a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a></div>'+
+            (r.statusPor?'<span class="por">'+ROT[r.status]+' por '+esc(r.statusPor)+' em '+new Date(r.statusEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</span>':'')+'</div>'+
+            '<div class="acoes"><a class="wa" target="_blank" rel="noopener" href="'+wa(r)+'">Chamar no WhatsApp</a>'+
+            (r.status!=='atendido'?'<button type="button" data-id="'+r.id+'" data-s="atendido">✓ Atendido</button>':'')+
+            (r.status!=='nao-atendeu'&&r.status!=='cancelado'?'<button type="button" data-id="'+r.id+'" data-s="nao-atendeu">Não atendeu</button>':'')+
+            (r.status!=='cancelado'?'<button type="button" data-id="'+r.id+'" data-s="cancelado">Cancelar</button>':'<button type="button" data-id="'+r.id+'" data-s="aguardando">Reativar</button>')+
+            '</div></div>';
+        }).join('')+'</section>';
+    }).join('');
+    $('lista').innerHTML=out||'<section class="card"><p class="vazio">'+(filtro==='passados'?'Nenhum atendimento nos últimos 7 dias.':filtro==='hoje'?'Nenhum agendamento para hoje.':'Nenhum agendamento futuro. Mande o link para os clientes!')+'</p></section>';
+    proximo();
+  }
+  function proximo(){
+    var agora=agoraMs();
+    var p=lista.filter(function(r){return r.status==='aguardando'&&quandoMs(r)+90*60e3>agora;})[0];
+    if(!p){$('prox').hidden=true;return;}
+    var diff=quandoMs(p)-agora, el=$('prox'); el.hidden=false;
+    el.classList.toggle('agora',diff<=0);
+    $('prox-lb').textContent=diff<=0?'Está na hora! Chame o cliente':'Próximo atendimento';
+    $('prox-qm').innerHTML=esc(p.nome)+' · '+esc(p.loja)+'<br><span style="font:600 .95rem var(--f-body);opacity:.85">'+esc(p.rotulo)+' às '+p.hora+'</span>';
+    if(diff<=0){$('prox-cd').innerHTML='<a href="'+wa(p)+'" target="_blank" rel="noopener" style="color:var(--yellow)">Chamar agora →</a>';}
+    else{var m=Math.floor(diff/60e3),h=Math.floor(m/60),d=Math.floor(h/24);$('prox-cd').textContent=d>0?('em '+d+'d '+(h%24)+'h'):h>0?('em '+h+'h '+(m%60)+'min'):('em '+m+' min');}
+  }
+  function verificaHorarios(){
+    var agora=agoraMs();
+    lista.forEach(function(r){
+      if(r.status!=='aguardando')return;
+      var diff=quandoMs(r)-agora;
+      if(diff<=10*60e3&&diff>0&&!avisados[r.id+':10']){avisados[r.id+':10']=1;salvaAvisados();notifica('⏰ Em 10 minutos',r.hora+' — '+r.nome+' ('+r.loja+')',r);}
+      if(diff<=0&&diff>-30*60e3&&!avisados[r.id+':0']){avisados[r.id+':0']=1;salvaAvisados();notifica('📞 Hora de chamar o cliente',r.hora+' — '+r.nome+' ('+r.loja+'). Clique para abrir o WhatsApp.',r);}
+    });
+    proximo();
+  }
+
+  $('lista').addEventListener('click',async function(e){
+    var b=e.target.closest('button[data-id]'); if(!b)return;
+    if(b.dataset.s==='cancelado'&&!confirm('Cancelar este agendamento? A vaga volta a ficar livre para outros clientes.'))return;
+    b.disabled=true;
+    try{await api('PATCH','status',{id:b.dataset.id,status:b.dataset.s});await carregar(true);toast('Atualizado.');}catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
+  });
+  document.querySelector('.filtros').addEventListener('click',function(e){var b=e.target.closest('button[data-f]');if(!b)return;filtro=b.dataset.f;document.querySelectorAll('.filtros button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});render();});
+  $('f-entrar').addEventListener('submit',async function(e){
+    e.preventDefault(); $('auth-msg').textContent='';
+    try{
+      var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
+      var j=await r.json().catch(function(){return {}});
+      if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
+      guardaToken(j.token); $('e-pass').value=''; carregar();
+    }catch(err){$('auth-msg').textContent=err.message;}
+  });
+  $('sair').onclick=function(){guardaToken('');mostraLogin();};
+  $('link').textContent=LINK;
+  function copia(t,ok){navigator.clipboard.writeText(t).then(function(){toast(ok)});}
+  $('copiar-link').onclick=function(){copia(LINK,'Link copiado!');};
+  $('copiar-msg').onclick=function(){copia('Olá! Para agendar seu atendimento com a equipe WhatsMenu, escolha o melhor dia e horário neste link: '+LINK+' — assim que você confirmar, nossa equipe já recebe o aviso e chama você no horário marcado. 😉','Mensagem copiada!');};
+
+  estadoAvisos();
+  if(token)carregar(); else mostraLogin();
+  setInterval(function(){if(token)carregar(true);},60e3);   // busca agendamentos novos a cada 1 min
+  setInterval(function(){if(lista.length)verificaHorarios();},20e3);
+})();
+</script>
+</body>
+</html>
