@@ -37,7 +37,7 @@ header p{margin:4px 0 0;opacity:.95}
 .dia[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
 .dia[aria-pressed="true"] .ds,.dia[aria-pressed="true"] .dm{color:#fff;opacity:.9}
 .dia:disabled{opacity:.4;cursor:not-allowed}
-.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
 .hora{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
 .hora b{font:800 1.15rem var(--f-display);display:block}
 .hora small{color:var(--muted)}
@@ -61,6 +61,7 @@ form.grid input:focus{outline:none;border-color:var(--green)}
 .ok{text-align:center;padding:36px 20px}
 .ok .big{font-size:3rem;line-height:1}
 .ok h2{justify-content:center;font-size:1.6rem;margin:10px 0}
+.ok .recado{font-size:1.08rem;font-weight:600;max-width:52ch;margin:0 auto 14px;background:var(--green-soft);border-radius:12px;padding:14px 16px}
 .ok .quando{font:800 1.3rem var(--f-display);color:var(--green-deep);margin:6px 0 12px}
 .load{color:var(--muted)}
 @media (max-width:560px){form.grid{grid-template-columns:1fr}header img{width:58px;height:58px}}
@@ -72,14 +73,14 @@ form.grid input:focus{outline:none;border-color:var(--green)}
     <img src="logo.png" alt="WhatsMenu">
     <div>
       <h1>Agende seu atendimento</h1>
-      <p>Escolha o melhor dia e horário para falar com a equipe WhatsMenu. Cada atendimento dura 1h30.</p>
+      <p>Escolha o melhor dia e horário para falar com a equipe WhatsMenu. Cada atendimento dura em torno de 30 a 60 minutos.</p>
     </div>
   </header>
 
   <div id="passos">
     <section class="card">
       <h2><span class="n">1</span>Escolha o dia</h2>
-      <p class="sub">De segunda a sexta-feira.</p>
+      <p class="sub">De segunda a sexta, das 10h às 19h30. Sábado, das 10h às 18h.</p>
       <div class="dias" id="dias"><span class="load">Carregando datas…</span></div>
     </section>
 
@@ -109,7 +110,8 @@ form.grid input:focus{outline:none;border-color:var(--green)}
     <div class="big">✅</div>
     <h2>Agendamento confirmado!</h2>
     <div class="quando" id="ok-quando"></div>
-    <p>Nossa equipe já foi avisada e vai chamar você no WhatsApp informado nesse horário.<br>Se precisar remarcar, fale com o suporte WhatsMenu.</p>
+    <p class="recado" id="ok-recado"></p>
+    <p>Vamos chamar você no WhatsApp informado nesse horário. Se precisar remarcar, é só falar com o suporte WhatsMenu.</p>
     <p class="sub" id="ok-cod"></p>
   </section>
 </main>
@@ -142,17 +144,19 @@ form.grid input:focus{outline:none;border-color:var(--green)}
     var d=agenda.find(function(x){return x.data===dia}), c=$('horas'); c.innerHTML='';
     if(!d){$('horas-sub').textContent='Selecione um dia primeiro.';return;}
     $('horas-sub').textContent=d.rotulo.charAt(0).toUpperCase()+d.rotulo.slice(1);
-    d.horarios.forEach(function(h){
-      var b=document.createElement('button'); b.type='button'; b.className='hora'; b.disabled=h.vagas<1;
+    var livres=d.horarios.filter(function(h){return h.vagas>0});
+    if(!livres.length){c.innerHTML='<p class="sub" style="margin:0">Não há mais horários livres neste dia. Escolha outro dia.</p>';return;}
+    livres.forEach(function(h){
+      var b=document.createElement('button'); b.type='button'; b.className='hora';
       b.setAttribute('aria-pressed', hora===h.hora);
-      b.innerHTML='<b>'+h.hora+'</b><small>até '+h.fim+(h.vagas<1?' · indisponível':'')+'</small>';
+      b.innerHTML='<b>'+h.hora+'</b><small>disponível</small>';
       b.onclick=function(){hora=h.hora;desenhaHoras();atualiza();};
       c.appendChild(b);
     });
   }
   function atualiza(){
     var d=agenda.find(function(x){return x.data===dia}), h=d&&d.horarios.find(function(x){return x.hora===hora});
-    $('resumo').textContent=h?('📅 '+d.rotulo+' · '+h.hora+' às '+h.fim):'Escolha um dia e um horário acima.';
+    $('resumo').textContent=h?('📅 '+d.rotulo+' às '+h.hora):'Escolha um dia e um horário acima.';
     $('enviar').disabled=!h||enviando;
   }
   $('whatsapp').addEventListener('input',function(){
@@ -178,7 +182,8 @@ form.grid input:focus{outline:none;border-color:var(--green)}
         return;
       }
       $('passos').hidden=true; $('ok').hidden=false;
-      $('ok-quando').textContent=j.rotulo.charAt(0).toUpperCase()+j.rotulo.slice(1)+' · '+j.hora+' às '+j.fim;
+      $('ok-quando').textContent=j.rotulo.charAt(0).toUpperCase()+j.rotulo.slice(1)+' às '+j.hora;
+      $('ok-recado').textContent='Te espero '+(/^(sábado|domingo)/.test(j.rotulo)?'no ':'na ')+j.rotulo+', às '+j.hora+', para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚';
       $('ok-cod').textContent='Código do agendamento: '+j.id;
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){msg.textContent='Sem conexão. Tente de novo.';msg.classList.add('err');}

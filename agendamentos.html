@@ -184,7 +184,7 @@ h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
   function render(){
     var hoje=hojeBR(), agora=agoraMs(), grupos={}, ordem=[];
     var itens=lista.filter(function(r){
-      var fim=quandoMs(r)+90*60e3;
+      var fim=quandoMs(r)+60*60e3;
       if(filtro==='hoje')return r.data===hoje;
       if(filtro==='passados')return fim<agora;
       return fim>=agora;
@@ -197,7 +197,7 @@ h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
       var rot=g[0].rotulo.charAt(0).toUpperCase()+g[0].rotulo.slice(1);
       return '<section class="card dia"><h2>'+(nome||rot)+(nome?' <small>'+esc(rot)+'</small>':'')+' <small>· '+g.filter(function(r){return r.status!=='cancelado'}).length+' agendado(s)</small></h2>'+
         g.map(function(r){
-          var passou=quandoMs(r)+90*60e3<agora;
+          var passou=quandoMs(r)+60*60e3<agora;
           return '<div class="item '+r.status+(passou?' passou':'')+'"><div class="hr">'+r.hora+'<small>até '+r.fim+'</small></div>'+
             '<div class="qm"><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+
             '<div class="ct">'+esc(r.whatsapp)+' · <a href="mailto:'+esc(r.email)+'">'+esc(r.email)+'</a></div>'+
@@ -214,7 +214,7 @@ h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
   }
   function proximo(){
     var agora=agoraMs();
-    var p=lista.filter(function(r){return r.status==='aguardando'&&quandoMs(r)+90*60e3>agora;})[0];
+    var p=lista.filter(function(r){return r.status==='aguardando'&&quandoMs(r)+60*60e3>agora;})[0];
     if(!p){$('prox').hidden=true;return;}
     var diff=quandoMs(p)-agora, el=$('prox'); el.hidden=false;
     el.classList.toggle('agora',diff<=0);
