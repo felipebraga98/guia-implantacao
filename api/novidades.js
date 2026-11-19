@@ -6,7 +6,7 @@
 //   DELETE /api/novidades?id=...       -> exclui (autor ou admin)
 // Admins = usuários da variável ADMINS_IMPLANTACAO: só eles publicam, editam, fixam e excluem. Os demais só leem.
 
-const CATEGORIAS = ['Sistema', 'Atualização', 'Processo', 'Aviso', 'Treinamento'];
+const CATEGORIAS = ['Sistema', 'Atualização', 'Correção de bug', 'Processo', 'Aviso', 'Treinamento'];
 const CHAVE = 'novidades:itens';
 
 function cfg() {
