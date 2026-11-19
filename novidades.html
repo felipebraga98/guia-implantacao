@@ -132,7 +132,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       if(!cats.length){cats=j.categorias;$('p-cat').innerHTML=cats.map(function(c){return '<option'+(c==='Aviso'?' selected':'')+'>'+c+'</option>'}).join('');filtros();}
       $('me-nome').textContent=eu.nome+(eu.admin?' · admin':''); $('sec-novo').hidden=!eu.admin; $('me').hidden=false; $('auth').hidden=true; $('app').hidden=false;
       render();
-      try{localStorage.setItem('nov-visita',String(Date.now()));}catch(e){}
+      try{localStorage.setItem('nov-visita',String(Date.now()));localStorage.setItem('nov-clicou',String(Date.now()));}catch(e){}
     }catch(e){if(e.message!=='login')toast(e.message);}
   }
   function filtros(){
