@@ -71,6 +71,11 @@ input,textarea,select{font:inherit}
 .auth form{display:flex;flex-direction:column;gap:12px}
 .auth label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
 .hint{font-size:.8rem;color:var(--muted);font-weight:400}
+.link-esq{background:none;border:0;color:var(--green-deep);font:700 .85rem var(--f-body);text-decoration:underline;cursor:pointer;padding:2px;align-self:center}
+.aviso-email{border-left:6px solid var(--yellow,#ffd23f)}
+.aviso-form{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.aviso-form>div{flex:1 1 260px}
+.aviso-form input{flex:1 1 220px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px}
 .filters{display:flex;flex-wrap:wrap;gap:6px}
 .filters button{font:600 .84rem var(--f-body);border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:5px 12px;cursor:pointer}
 .filters button.on{background:var(--green);border-color:var(--green);color:#fff}
@@ -132,11 +137,27 @@ dialog .para{color:var(--green-deep);font-weight:600}
       <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
       <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
       <button class="btn" type="submit">Entrar</button>
+      <button type="button" class="link-esq" id="esqueci-btn">Esqueci minha senha</button>
+    </form>
+
+    <form id="f-esqueci" hidden>
+      <p class="hint" style="margin:0">Digite o e-mail da sua conta. Vamos mandar um link para você criar uma senha nova.</p>
+      <label>E-mail<input id="q-email" type="email" autocomplete="email" required maxlength="120"></label>
+      <button class="btn" type="submit" id="q-btn">Enviar link</button>
+      <button type="button" class="link-esq" id="voltar-entrar">← Voltar para entrar</button>
+    </form>
+
+    <form id="f-redefinir" hidden>
+      <p class="hint" style="margin:0"><b>Criar senha nova.</b> Escolha uma senha com pelo menos 6 caracteres.</p>
+      <label>Senha nova<input id="r-pass" type="password" autocomplete="new-password" required></label>
+      <label>Repita a senha nova<input id="r-pass2" type="password" autocomplete="new-password" required></label>
+      <button class="btn" type="submit">Salvar senha e entrar</button>
     </form>
 
     <form id="f-cadastro" hidden autocomplete="on">
       <label>Seu nome<span class="hint">É o nome que aparece nas alterações que você fizer.</span><input id="c-nome" required maxlength="60"></label>
       <label>Usuário<span class="hint">Sem espaço e sem acento. Ex.: kevin, ana.souza</span><input id="c-user" autocomplete="username" autocapitalize="off" required maxlength="30"></label>
+      <label>E-mail<span class="hint">Usado para recuperar a senha se você esquecer.</span><input id="c-email" type="email" autocomplete="email" required maxlength="120"></label>
       <label>Senha<span class="hint">Pelo menos 6 caracteres.</span><input id="c-pass" type="password" autocomplete="new-password" required></label>
       <label>Repita a senha<input id="c-pass2" type="password" autocomplete="new-password" required></label>
       <label id="c-eq-wrap" hidden>Senha da equipe<span class="hint">A mesma senha das listas do PDV novo.</span><input id="c-eq" type="password" autocomplete="off"></label>
@@ -147,6 +168,15 @@ dialog .para{color:var(--green-deep);font-weight:600}
 
   <!-- LISTA -->
   <div id="app" hidden style="display:contents">
+    <section class="card aviso-email" id="aviso-email" hidden>
+      <form id="f-meuemail" class="aviso-form">
+        <div><b>Cadastre seu e-mail</b><br><span class="hint">Assim você consegue criar uma senha nova sozinho se esquecer a atual.</span></div>
+        <input id="m-email" type="email" autocomplete="email" placeholder="seu@email.com" required maxlength="120" aria-label="Seu e-mail">
+        <button class="btn" type="submit">Salvar e-mail</button>
+        <button type="button" class="link-esq" id="m-depois">Agora não</button>
+      </form>
+      <p class="msg" id="m-msg" role="status"></p>
+    </section>
     <div class="abas" id="abas" role="tablist" aria-label="Abas da planilha"></div>
     <section class="card">
       <h2>Adicionar cliente <span class="aba-tag" id="f-aba-l"></span></h2>
@@ -221,24 +251,51 @@ dialog .para{color:var(--green-deep);font-weight:600}
   // ---------- login ----------
   document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){
     document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b);});
-    $('f-entrar').hidden=b.dataset.tab!=='entrar';$('f-cadastro').hidden=b.dataset.tab!=='cadastro';msg($('auth-msg'),'');
+    $('f-entrar').hidden=b.dataset.tab!=='entrar';$('f-cadastro').hidden=b.dataset.tab!=='cadastro';$('f-esqueci').hidden=true;$('f-redefinir').hidden=true;msg($('auth-msg'),'');
   });});
 
   $('f-entrar').addEventListener('submit',async function(e){e.preventDefault();
-    try{var r=await api('POST','entrar',{usuario:$('e-user').value,senha:$('e-pass').value});guardaToken(r.token);entrou({usuario:r.usuario,nome:r.nome,admin:r.admin});}
+    try{var r=await api('POST','entrar',{usuario:$('e-user').value,senha:$('e-pass').value});guardaToken(r.token);entrou(r);}
     catch(err){msg($('auth-msg'),err.message);}
   });
 
   $('f-cadastro').addEventListener('submit',async function(e){e.preventDefault();
     if($('c-pass').value!==$('c-pass2').value){msg($('auth-msg'),'As senhas não são iguais.');return;}
-    try{var r=await api('POST','cadastro',{nome:$('c-nome').value,usuario:$('c-user').value,senha:$('c-pass').value,senhaEquipe:$('c-eq').value});guardaToken(r.token);entrou({usuario:r.usuario,nome:r.nome,admin:r.admin});}
+    try{var r=await api('POST','cadastro',{nome:$('c-nome').value,usuario:$('c-user').value,email:$('c-email').value,senha:$('c-pass').value,senhaEquipe:$('c-eq').value});guardaToken(r.token);entrou(r);}
     catch(err){msg($('auth-msg'),err.message);}
   });
 
   $('sair').addEventListener('click',async function(){try{await api('POST','sair');}catch(e){}sairLocal();});
 
-  function sairLocal(){guardaToken('');eu=null;$('app').hidden=true;$('me').hidden=true;$('stat').hidden=true;$('auth').hidden=false;$('e-pass').value='';}
-  function entrou(u){eu=u;$('auth').hidden=true;$('app').hidden=false;$('me').hidden=false;$('stat').hidden=false;$('me-nome').textContent='Olá, '+u.nome+(u.admin?' · administrador':'');$('f-data').value=hoje();carregar();}
+  // ---------- esqueci minha senha ----------
+  function mostra(f){['f-entrar','f-cadastro','f-esqueci','f-redefinir'].forEach(function(i){$(i).hidden=i!==f;});msg($('auth-msg'),'');}
+  $('esqueci-btn').addEventListener('click',function(){mostra('f-esqueci');$('q-email').focus();});
+  $('voltar-entrar').addEventListener('click',function(){mostra('f-entrar');});
+  $('f-esqueci').addEventListener('submit',async function(e){e.preventDefault();$('q-btn').disabled=true;
+    try{var r=await api('POST','esqueci',{email:$('q-email').value});msg($('auth-msg'),r.msg,true);}
+    catch(err){msg($('auth-msg'),err.message);}
+    finally{$('q-btn').disabled=false;}
+  });
+  var tokenReset=(location.hash.match(/^#redefinir=([a-f0-9]{48})$/)||[])[1]||'';
+  function abreRedefinir(){sairLocal();mostra('f-redefinir');document.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('on');});$('r-pass').focus();}
+  window.addEventListener('hashchange',function(){var t=(location.hash.match(/^#redefinir=([a-f0-9]{48})$/)||[])[1];if(t){tokenReset=t;abreRedefinir();}});
+  $('f-redefinir').addEventListener('submit',async function(e){e.preventDefault();
+    if($('r-pass').value!==$('r-pass2').value){msg($('auth-msg'),'As senhas não são iguais.');return;}
+    try{var r=await api('POST','redefinir',{token:tokenReset,senha:$('r-pass').value});
+      try{history.replaceState(null,'',location.pathname);}catch(_){}
+      tokenReset='';guardaToken(r.token);entrou(r);
+    }catch(err){msg($('auth-msg'),err.message);}
+  });
+
+  // ---------- e-mail da conta (para contas antigas sem e-mail) ----------
+  $('f-meuemail').addEventListener('submit',async function(e){e.preventDefault();
+    try{var r=await api('POST','meuemail',{email:$('m-email').value});if(eu)eu.email=r.email;msg($('m-msg'),'E-mail salvo! Agora você consegue recuperar a senha sozinho.',true);setTimeout(function(){$('aviso-email').hidden=true;},2500);}
+    catch(err){msg($('m-msg'),err.message);}
+  });
+  $('m-depois').addEventListener('click',function(){$('aviso-email').hidden=true;try{sessionStorage.setItem('impl-email-depois','1');}catch(_){}});
+
+  function sairLocal(){guardaToken('');eu=null;document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x.dataset.tab==='entrar');});['f-cadastro','f-esqueci','f-redefinir'].forEach(function(i){$(i).hidden=true;});$('f-entrar').hidden=false;$('app').hidden=true;$('me').hidden=true;$('stat').hidden=true;$('auth').hidden=false;$('e-pass').value='';}
+  function entrou(u){eu={usuario:u.usuario,nome:u.nome,admin:u.admin,email:u.email||''};var adiou=false;try{adiou=!!sessionStorage.getItem('impl-email-depois');}catch(_){}$('aviso-email').hidden=!!eu.email||adiou;$('auth').hidden=true;$('app').hidden=false;$('me').hidden=false;$('stat').hidden=false;$('me-nome').textContent='Olá, '+u.nome+(u.admin?' · administrador':'');$('f-data').value=hoje();carregar();}
 
   // ---------- lista ----------
   async function carregar(){
@@ -346,6 +403,7 @@ dialog .para{color:var(--green-deep);font-weight:600}
   // início
   (async function(){
     try{var c=await api('GET','config');$('c-eq-wrap').hidden=!c.pedeSenhaEquipe;$('c-eq').required=!!c.pedeSenhaEquipe;}catch(e){}
+    if(tokenReset){abreRedefinir();return;}
     if(!token){sairLocal();return;}
     try{var u=await api('GET','eu');entrou(u);}catch(e){sairLocal();}
   })();
