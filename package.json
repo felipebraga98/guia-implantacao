@@ -1,0 +1,7 @@
+{
+  "name": "guia-implantacao",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "7.0.7"
+  }
+}
