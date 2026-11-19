@@ -3,6 +3,8 @@
 // Usa o mesmo banco Upstash Redis das outras listas (KV_REST_API_URL / KV_REST_API_TOKEN).
 // Se a variável SENHA_EQUIPE existir, ela é pedida para CRIAR conta (evita estranho criando login).
 // ADMINS_IMPLANTACAO: usuários que podem excluir clientes, separados por vírgula (ex.: felipebraga,kevin).
+// Recuperação de senha por e-mail (Gmail): EMAIL_USUARIO (o endereço Gmail que envia) e EMAIL_SENHA_APP (senha de app do Google).
+// SITE_URL (opcional): endereço do site usado no link do e-mail. Sem ela, usa o endereço que a pessoa está acessando.
 
 const crypto = require('crypto');
 const DADOS_INICIAIS = require('./_implantacao-dados.js');
@@ -15,7 +17,11 @@ const K = {
   log: 'impl:log',
   sessao: (t) => 'impl:sessao:' + t,
   tentativas: (u) => 'impl:tent:' + u,
+  emails: 'impl:emails',                 // e-mail -> usuário
+  reset: (t) => 'impl:reset:' + t,       // link de redefinição (vale 1 hora)
+  limite: (k) => 'impl:lim:' + k,
 };
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const SESSAO_DIAS = 30;
 const ABAS = ['Implantação 1', 'Implantação 3'];
 const CAMPOS = ['aba', 'dataEntrada', 'email', 'telefone', 'status', 'falta'];
@@ -68,7 +74,31 @@ async function usuarioLogado(req) {
   const raw = await redis(['HGET', K.usuarios, usuario]);
   if (!raw) return null;
   const u = JSON.parse(raw);
-  return { usuario: u.usuario, nome: u.nome, token: m[1], admin: ehAdmin(u.usuario) };
+  return { usuario: u.usuario, nome: u.nome, email: u.email || '', token: m[1], admin: ehAdmin(u.usuario) };
+}
+
+/** Conta quantas vezes uma ação aconteceu na janela (segundos) e diz se passou do limite. */
+async function passouLimite(chave, max, janela) {
+  const n = await redis(['INCR', K.limite(chave)]);
+  if (n === 1) await redis(['EXPIRE', K.limite(chave), String(janela)]);
+  return n > max;
+}
+
+async function enviarEmailRedefinicao(para, nome, link) {
+  const nodemailer = require('nodemailer');
+  const t = nodemailer.createTransport({ service: 'gmail', auth: { user: process.env.EMAIL_USUARIO, pass: process.env.EMAIL_SENHA_APP } });
+  const primeiro = String(nome || '').split(' ')[0] || 'tudo bem';
+  await t.sendMail({
+    from: '"Suporte WhatsMenu" <' + process.env.EMAIL_USUARIO + '>',
+    to: para,
+    subject: 'Redefinir sua senha — Suporte WhatsMenu',
+    text: 'Oi, ' + primeiro + '!\n\nRecebemos um pedido para redefinir a sua senha do guia do Suporte WhatsMenu.\nAbra este link para criar uma senha nova (vale por 1 hora):\n' + link + '\n\nSe não foi você, é só ignorar este e-mail.',
+    html: '<div style="font-family:Arial,sans-serif;font-size:15px;color:#14251b;max-width:520px">' +
+      '<p>Oi, ' + primeiro.replace(/[<>&]/g, '') + '!</p>' +
+      '<p>Recebemos um pedido para redefinir a sua senha do guia do <b>Suporte WhatsMenu</b>.</p>' +
+      '<p><a href="' + link + '" style="display:inline-block;background:#00a63e;color:#fff;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:10px">Criar senha nova</a></p>' +
+      '<p style="color:#4f6357;font-size:13px">O link vale por 1 hora e só pode ser usado uma vez. Se não foi você, é só ignorar este e-mail.</p></div>',
+  });
 }
 
 /** Uma única vez por versão: apaga a lista e recomeça com os dados da planilha (as contas de login continuam). */
@@ -142,14 +172,19 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ erro: 'Usuário deve ter de 3 a 30 letras ou números, sem espaço e sem acento.' });
       }
       if (senha.length < 6) return res.status(400).json({ erro: 'A senha precisa ter pelo menos 6 caracteres.' });
+      const email = limpa(body.email, 120).toLowerCase();
+      if (!EMAIL_RE.test(email)) return res.status(400).json({ erro: 'Informe um e-mail válido. Ele serve para recuperar a senha.' });
+      const dono = await redis(['HGET', K.emails, email]);
+      if (dono) return res.status(409).json({ erro: 'Esse e-mail já está em uma conta. Use "Esqueci minha senha".' });
 
       const salt = crypto.randomBytes(16).toString('hex');
-      const user = { usuario, nome, salt, hash: hashSenha(senha, salt), criadoEm: agora() };
+      const user = { usuario, nome, email, salt, hash: hashSenha(senha, salt), criadoEm: agora() };
       const criado = await redis(['HSETNX', K.usuarios, usuario, JSON.stringify(user)]);
       if (!criado) return res.status(409).json({ erro: 'Esse usuário já existe. Escolha outro ou entre com ele.' });
+      await redis(['HSET', K.emails, email, usuario]);
 
       await registrarLog(`${nome} (${usuario}) criou a conta`);
-      return res.status(201).json({ token: await criarSessao(usuario), usuario, nome, admin: ehAdmin(usuario) });
+      return res.status(201).json({ token: await criarSessao(usuario), usuario, nome, email, admin: ehAdmin(usuario) });
     }
 
     if (acao === 'entrar' && req.method === 'POST') {
@@ -165,14 +200,79 @@ module.exports = async function handler(req, res) {
         return res.status(401).json({ erro: 'Usuário ou senha incorretos.' });
       }
       await redis(['DEL', K.tentativas(usuario)]);
-      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, admin: ehAdmin(usuario) });
+      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, email: user.email || '', admin: ehAdmin(usuario) });
+    }
+
+    // ---------- esqueci minha senha ----------
+    if (acao === 'esqueci' && req.method === 'POST') {
+      if (!process.env.EMAIL_USUARIO || !process.env.EMAIL_SENHA_APP) {
+        return res.status(503).json({ erro: 'A recuperação por e-mail ainda não foi configurada. Fale com um administrador.' });
+      }
+      const email = limpa(body.email, 120).toLowerCase();
+      if (!EMAIL_RE.test(email)) return res.status(400).json({ erro: 'Informe o e-mail da sua conta.' });
+      const ip = String(req.headers['x-forwarded-for'] || 'anon').split(',')[0].trim();
+      if (await passouLimite('ip:' + ip, 8, 3600) || await passouLimite('em:' + email, 3, 3600)) {
+        return res.status(429).json({ erro: 'Muitos pedidos. Espere um pouco e tente de novo.' });
+      }
+      const resposta = { ok: true, msg: 'Se esse e-mail estiver cadastrado, enviamos um link para criar uma senha nova. Confira a caixa de entrada e o spam.' };
+      const usuario = await redis(['HGET', K.emails, email]);
+      if (!usuario) return res.status(200).json(resposta);
+      const raw = await redis(['HGET', K.usuarios, usuario]);
+      if (!raw) return res.status(200).json(resposta);
+      const user = JSON.parse(raw);
+      const tk = crypto.randomBytes(24).toString('hex');
+      await redis(['SET', K.reset(tk), usuario, 'EX', '3600']);
+      const base = (process.env.SITE_URL || ('https://' + (req.headers['x-forwarded-host'] || req.headers.host))).replace(/\/+$/, '');
+      try {
+        await enviarEmailRedefinicao(email, user.nome, base + '/clientes-implantacao.html#redefinir=' + tk);
+      } catch (e) {
+        await redis(['DEL', K.reset(tk)]);
+        return res.status(502).json({ erro: 'Não consegui enviar o e-mail agora. Avise um administrador.' });
+      }
+      await registrarLog(`Pedido de nova senha enviado para ${user.nome} (${usuario})`);
+      return res.status(200).json(resposta);
+    }
+
+    if (acao === 'redefinir' && req.method === 'POST') {
+      const tk = limpa(body.token, 60);
+      const senha = String(body.senha || '');
+      if (!/^[a-f0-9]{48}$/.test(tk)) return res.status(400).json({ erro: 'Link inválido. Peça um novo em "Esqueci minha senha".' });
+      if (senha.length < 6) return res.status(400).json({ erro: 'A senha precisa ter pelo menos 6 caracteres.' });
+      const usuario = await redis(['GET', K.reset(tk)]);
+      if (!usuario) return res.status(400).json({ erro: 'Esse link já foi usado ou expirou. Peça um novo em "Esqueci minha senha".' });
+      const raw = await redis(['HGET', K.usuarios, usuario]);
+      if (!raw) return res.status(400).json({ erro: 'Conta não encontrada.' });
+      const user = JSON.parse(raw);
+      user.salt = crypto.randomBytes(16).toString('hex');
+      user.hash = hashSenha(senha, user.salt);
+      user.senhaTrocadaEm = agora();
+      await redis(['HSET', K.usuarios, usuario, JSON.stringify(user)]);
+      await redis(['DEL', K.reset(tk)]);
+      await redis(['DEL', K.tentativas(usuario)]);
+      await registrarLog(`${user.nome} (${usuario}) criou uma senha nova pelo e-mail`);
+      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, email: user.email || '', admin: ehAdmin(usuario) });
     }
 
     // daqui pra baixo precisa estar logado
     const eu = await usuarioLogado(req);
     if (!eu) return res.status(401).json({ erro: 'Entre com seu usuário e senha.', precisaLogin: true });
 
-    if (acao === 'eu') return res.status(200).json({ usuario: eu.usuario, nome: eu.nome, admin: eu.admin });
+    if (acao === 'eu') return res.status(200).json({ usuario: eu.usuario, nome: eu.nome, email: eu.email, admin: eu.admin });
+
+    // cadastrar ou trocar o e-mail da própria conta (contas antigas não tinham e-mail)
+    if (acao === 'meuemail' && req.method === 'POST') {
+      const email = limpa(body.email, 120).toLowerCase();
+      if (!EMAIL_RE.test(email)) return res.status(400).json({ erro: 'Informe um e-mail válido.' });
+      const dono = await redis(['HGET', K.emails, email]);
+      if (dono && dono !== eu.usuario) return res.status(409).json({ erro: 'Esse e-mail já está em outra conta.' });
+      const raw = await redis(['HGET', K.usuarios, eu.usuario]);
+      const user = JSON.parse(raw);
+      if (user.email && user.email !== email) await redis(['HDEL', K.emails, user.email]);
+      user.email = email;
+      await redis(['HSET', K.usuarios, eu.usuario, JSON.stringify(user)]);
+      await redis(['HSET', K.emails, email, eu.usuario]);
+      return res.status(200).json({ ok: true, email });
+    }
 
     if (acao === 'sair' && req.method === 'POST') {
       await redis(['DEL', K.sessao(eu.token)]);
