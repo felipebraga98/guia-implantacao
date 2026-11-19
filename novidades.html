@@ -27,7 +27,13 @@ header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-conte
 h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
 .sub{margin:0;max-width:62ch;opacity:.95}
 .me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
-.me #abrir-login{opacity:.85;font-size:.8rem;padding:3px 10px}
+.me #abrir-login{font-size:.82rem;padding:4px 12px}
+.login-dlg{border:0;border-radius:14px;padding:0;width:min(340px,calc(100vw - 32px));box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.login-dlg::backdrop{background:rgba(6,30,16,.55)}
+.login-dlg form{display:flex;flex-direction:column;gap:12px;padding:20px}
+.dlg-top{display:flex;align-items:center;justify-content:space-between}
+.dlg-top b{font:800 1.2rem var(--f-display)}
+.dlg-x{background:var(--green-soft);border:0;border-radius:50%;width:30px;height:30px;cursor:pointer;color:var(--ink)}
 .me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .85rem var(--f-body);cursor:pointer}
 .card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,28px);box-shadow:0 2px 0 var(--green-deep)}
 .card h2{margin:0 0 12px;font:800 1.25rem/1.2 var(--f-display)}
@@ -35,7 +41,6 @@ label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85re
 input,select,textarea{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);background:#fff}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)}
 textarea{resize:vertical;min-height:110px;line-height:1.5}
-.auth form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
 .novo form{display:grid;grid-template-columns:1fr 200px;gap:12px}
 .novo .full{grid-column:1/-1}
 .btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:700 .95rem var(--f-body);cursor:pointer}
@@ -62,7 +67,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .post .acoes button:hover{border-color:var(--green)}
 .vazio{color:var(--muted);margin:0}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;max-width:calc(100vw - 32px)}
-@media (max-width:640px){.auth form,.novo form{grid-template-columns:1fr}#filtros input{margin-left:0;width:100%}}
+@media (max-width:640px){.novo form{grid-template-columns:1fr}#filtros input{margin-left:0;width:100%}}
 </style>
 </head>
 <body>
@@ -74,19 +79,18 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       <h1>Novidades</h1>
       <p class="sub">Mural da equipe: atualizações do sistema, mudanças de processo e avisos importantes. A mais recente aparece primeiro.</p>
     </div>
-    <div class="me"><span id="me-nome" hidden></span><button type="button" id="sair" hidden>Sair</button><button type="button" id="abrir-login" title="Login de administrador">🔒 Admin</button></div>
+    <div class="me"><span id="me-nome" hidden></span><button type="button" id="sair" hidden>Sair</button><button type="button" id="abrir-login">🔐 Login</button></div>
   </header>
 
-  <section class="card auth" id="auth" hidden>
-    <h2>Login de administrador</h2>
+  <dialog id="auth" class="login-dlg" aria-label="Login">
     <form id="f-entrar" autocomplete="on">
+      <div class="dlg-top"><b>Login</b><button type="button" class="dlg-x" id="fechar-login" aria-label="Fechar">✕</button></div>
       <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
       <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
       <button class="btn" type="submit">Entrar</button>
+      <p class="msg" id="auth-msg" role="status"></p>
     </form>
-    <p class="hint" style="margin-top:10px">Só para quem publica novidades. É o mesmo login da página Clientes Implantação; o usuário precisa estar como administrador. <button type="button" class="btn ghost" id="fechar-login" style="padding:4px 10px;font-size:.8rem">Cancelar</button></p>
-    <p class="msg" id="auth-msg" role="status"></p>
-  </section>
+  </dialog>
 
   <div id="app" style="display:contents">
     <section class="card novo" id="sec-novo" hidden>
@@ -121,12 +125,12 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   async function api(method,body,qs){
     var r=await fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
     var j=await r.json().catch(function(){return {}});
-    if(r.status===401){guardaToken('');estado(null);mostraLogin();throw new Error('login');}
+    if(r.status===401){guardaToken('');estado(null);if(method!=='GET')mostraLogin();throw new Error('login');}
     if(!r.ok)throw new Error(j.erro||('Erro '+r.status));
     return j;
   }
-  function mostraLogin(){$('auth').hidden=false;$('e-user').focus();}
-  function escondeLogin(){$('auth').hidden=true;$('auth-msg').textContent='';}
+  function mostraLogin(){$('auth-msg').textContent='';try{$('auth').showModal();}catch(e){$('auth').setAttribute('open','');}$('e-user').focus();}
+  function escondeLogin(){try{$('auth').close();}catch(e){$('auth').removeAttribute('open');}$('auth-msg').textContent='';}
   function estado(e){eu=e;var adm=!!(e&&e.admin);
     $('me-nome').hidden=!e; $('me-nome').textContent=e?e.nome+(adm?' · admin':''):''; $('sair').hidden=!e; $('abrir-login').hidden=!!e;
     $('sec-novo').hidden=!adm;}
@@ -184,7 +188,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
       var j=await r.json().catch(function(){return {}});
       if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
-      guardaToken(j.token);$('e-pass').value='';escondeLogin();if(!j.admin){toast('Login feito, mas seu usuário não é administrador. Você só pode ler as novidades.');}carregar();
+      guardaToken(j.token);$('e-pass').value='';escondeLogin();if(!j.admin){toast('Esse login não é de administrador. Só administradores publicam novidades.');}carregar();
     }catch(err){$('auth-msg').textContent=err.message;}
   });
   $('sair').onclick=function(){guardaToken('');estado(null);render();toast('Você saiu.');};
