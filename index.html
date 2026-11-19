@@ -846,8 +846,21 @@ document.querySelectorAll('.copy').forEach(function(btn){
   var badge=tile.querySelector('.nov-badge'), ultima=0;
   function visto(){try{return +localStorage.getItem('nov-clicou')||0;}catch(e){return 0;}}
   function marca(){tile.classList.toggle('tem-novidade',ultima>visto());badge.hidden=!(ultima>visto());}
-  function checa(){fetch('/api/novidades?acao=ultima',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){ultima=+j.ultima||0;marca();}).catch(function(){});}
-  tile.addEventListener('click',function(){try{localStorage.setItem('nov-clicou',String(Math.max(ultima,Date.now())));}catch(e){}marca();});
+  function avisado(){try{return +localStorage.getItem('nov-avisada')||0;}catch(e){return 0;}}
+  function notifica(titulo){
+    try{localStorage.setItem('nov-avisada',String(ultima));}catch(e){}
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    try{var n=new Notification('📣 Nova novidade no Suporte WhatsMenu',{body:titulo||'Clique para ver.',icon:'logo.png',tag:'novidade-'+ultima});
+      n.onclick=function(){window.focus();try{localStorage.setItem('nov-clicou',String(Date.now()));}catch(e){}location.href='novidades.html';n.close();};}catch(e){}
+  }
+  function checa(){fetch('/api/novidades?acao=ultima',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
+    var antes=ultima; ultima=+j.ultima||0; marca();
+    if(ultima>visto()&&ultima>avisado()&&(antes||document.hidden||true))notifica(j.titulo);
+  }).catch(function(){});}
+  tile.addEventListener('click',function(){
+    try{localStorage.setItem('nov-clicou',String(Math.max(ultima,Date.now())));}catch(e){}marca();
+    try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}
+  });
   checa(); setInterval(checa,120000);
   window.addEventListener('storage',function(e){if(e.key==='nov-clicou')marca();});
 })();
