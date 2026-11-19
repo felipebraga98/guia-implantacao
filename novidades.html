@@ -20,7 +20,7 @@
 html,body{margin:0}
 body{background:var(--green);color:var(--ink);font:15px/1.6 var(--f-body);padding:18px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
 .wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-#lista{display:flex!important;flex-direction:column;gap:14px}
+#lista{display:flex!important;flex-direction:column;gap:12px}
 header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
 .back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
 .back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
@@ -53,6 +53,9 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 #filtros button{border:1.5px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font:700 .88rem var(--f-body);cursor:pointer}
 #filtros button[aria-pressed="true"]{background:#fff;color:var(--green-deep);border-color:#fff}
 #filtros input{margin-left:auto;min-width:220px;border-color:transparent}
+.dia-cab{margin:4px 2px -6px;color:#fff;font:800 .95rem var(--f-display);letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.dia-cab::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.35)}
+#lista .dia-cab:first-child{margin-top:0}
 .post{position:relative;padding:12px 18px!important;border-radius:12px}
 .post.fix{box-shadow:0 0 0 3px var(--yellow),0 2px 0 var(--green-deep)}
 .post .topo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:2px}
@@ -154,13 +157,28 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   }
   function render(){
     var itens=lista.filter(function(n){return (filtro==='Todas'||n.categoria===filtro)&&(!busca||(n.titulo+' '+n.texto).toLowerCase().indexOf(busca)>=0);});
+    var hoje=diaBR(Date.now()), ontem=diaBR(Date.now()-86400e3), ultimoGrupo=null;
+    itens=itens.slice().sort(function(a,b){return (b.fixada?1:0)-(a.fixada?1:0)||b.criadoEm-a.criadoEm;});
     $('lista').innerHTML=itens.map(function(n){
+      var g=n.fixada?'fix':diaBR(n.criadoEm), cab='';
+      if(g!==ultimoGrupo){ultimoGrupo=g;
+        var rot=g==='fix'?'📌 Fixadas':(g===hoje?'Hoje':g===ontem?'Ontem':'')+(g===hoje||g===ontem?' · ':'')+nomeDia(n.criadoEm);
+        cab='<h2 class="dia-cab">'+rot+'</h2>';}
+      return cab+postHtml(n);
+    }).join('')||'';
+    if(!itens.length)$('lista').innerHTML='<section class="card"><p class="vazio">'+(lista.length?'Nenhuma novidade com esse filtro.':(eu&&eu.admin?'Nenhuma novidade publicada ainda. Publique a primeira!':'Nenhuma novidade publicada ainda.'))+'</p></section>';
+  }
+  function diaBR(ms){return new Date(ms-3*3600e3).toISOString().slice(0,10);}
+  function nomeDia(ms){var t=new Date(ms).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1);}
+  function hora(ms){return new Date(ms).toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'});}
+  function postHtml(n){
+    {
       var pode=!!(eu&&eu.admin), nova=ultimaVisita&&n.criadoEm>ultimaVisita&&n.autorUsuario!==(eu&&eu.usuario);
-      return '<article class="card post'+(n.fixada?' fix':'')+'" data-id="'+n.id+'"><div class="topo"><span class="cat '+esc(n.categoria)+'">'+esc(n.categoria)+'</span>'+(n.fixada?'<span class="selo">📌 Fixada</span>':'')+(nova?'<span class="selo">Nova</span>':'')+'<h3>'+esc(n.titulo)+'</h3><span class="meta">'+esc(n.autor)+' · '+quando(n.criadoEm)+(n.editadoEm?' · editada':'')+'</span></div>'+
+      return '<article class="card post'+(n.fixada?' fix':'')+'" data-id="'+n.id+'"><div class="topo"><span class="cat '+esc(n.categoria)+'">'+esc(n.categoria)+'</span>'+(n.fixada?'<span class="selo">📌 Fixada</span>':'')+(nova?'<span class="selo">Nova</span>':'')+'<h3>'+esc(n.titulo)+'</h3><span class="meta">'+esc(n.autor)+' · '+(n.fixada?quando(n.criadoEm):hora(n.criadoEm))+(n.editadoEm?' · editada':'')+'</span></div>'+
         '<div class="txt" title="Clique para ver tudo">'+linkify(n.texto)+'</div>'+
         (pode?'<div class="acoes">'+'<button type="button" data-a="editar" data-id="'+n.id+'">Editar</button>'+(eu.admin?'<button type="button" data-a="fixar" data-id="'+n.id+'">'+(n.fixada?'Desafixar':'📌 Fixar no topo')+'</button>':'')+'<button type="button" data-a="excluir" data-id="'+n.id+'">Excluir</button>'+'</div>':'')+
         '</article>';
-    }).join('')||'<section class="card"><p class="vazio">'+(lista.length?'Nenhuma novidade com esse filtro.':(eu&&eu.admin?'Nenhuma novidade publicada ainda. Publique a primeira!':'Nenhuma novidade publicada ainda.'))+'</p></section>';
+    }
   }
   $('filtros').addEventListener('click',function(e){var b=e.target.closest('button[data-c]');if(!b)return;filtro=b.dataset.c;$('filtros').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});render();});
   $('lista').addEventListener('click',async function(e){
