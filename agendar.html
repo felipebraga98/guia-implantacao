@@ -59,7 +59,13 @@ form.grid input:focus{outline:none;border-color:var(--green)}
 .msg.err{color:var(--err)}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .ok{text-align:center;padding:36px 20px}
-.ok .big{font-size:3rem;line-height:1}
+.ok{position:relative;overflow:hidden}
+.ok .big{font-size:4rem;line-height:1;display:inline-block}
+.ok .big.festa{animation:festa 2s ease-out both}
+@keyframes festa{0%{transform:scale(0) rotate(-30deg);opacity:0}15%{transform:scale(1.35) rotate(12deg);opacity:1}30%{transform:scale(.95) rotate(-10deg)}45%{transform:scale(1.15) rotate(8deg)}60%{transform:scale(1) rotate(-6deg)}75%{transform:scale(1.08) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+.confete{position:absolute;top:70px;left:50%;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:confete 2s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes confete{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+@media (prefers-reduced-motion:reduce){.ok .big.festa{animation:none}.confete{display:none}}
 .ok h2{justify-content:center;font-size:1.6rem;margin:10px 0}
 .ok .recado{font-size:1.08rem;font-weight:600;max-width:52ch;margin:0 auto 14px;background:var(--green-soft);border-radius:12px;padding:14px 16px}
 .ok .quando{font:800 1.3rem var(--f-display);color:var(--green-deep);margin:6px 0 12px}
@@ -107,7 +113,7 @@ form.grid input:focus{outline:none;border-color:var(--green)}
   </div>
 
   <section class="card ok" id="ok" hidden>
-    <div class="big">✅</div>
+    <div class="big" id="ok-emoji" aria-hidden="true">🎉</div>
     <h2>Agendamento confirmado!</h2>
     <div class="quando" id="ok-quando"></div>
     <p class="recado" id="ok-recado"></p>
@@ -183,12 +189,22 @@ form.grid input:focus{outline:none;border-color:var(--green)}
       }
       $('passos').hidden=true; $('ok').hidden=false;
       $('ok-quando').textContent=j.rotulo.charAt(0).toUpperCase()+j.rotulo.slice(1)+' às '+j.hora;
+      festa();
       $('ok-recado').textContent='Te espero '+(/^(sábado|domingo)/.test(j.rotulo)?'no ':'na ')+j.rotulo+', às '+j.hora+', para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚';
       $('ok-cod').textContent='Código do agendamento: '+j.id;
       window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){msg.textContent='Sem conexão. Tente de novo.';msg.classList.add('err');}
     finally{enviando=false;$('enviar').textContent='Confirmar agendamento';atualiza();}
   });
+  function festa(){
+    var e=$('ok-emoji'); e.classList.remove('festa'); void e.offsetWidth; e.classList.add('festa');
+    var box=$('ok'), cores=['#ffd23f','#00a63e','#ff6b6b','#4dabf7','#b197fc','#ff922b'];
+    for(var i=0;i<36;i++){var c=document.createElement('span');c.className='confete';
+      var ang=Math.random()*Math.PI*2, dist=120+Math.random()*220;
+      c.style.setProperty('--x',Math.round(Math.cos(ang)*dist)+'px');c.style.setProperty('--y',Math.round(Math.sin(ang)*dist*0.8+60)+'px');c.style.setProperty('--r',Math.round(Math.random()*720-360)+'deg');
+      c.style.background=cores[i%cores.length];c.style.animationDelay=(Math.random()*0.15)+'s';box.appendChild(c);}
+    setTimeout(function(){box.querySelectorAll('.confete').forEach(function(n){n.remove();});},2400);
+  }
   carregar();
 })();
 </script>
