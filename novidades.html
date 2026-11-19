@@ -27,6 +27,7 @@ header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-conte
 h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
 .sub{margin:0;max-width:62ch;opacity:.95}
 .me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
+.me #abrir-login{opacity:.85;font-size:.8rem;padding:3px 10px}
 .me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .85rem var(--f-body);cursor:pointer}
 .card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,28px);box-shadow:0 2px 0 var(--green-deep)}
 .card h2{margin:0 0 12px;font:800 1.25rem/1.2 var(--f-display)}
@@ -71,23 +72,23 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       <a class="back" href="./">← Voltar ao Suporte</a>
       <div class="eyebrow">Suporte · WhatsMenu</div>
       <h1>Novidades</h1>
-      <p class="sub">Mural da equipe: atualizações do sistema, mudanças de processo e avisos importantes. A mais recente aparece primeiro. Só administradores publicam.</p>
+      <p class="sub">Mural da equipe: atualizações do sistema, mudanças de processo e avisos importantes. A mais recente aparece primeiro.</p>
     </div>
-    <div class="me" id="me" hidden><span id="me-nome"></span><button type="button" id="sair">Sair</button></div>
+    <div class="me"><span id="me-nome" hidden></span><button type="button" id="sair" hidden>Sair</button><button type="button" id="abrir-login" title="Login de administrador">🔒 Admin</button></div>
   </header>
 
   <section class="card auth" id="auth" hidden>
-    <h2>Entrar</h2>
+    <h2>Login de administrador</h2>
     <form id="f-entrar" autocomplete="on">
       <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
       <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
       <button class="btn" type="submit">Entrar</button>
     </form>
-    <p class="hint" style="margin-top:10px">É o mesmo login da página <a href="clientes-implantacao.html">Clientes Implantação</a>. Não tem conta? Crie lá.</p>
+    <p class="hint" style="margin-top:10px">Só para quem publica novidades. É o mesmo login da página Clientes Implantação; o usuário precisa estar como administrador. <button type="button" class="btn ghost" id="fechar-login" style="padding:4px 10px;font-size:.8rem">Cancelar</button></p>
     <p class="msg" id="auth-msg" role="status"></p>
   </section>
 
-  <div id="app" hidden style="display:contents">
+  <div id="app" style="display:contents">
     <section class="card novo" id="sec-novo" hidden>
       <h2 id="form-tit">Publicar novidade</h2>
       <form id="f-post">
@@ -120,17 +121,21 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   async function api(method,body,qs){
     var r=await fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
     var j=await r.json().catch(function(){return {}});
-    if(r.status===401){guardaToken('');mostraLogin();throw new Error('login');}
+    if(r.status===401){guardaToken('');estado(null);mostraLogin();throw new Error('login');}
     if(!r.ok)throw new Error(j.erro||('Erro '+r.status));
     return j;
   }
-  function mostraLogin(){$('auth').hidden=false;$('app').hidden=true;$('me').hidden=true;}
+  function mostraLogin(){$('auth').hidden=false;$('e-user').focus();}
+  function escondeLogin(){$('auth').hidden=true;$('auth-msg').textContent='';}
+  function estado(e){eu=e;var adm=!!(e&&e.admin);
+    $('me-nome').hidden=!e; $('me-nome').textContent=e?e.nome+(adm?' · admin':''):''; $('sair').hidden=!e; $('abrir-login').hidden=!!e;
+    $('sec-novo').hidden=!adm;}
 
   async function carregar(){
     try{
-      var j=await api('GET'); lista=j.lista; eu=j.eu;
+      var j=await api('GET'); lista=j.lista; estado(j.eu); if(token&&!j.eu)guardaToken('');
       if(!cats.length){cats=j.categorias;$('p-cat').innerHTML=cats.map(function(c){return '<option'+(c==='Aviso'?' selected':'')+'>'+c+'</option>'}).join('');filtros();}
-      $('me-nome').textContent=eu.nome+(eu.admin?' · admin':''); $('sec-novo').hidden=!eu.admin; $('me').hidden=false; $('auth').hidden=true; $('app').hidden=false;
+      
       render();
       try{localStorage.setItem('nov-visita',String(Date.now()));localStorage.setItem('nov-clicou',String(Date.now()));}catch(e){}
     }catch(e){if(e.message!=='login')toast(e.message);}
@@ -179,11 +184,12 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
       var j=await r.json().catch(function(){return {}});
       if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
-      guardaToken(j.token);$('e-pass').value='';carregar();
+      guardaToken(j.token);$('e-pass').value='';escondeLogin();if(!j.admin){toast('Login feito, mas seu usuário não é administrador. Você só pode ler as novidades.');}carregar();
     }catch(err){$('auth-msg').textContent=err.message;}
   });
-  $('sair').onclick=function(){guardaToken('');mostraLogin();};
-  if(token)carregar();else mostraLogin();
+  $('sair').onclick=function(){guardaToken('');estado(null);render();toast('Você saiu.');};
+  $('abrir-login').onclick=mostraLogin; $('fechar-login').onclick=escondeLogin;
+  carregar();
 })();
 </script>
 </body>
