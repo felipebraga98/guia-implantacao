@@ -18,13 +18,14 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
-body{background:var(--green);color:var(--ink);font:15px/1.6 var(--f-body);padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
-.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+body{background:var(--green);color:var(--ink);font:15px/1.6 var(--f-body);padding:18px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+#lista{display:flex!important;flex-direction:column;gap:8px}
 header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
 .back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
 .back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
 .eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
-h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
+h1{font:800 clamp(1.7rem,4vw,2.3rem)/1.05 var(--f-display);margin:.15em 0 .2em}
 .sub{margin:0;max-width:62ch;opacity:.95}
 .me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
 .me #abrir-login{font-size:.82rem;padding:4px 12px}
@@ -35,7 +36,7 @@ h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
 .dlg-top b{font:800 1.2rem var(--f-display)}
 .dlg-x{background:var(--green-soft);border:0;border-radius:50%;width:30px;height:30px;cursor:pointer;color:var(--ink)}
 .me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .85rem var(--f-body);cursor:pointer}
-.card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,28px);box-shadow:0 2px 0 var(--green-deep)}
+.card{background:var(--card);border-radius:14px;padding:18px clamp(16px,3vw,24px);box-shadow:0 2px 0 var(--green-deep)}
 .card h2{margin:0 0 12px;font:800 1.25rem/1.2 var(--f-display)}
 label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
 input,select,textarea{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);background:#fff}
@@ -52,22 +53,24 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 #filtros button{border:1.5px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font:700 .88rem var(--f-body);cursor:pointer}
 #filtros button[aria-pressed="true"]{background:#fff;color:var(--green-deep);border-color:#fff}
 #filtros input{margin-left:auto;min-width:220px;border-color:transparent}
-.post{position:relative}
+.post{position:relative;padding:12px 18px!important;border-radius:12px}
 .post.fix{box-shadow:0 0 0 3px var(--yellow),0 2px 0 var(--green-deep)}
-.post .topo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+.post .topo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:2px}
 .cat{border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;background:var(--green-soft);color:var(--green-deep)}
 .cat.Aviso{background:#fff3dc;color:#9a5b00}.cat.Atualização{background:#e8efff;color:#1d4ed8}.cat.Processo{background:#f3e8ff;color:#6b21a8}.cat.Treinamento{background:#fdecec;color:#9b1c1c}
 .selo{border-radius:999px;padding:2px 10px;font-size:.75rem;font-weight:800;background:var(--yellow);color:var(--ink)}
-.post h3{font:800 1.3rem/1.25 var(--f-display);margin:0 0 6px}
-.post .meta{color:var(--muted);font-size:.85rem;margin-bottom:10px}
-.post .txt{white-space:pre-wrap;overflow-wrap:anywhere}
+.post h3{font:800 1.05rem/1.25 var(--f-display);margin:0}
+.post .meta{color:var(--muted);font-size:.78rem;margin-left:auto;white-space:nowrap}
+.post .txt{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.9rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.post.aberta .txt{display:block;-webkit-line-clamp:unset}
+.post .mais{background:none;border:0;padding:0;color:var(--green-deep);font:700 .78rem var(--f-body);cursor:pointer;text-decoration:underline}
 .post .txt a{color:var(--green-deep);font-weight:700}
-.post .acoes{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.post .acoes button{font:700 .8rem var(--f-body);border-radius:8px;padding:6px 10px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.post .acoes{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.post .acoes button{font:700 .75rem var(--f-body);border-radius:8px;padding:4px 9px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
 .post .acoes button:hover{border-color:var(--green)}
 .vazio{color:var(--muted);margin:0}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;max-width:calc(100vw - 32px)}
-@media (max-width:640px){.novo form{grid-template-columns:1fr}#filtros input{margin-left:0;width:100%}}
+@media (max-width:640px){.post .meta{margin-left:0;width:100%}.novo form{grid-template-columns:1fr}#filtros input{margin-left:0;width:100%}}
 </style>
 </head>
 <body>
@@ -153,15 +156,15 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     var itens=lista.filter(function(n){return (filtro==='Todas'||n.categoria===filtro)&&(!busca||(n.titulo+' '+n.texto).toLowerCase().indexOf(busca)>=0);});
     $('lista').innerHTML=itens.map(function(n){
       var pode=!!(eu&&eu.admin), nova=ultimaVisita&&n.criadoEm>ultimaVisita&&n.autorUsuario!==(eu&&eu.usuario);
-      return '<article class="card post'+(n.fixada?' fix':'')+'"><div class="topo"><span class="cat '+esc(n.categoria)+'">'+esc(n.categoria)+'</span>'+(n.fixada?'<span class="selo">📌 Fixada</span>':'')+(nova?'<span class="selo">Nova</span>':'')+'</div>'+
-        '<h3>'+esc(n.titulo)+'</h3><div class="meta">Por '+esc(n.autor)+' em '+quando(n.criadoEm)+(n.editadoEm?' · editada por '+esc(n.editadoPor)+' em '+quando(n.editadoEm):'')+'</div>'+
-        '<div class="txt">'+linkify(n.texto)+'</div>'+
+      return '<article class="card post'+(n.fixada?' fix':'')+'" data-id="'+n.id+'"><div class="topo"><span class="cat '+esc(n.categoria)+'">'+esc(n.categoria)+'</span>'+(n.fixada?'<span class="selo">📌 Fixada</span>':'')+(nova?'<span class="selo">Nova</span>':'')+'<h3>'+esc(n.titulo)+'</h3><span class="meta">'+esc(n.autor)+' · '+quando(n.criadoEm)+(n.editadoEm?' · editada':'')+'</span></div>'+
+        '<div class="txt" title="Clique para ver tudo">'+linkify(n.texto)+'</div>'+
         (pode?'<div class="acoes">'+'<button type="button" data-a="editar" data-id="'+n.id+'">Editar</button>'+(eu.admin?'<button type="button" data-a="fixar" data-id="'+n.id+'">'+(n.fixada?'Desafixar':'📌 Fixar no topo')+'</button>':'')+'<button type="button" data-a="excluir" data-id="'+n.id+'">Excluir</button>'+'</div>':'')+
         '</article>';
     }).join('')||'<section class="card"><p class="vazio">'+(lista.length?'Nenhuma novidade com esse filtro.':(eu&&eu.admin?'Nenhuma novidade publicada ainda. Publique a primeira!':'Nenhuma novidade publicada ainda.'))+'</p></section>';
   }
   $('filtros').addEventListener('click',function(e){var b=e.target.closest('button[data-c]');if(!b)return;filtro=b.dataset.c;$('filtros').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});render();});
   $('lista').addEventListener('click',async function(e){
+    var tx=e.target.closest('.txt');if(tx&&!e.target.closest('a')){tx.closest('.post').classList.toggle('aberta');return;}
     var b=e.target.closest('button[data-a]');if(!b)return;var n=lista.find(function(x){return x.id===b.dataset.id});if(!n)return;
     try{
       if(b.dataset.a==='editar'){editando=n.id;$('p-titulo').value=n.titulo;$('p-cat').value=n.categoria;$('p-texto').value=n.texto;$('form-tit').textContent='Editar novidade';$('p-enviar').textContent='Salvar alterações';$('p-cancelar').hidden=false;window.scrollTo({top:0,behavior:'smooth'});$('p-titulo').focus();return;}
