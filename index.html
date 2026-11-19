@@ -2,974 +2,214 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" type="image/png" href="logo.png">
-<style>[hidden]{display:none!important}.flow-menu a.fl-busca{background:#fff7d1;border-bottom:1px solid var(--line)}
-.flow-menu a.fl-fin{background:var(--green-soft);border-top:0!important;margin-top:4px!important;padding-top:8px!important;border-radius:8px!important}
-</style>
-<title>Suporte WhatsMenu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agende seu atendimento — WhatsMenu</title>
+<meta property="og:title" content="Agende seu atendimento — WhatsMenu">
+<meta property="og:description" content="Escolha o melhor dia e horário para falar com a equipe WhatsMenu.">
+<meta property="og:image" content="logo.png">
+<meta name="description" content="Escolha o melhor dia e horário para o seu atendimento com a equipe WhatsMenu.">
+<link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;600;700&display=swap">
 <style>
-/* Layout: fundo verde da marca, coluna central de cartões brancos, um cartão por passo */
 :root{
-  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec;
-  --card:#ffffff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc;
-  --warn-bg:#fff6e0; --warn-line:#e7b23c; --code-bg:#f3f7f4;
-  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --f-body:"Figtree", "Segoe UI", system-ui, sans-serif;
-  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --yellow:#ffd23f;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --err:#b42318;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
   color-scheme: light;
 }
 *{box-sizing:border-box}
-body{background:var(--green);color:var(--ink);font:16px/1.6 var(--f-body);
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 56px}
-.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
-header{color:#fff;padding-block:8px 12px}
-header{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-header .head-text{flex:1 1 420px;min-width:0}
-header .logo{flex:none;display:block;width:clamp(120px,22vw,190px);height:auto;aspect-ratio:1;max-width:100%;background:#fff;border-radius:50%;padding:10px;box-shadow:0 3px 0 var(--green-deep)}
-@media (max-width:560px){header .logo{order:-1;width:110px}}
-header .eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
-header h1{font:800 clamp(2rem,5vw,3rem)/1.05 var(--f-display);margin:.2em 0 .3em;text-wrap:balance}
-header p{margin:0;max-width:60ch;opacity:.95}
-nav.steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-nav.steps a{color:#fff;text-decoration:none;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.9rem}
-nav.steps a:hover,nav.steps a:focus-visible{background:#fff;color:var(--green-deep);outline:none}
-section.card{background:var(--card);border-radius:14px;padding:28px clamp(18px,4vw,36px);box-shadow:0 2px 0 var(--green-deep);min-width:0}
-.card h2{font:800 1.6rem/1.15 var(--f-display);margin:0 0 4px;display:flex;align-items:center;gap:12px;text-wrap:balance}
-.num{flex:none;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;font:800 1.15rem var(--f-display)}
-.card h3{font:600 1.15rem/1.3 var(--f-display);margin:28px 0 8px;color:var(--green-deep)}
-.card p{margin:10px 0;max-width:68ch}
-.where{color:var(--muted);font-size:.95rem;margin-top:0}
-.table-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px}
-table{border-collapse:collapse;width:100%;font-size:.95rem}
-th{background:var(--green-soft);text-align:left;font-weight:700;color:var(--green-deep)}
-th,td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
-tr:last-child td{border-bottom:0}
-td.n{font-variant-numeric:tabular-nums;font-weight:700;color:var(--green-deep);width:3em}
-.note{border-left:4px solid var(--warn-line);background:var(--warn-bg);padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0}
-.note.tip{border-color:var(--green);background:var(--green-soft)}
-.note b:first-child{display:inline}
-figure{margin:16px 0}
-figure img{display:block;width:100%;border:1px solid var(--line);border-radius:10px}
-figcaption{font-size:.85rem;color:var(--muted);margin-top:6px}
-.msg{position:relative;margin:12px 0}
-.msg .tag{display:inline-block;font:600 .8rem var(--f-mono);background:var(--green);color:#fff;padding:2px 10px;border-radius:6px 6px 0 0}
-.msg pre{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:0 10px 10px 10px;padding:16px 18px;white-space:pre-wrap;word-break:break-word;font:400 .88rem/1.6 var(--f-mono);color:var(--ink)}
-.copy{position:absolute;top:30px;right:10px;font:600 .8rem var(--f-body);background:#fff;color:var(--green-deep);border:1.5px solid var(--green);border-radius:6px;padding:4px 10px;cursor:pointer}
-.copy:hover{background:var(--green);color:#fff}
-.copy:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
-code{font-family:var(--f-mono);font-size:.88em;background:var(--green-soft);color:var(--green-deep);padding:1px 6px;border-radius:4px}
-a{color:var(--green-deep);font-weight:600}
-ul,ol{padding-left:1.3em;margin:8px 0}
-li{margin:4px 0}
-.choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
-.choice div{border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
-.choice strong{display:block;color:var(--green-deep)}
-ul.check{list-style:none;padding:0}
-ul.check li{display:flex;gap:10px;align-items:flex-start}
-ul.check input{width:18px;height:18px;margin-top:4px;accent-color:var(--green);flex:none}
-.video{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:var(--green-soft);padding:8px 14px;border-radius:8px}
-.video::before{content:"▶";font-size:.8em}
-.destaque{margin:28px 0;border:3px solid var(--warn-line);border-radius:14px;padding:6px 18px 4px;background:#fffbef;box-shadow:0 4px 0 var(--warn-line)}
-.destaque h3{margin:14px 0 6px;font-size:1.35rem;color:#8a5a00}
-.destaque .note{border-left:0;background:transparent;padding:4px 0 10px;margin:0}
-.card h3 .et{display:inline-block;font:700 .72rem/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;background:var(--green);color:#fff;padding:5px 9px;border-radius:999px;margin-right:10px;vertical-align:3px}
-.card h4{font:700 1rem/1.3 var(--f-body);margin:20px 0 4px;color:var(--ink)}
-.must{display:inline-block;font:700 .82rem var(--f-body);background:#fde3e3;color:#a11b1b;border:1.5px solid #e05252;border-radius:999px;padding:3px 12px}
-.msg .tag.audio{background:#c62828}
-ol.steps-list li{margin:6px 0}
-.msg pre{padding-right:92px}
-@media (max-width:560px){.msg pre{padding-right:18px;padding-top:40px}}
-.pdf h2{font:800 1.45rem/1.2 var(--f-display);margin:0 0 10px}
-.pdf h2.pdf-title{font-size:1.7rem}
-.pdf>h2{display:block;margin:-28px calc(-1 * clamp(18px,4vw,36px)) 20px;padding:20px clamp(18px,4vw,36px) 18px;background:#0f3b22;color:#fff;border-radius:14px 14px 0 0;border-bottom:5px solid #ffd23f;letter-spacing:.01em}
-.pdf h3{font:700 1.25rem/1.3 var(--f-display);color:var(--ink);margin:30px 0 8px}
-.pdf p{max-width:none}
-.pdf .quote{position:relative;border-left:3px solid var(--line);padding:2px 96px 2px 16px;margin:8px 0 12px}
-.pdf .quote.audio{padding-right:0}
-.pdf .quote .qcopy{position:absolute;top:2px;right:0;font:600 .8rem var(--f-body);background:#fff;color:var(--green-deep);border:1.5px solid var(--green);border-radius:6px;padding:4px 10px;cursor:pointer}
-.pdf .quote .qcopy:hover,.pdf .quote .qcopy.ok{background:var(--green);color:#fff}
-.pdf .quote .qcopy:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
-@media (max-width:560px){.pdf .quote{padding:36px 0 2px 14px}}
-
-.pdf .quote p{margin:6px 0}
-.pdf .blue{color:#1f3fcf}
-mark.hl{background:#ffff00;color:inherit;padding:0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
-mark.hl.red{color:#e00000;font-weight:700}
-nav.steps details.flow{position:relative}
-nav.steps details.flow>summary{list-style:none;cursor:pointer;color:#fff;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:6px}
-nav.steps details.flow>summary::-webkit-details-marker{display:none}
-nav.steps details.flow>summary::after{content:"▾";font-size:.8em}
-nav.steps details.flow[open]>summary,nav.steps details.flow>summary:hover,nav.steps details.flow>summary:focus-visible{background:#fff;color:var(--green-deep);outline:none}
-nav.steps .flow-menu{position:absolute;z-index:20;top:calc(100% + 6px);left:0;width:max-content;max-width:min(360px,calc(100vw - 32px));max-height:70vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;display:flex;flex-direction:column}
-nav.steps .flow-menu a{color:var(--ink);border:0;border-radius:8px;padding:8px 12px;font-weight:500;font-size:.9rem;text-decoration:none;white-space:normal}
-nav.steps .flow-menu a.fl-top{font-weight:700;color:var(--green-deep);border-bottom:1px solid var(--line);border-radius:8px 8px 0 0;margin-bottom:4px}
-nav.steps .flow-menu a:hover,nav.steps .flow-menu a:focus-visible{background:var(--green-soft);color:var(--green-deep);outline:none}
-.pdf h3[id]{scroll-margin-top:16px;background:var(--green);color:#fff;border-radius:10px;padding:10px 16px;margin:36px 0 12px;box-shadow:0 3px 0 var(--green-deep)}
-.pdf h4{background:var(--green-soft);color:var(--green-deep);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:6px 12px;margin:24px 0 8px}
-/* Legenda, busca e barra de posição */
-.pdf .quote:not(.audio)::before{content:"💬";position:absolute;left:-15px;top:-2px;background:#fff;font-size:.95rem;line-height:1.4;padding:2px 0}
-.pdf .quote.audio::before{content:"🎙️";position:absolute;left:-15px;top:-2px;background:#fff;font-size:.95rem;line-height:1.4;padding:2px 0}
-.pdf .quote{margin-left:12px}
-.pdf mark.hl:not(.red)::before{content:"⚠️ "}
-.pdf mark.ic-audio::before{content:"🎙️ "}
-.pdf mark.ic-acao::before{content:"❗ "}
-.guia-uso .gu-title{font:800 1.3rem/1.2 var(--f-display);margin:0 0 12px}
-.gs-label{display:block;font-weight:700;font-size:.9rem;color:var(--green-deep);margin-bottom:6px}
-.gs-box{display:flex;gap:10px;align-items:center}
-.gs-box input{flex:1;min-width:0;font:inherit;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
-.gs-box input:focus-visible{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
-.gs-count{color:var(--muted);font-size:.85rem;white-space:nowrap;font-variant-numeric:tabular-nums}
-.gs-results{margin-top:8px;border:1px solid var(--line);border-radius:10px;max-height:340px;overflow:auto;background:#fff}
-.gs-results a{display:block;padding:10px 14px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-weight:400}
-.gs-results a:last-child{border-bottom:0}
-.gs-results a:hover,.gs-results a:focus-visible{background:var(--green-soft);outline:none}
-.gs-results .gs-where{display:block;font-size:.78rem;font-weight:700;color:var(--green-deep);text-transform:uppercase;letter-spacing:.04em}
-.gs-results .gs-t{display:block;font-weight:700}
-.gs-results .gs-snip{display:block;font-size:.88rem;color:var(--muted)}
-.gs-results b.gs-hit{background:#ffff00;color:var(--ink)}
-.gs-results .gs-none{padding:12px 14px;color:var(--muted)}
-.gu-legend{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:10px 14px;font-size:.92rem;align-items:center;border-top:1px solid var(--line);padding-top:16px}
-.gu-legend li{display:contents}
-.lg{display:inline-block;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:6px;color:#fff}
-.lg-flow{background:#0f3b22;border-bottom:3px solid #ffd23f}
-.lg-etapa{background:var(--green)}
-.lg-ic{white-space:nowrap}
-.lg-ic .blue{color:#1f3fcf}
-.lg-blue{color:#1f3fcf;font-weight:700}
-mark.lg-mark{font-weight:600}
-.pdf h3.gs-flash,.pdf h2.gs-flash{animation:gsflash 1.8s ease-out}
-@keyframes gsflash{0%,30%{box-shadow:0 0 0 5px #ffd23f}100%{box-shadow:0 3px 0 var(--green-deep)}}
-.gbar{position:fixed;left:0;right:0;top:0;z-index:30;background:#0f3b22;color:#fff;padding-top:env(safe-area-inset-top,0px);box-shadow:0 2px 10px rgba(0,0,0,.2)}
-.gbar-in{display:flex;align-items:center;gap:12px;max-width:1080px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
-.gbar-loc{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9rem}
-.gbar-flow{font-weight:800;color:#ffd23f}
-.gbar-sep{margin:0 6px;opacity:.7}
-.gbar-act{display:flex;gap:6px;flex:none}
-.gbar-act button{font:600 .82rem var(--f-body);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5);border-radius:999px;padding:5px 12px;cursor:pointer}
-.gbar-act button:hover,.gbar-act button:focus-visible{background:#fff;color:#0f3b22;outline:none}
-.gbar-prog{height:4px;background:rgba(255,255,255,.15)}
-.gbar-prog span{display:block;height:100%;width:0;background:#ffd23f;transition:width .15s linear}
-.pdf h3[id],.pdf[id]{scroll-margin-top:64px}
-@media (max-width:560px){.gbar-flow{display:none}.gbar-sep{display:none}.gbar-loc{font-size:.82rem}}
-.gbar-panel{max-width:1080px;margin:0 auto;padding:4px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}
-.gbar-panel .gs-box input{border-color:transparent}
-.gbar-panel .gs-count{color:#d9efe0}
-.gbar-panel .gs-results{max-height:min(60vh,420px);color:var(--ink)}
-#gbar-search[aria-expanded="true"]{background:#fff;color:#0f3b22}
-nav.steps .flow-menu a.fl-group{font-weight:800;color:var(--green-deep);margin-top:4px}
-nav.steps .flow-menu a.fl-group:not(:first-child){border-top:1px solid var(--line);border-radius:0;padding-top:10px;margin-top:6px}
-nav.steps .flow-menu a.fl-sub{padding-left:24px;font-size:.86rem}
-nav.steps details.guia .flow-menu{max-width:min(420px,calc(100vw - 32px))}
-nav.steps details.flow>summary.on{background:#fff;color:var(--green-deep)}
-.home-screen{display:flex;flex-direction:column;gap:14px}
-.home-screen[hidden],section[hidden]{display:none!important}
-.hs-title{color:#fff;font:800 1.4rem/1.2 var(--f-display);margin:8px 0 0}
-.hs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
-.hs-tile{display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:14px;padding:20px 22px;text-decoration:none;color:var(--ink);box-shadow:0 3px 0 var(--green-deep);min-width:0}
-.hs-tile:hover,.hs-tile:focus-visible{outline:none;box-shadow:0 0 0 3px #ffd23f,0 3px 0 var(--green-deep)}
-.hs-ic{font-size:1.6rem}
-.hs-t{font:800 1.15rem/1.2 var(--f-display);color:var(--green-deep)}
-.hs-d{color:var(--muted);font-size:.92rem;font-weight:400}
-nav.steps a.home-nav[aria-current="page"],nav.steps a.cur{background:#fff;color:var(--green-deep)}
-.pdf .quote.fala{padding-right:0}
-.pdf .quote.fala::before{content:"📞";position:absolute;left:-15px;top:-2px;background:#fff;font-size:.95rem;line-height:1.4;padding:2px 0}
-.pdf .quote:not(.audio):not(.fala)::before{content:"💬"}
-@media (max-width:560px){.pdf .quote.fala{padding-top:2px}.pdf .quote.audio{padding-top:2px}}
-mark.cy{background:#00ffff;color:inherit;padding:0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
-.pdf h4.h-green{background:#00ff3c;color:var(--ink);border-left-color:#00b52a}
-.pdf .big-alert{font:800 1.3rem/1.35 var(--f-display);margin:22px 0}
-.pdf .notas-lines{font-size:1.05rem;line-height:1.7}
-.pdf h3.sub-h{font:800 1.35rem/1.3 var(--f-display);margin:26px 0 8px}
-@media (prefers-reduced-motion:reduce){.pdf h3.gs-flash,.pdf h2.gs-flash{animation:none}.gbar-prog span{transition:none}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-/* Respostas rápidas */
-.rr-back{font:600 .9rem var(--f-body);background:var(--green-soft);color:var(--green-deep);border:0;border-radius:8px;padding:8px 14px;cursor:pointer;margin-bottom:16px}
-.rr-back:hover{background:var(--green);color:#fff}
-.rr-back:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
-nav.steps a.rr-nav{background:#ffd23f;border-color:#ffd23f;color:#14251b;font-weight:800;box-shadow:0 3px 0 var(--green-deep);padding:7px 16px}
-nav.steps a.pdv-nav{background:#fff;border-color:#fff;color:var(--green-deep);font-weight:800;box-shadow:0 3px 0 var(--green-deep);padding:7px 16px}
-nav.steps a.pdv-nav:hover,nav.steps a.pdv-nav:focus-visible{background:var(--green-soft);border-color:var(--green-soft)}
-nav.steps a.rr-nav:hover,nav.steps a.rr-nav:focus-visible{background:#fff;border-color:#fff;color:var(--green-deep)}
-.rr-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.rr-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 10px}
-.rr-search{flex:1 1 260px;min-width:0}
-.rr-search input{width:100%;font:inherit;padding:10px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
-.rr-search input:focus-visible{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
-.rr-count{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums;white-space:nowrap}
-.rr-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
-.rr-chip{font:600 .85rem var(--f-body);border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:5px 12px;cursor:pointer}
-.rr-chip:hover{border-color:var(--green);color:var(--green-deep)}
-.rr-chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
-.rr-chip:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
-.rr-chip span{opacity:.75;margin-left:4px;font-variant-numeric:tabular-nums}
-details.rr-group{border:1px solid var(--line);border-radius:10px;margin:10px 0;background:#fff}
-details.rr-group>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 16px;font:600 1.05rem var(--f-display);color:var(--green-deep)}
-details.rr-group>summary::-webkit-details-marker{display:none}
-details.rr-group>summary::after{content:"+";font:700 1.2rem var(--f-body);color:var(--green)}
-details.rr-group[open]>summary::after{content:"−"}
-details.rr-group>summary span{font:600 .85rem var(--f-body);color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
-.rr-items{display:flex;flex-direction:column;gap:12px;padding:0 14px 14px}
-.rr-item{border-top:1px solid var(--line);padding-top:12px;min-width:0}
-.rr-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
-.rr-sc{font:600 .8rem var(--f-mono);background:var(--green);color:#fff;padding:2px 10px;border-radius:6px}
-.rr-nm{font-weight:600;font-size:.95rem}
-.rr-file{font-size:.75rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
-.rr-copy{margin-left:auto;font:600 .8rem var(--f-body);background:#fff;color:var(--green-deep);border:1.5px solid var(--green);border-radius:6px;padding:4px 10px;cursor:pointer}
-.rr-copy:hover,.rr-copy.ok{background:var(--green);color:#fff}
-.rr-copy:focus-visible{outline:2px solid var(--green-deep);outline-offset:2px}
-.rr-text{margin:0;background:var(--code-bg);border:1px solid var(--line);border-radius:4px 10px 10px 10px;padding:12px 14px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.93rem;line-height:1.55}
-.rr-text a{font-weight:600}
-.rr-text.rr-nofile{font-style:italic;color:var(--muted)}
-mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;font-weight:700}
-.rr-empty{color:var(--muted);padding:12px 0}
+body{margin:0;background:var(--green);color:var(--ink);font:16px/1.55 var(--f-body);
+  padding:28px max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{color:#fff;display:flex;align-items:center;gap:16px}
+header img{width:72px;height:72px;background:#fff;border-radius:50%;padding:7px;box-shadow:0 3px 0 var(--green-deep);flex:none}
+header h1{font:800 clamp(1.6rem,5vw,2.3rem)/1.1 var(--f-display);margin:0}
+header p{margin:4px 0 0;opacity:.95}
+.card{background:var(--card);border-radius:16px;padding:24px clamp(16px,4vw,30px);box-shadow:0 3px 0 var(--green-deep)}
+.card h2{font:800 1.25rem var(--f-display);margin:0 0 4px;display:flex;align-items:center;gap:10px}
+.card h2 .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:.95rem;flex:none}
+.sub{color:var(--muted);margin:0 0 14px;font-size:.95rem}
+.dias{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory}
+.dia{flex:none;scroll-snap-align:start;width:78px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)}
+.dia .ds{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.dia .dn{display:block;font:800 1.5rem/1.1 var(--f-display)}
+.dia .dm{display:block;font-size:.78rem;color:var(--muted)}
+.dia:hover{border-color:var(--green)}
+.dia[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.dia[aria-pressed="true"] .ds,.dia[aria-pressed="true"] .dm{color:#fff;opacity:.9}
+.dia:disabled{opacity:.4;cursor:not-allowed}
+.horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+.hora{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font:inherit;color:var(--ink)}
+.hora b{font:800 1.15rem var(--f-display);display:block}
+.hora small{color:var(--muted)}
+.hora:hover{border-color:var(--green)}
+.hora[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.hora[aria-pressed="true"] small{color:#fff}
+.hora:disabled{background:#f3f5f4;color:#9aa8a0;cursor:not-allowed;border-style:dashed}
+.hora:disabled small{color:#9aa8a0}
+form.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form.grid label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.92rem}
+form.grid input{font:16px var(--f-body);border:2px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink)}
+form.grid input:focus{outline:none;border-color:var(--green)}
+.full{grid-column:1/-1}
+.resumo{background:var(--green-soft);border-radius:12px;padding:12px 14px;font-weight:600}
+.btn{background:var(--yellow);color:var(--ink);border:0;border-radius:12px;padding:14px 20px;font:800 1.05rem var(--f-body);cursor:pointer;box-shadow:0 3px 0 #c99a00}
+.btn:hover{filter:brightness(1.05)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.msg{margin:0;font-weight:600}
+.msg.err{color:var(--err)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.ok{text-align:center;padding:36px 20px}
+.ok{position:relative;overflow:hidden}
+.ok .big{font-size:4rem;line-height:1;display:inline-block}
+.ok .big.festa{animation:festa 2s ease-out both}
+@keyframes festa{0%{transform:scale(0) rotate(-30deg);opacity:0}15%{transform:scale(1.35) rotate(12deg);opacity:1}30%{transform:scale(.95) rotate(-10deg)}45%{transform:scale(1.15) rotate(8deg)}60%{transform:scale(1) rotate(-6deg)}75%{transform:scale(1.08) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+.confete{position:absolute;top:70px;left:50%;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:confete 2s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes confete{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+@media (prefers-reduced-motion:reduce){.ok .big.festa{animation:none}.confete{display:none}}
+.ok h2{justify-content:center;font-size:1.6rem;margin:10px 0}
+.ok .recado{font-size:1.08rem;font-weight:600;max-width:52ch;margin:0 auto 14px;background:var(--green-soft);border-radius:12px;padding:14px 16px}
+.ok .quando{font:800 1.3rem var(--f-display);color:var(--green-deep);margin:6px 0 12px}
+.load{color:var(--muted)}
+@media (max-width:560px){form.grid{grid-template-columns:1fr}header img{width:58px;height:58px}}
 </style>
-
 </head>
-<body style="margin:0">
-<div class="gbar" id="gbar" hidden>
-  <div class="gbar-in">
-    <div class="gbar-loc"><span class="gbar-flow" id="gbar-flow"></span><span class="gbar-sep" id="gbar-sep">›</span><span class="gbar-etapa" id="gbar-etapa"></span></div>
-    <div class="gbar-act"><button type="button" id="gbar-search" aria-expanded="false" aria-controls="gbar-panel">🔍 Buscar</button><button type="button" id="gbar-top">↑ Topo</button></div>
-  </div>
-  <div class="gbar-panel" id="gbar-panel" hidden>
-    <div class="gs-box"><input id="gb-q" type="search" placeholder="Buscar no guia: impressora, senha, caixa, cupom…" autocomplete="off" aria-label="Buscar no guia"><span class="gs-count" id="gb-count" aria-live="polite"></span></div>
-    <div class="gs-results" id="gb-results" hidden></div>
-  </div>
-  <div class="gbar-prog"><span id="gbar-fill"></span></div>
-</div>
-<div class="wrap">
-<header>
-  <div class="head-text">
-  <div class="eyebrow">WhatsMenu</div>
-  <h1>Suporte</h1>
-  <nav class="steps" aria-label="Passos">
-    <a href="#inicio" class="home-nav">🏠 Home</a><details class="flow guia"><summary>📘 Guia implantação</summary><div class="flow-menu"><a href="#como-usar" class="fl-group fl-busca">🔍 Buscar no guia</a><a href="clientes-finalizados.html" class="fl-group fl-busca fl-fin">✅ Clientes finalizados</a><a href="#finalizar" class="fl-group">FINALIZAR CLIENTE EM 1 DIA! 🚀</a><a href="#etapa-1" class="fl-sub">1. Bia — E-mail e cardápio</a><a href="#etapa-2" class="fl-sub">2. Instalação — Desktop ou Mobile - SE A BEATRIZ JÁ TIVER ENVIADO, SÓ VERIFICAR SE O CLIENTE CONSEGUIU ACESSAR E DEPOIS ORIENTAR A PREENCHER O PERFIL</a><a href="#etapa-3" class="fl-sub">3. Meu Perfil - ENSINAR CLIENTE A PREENCHER DE FORMA SIMPLES</a><a href="#etapa-4" class="fl-sub">4. Impressora</a><a href="#etapa-5" class="fl-sub">5. Robô / Mensagens automáticas</a><a href="#etapa-6" class="fl-sub">6. Cardápio — Conferência e Instagram</a><a href="#etapa-7" class="fl-sub">7. Áudio — Funcionamento do dia a dia e convite para ligação</a><a href="#ligacao" class="fl-group">LIGAÇÃO — MÁQUINA DE VENDAS DELIVERY</a><a href="#etapa-8" class="fl-sub">8. Abertura da ligação</a><a href="#etapa-9" class="fl-sub">9. Cupom e cashback</a><a href="#etapa-10" class="fl-sub">10. Folder — Divulgação e fechamento</a><a href="#etapa-11" class="fl-sub">11. Aprovação do folder e finalização da implantação</a><a href="#notas" class="fl-group">TÓPICOS PARA COLOCAR NAS NOTAS INTERNAS DO CLIENTE</a></div></details><a href="#respostas" class="rr-nav">⚡ Respostas rápidas</a><a href="clientes-pdv-novo.html" class="pdv-nav">🧾 Clientes PDV novo</a>
-  </nav>
-  </div>
-  <img class="logo" src="logo.png" alt="WhatsMenu" width="190" height="190">
-</header>
+<body>
+<main class="wrap">
+  <header>
+    <img src="logo.png" alt="WhatsMenu">
+    <div>
+      <h1>Agende seu atendimento</h1>
+      <p>Escolha o melhor dia e horário para falar com a equipe WhatsMenu. Cada atendimento dura em torno de 30 a 60 minutos.</p>
+    </div>
+  </header>
 
-<section class="home-screen" id="inicio">
-  <h2 class="hs-title">O que você precisa agora?</h2>
-  <div class="hs-grid">
-    <a class="hs-tile" id="tile-novidades" href="novidades.html"><span class="nov-badge" hidden>NOVO</span><span class="hs-ic">📣</span><span class="hs-t">Novidades</span><span class="hs-d">Atualizações do sistema e avisos da equipe</span></a>
-    <a class="hs-tile" href="#finalizar"><span class="hs-ic">📘</span><span class="hs-t">Guia implantação</span><span class="hs-d">Etapas da implantação, do 1 ao 11</span></a>
-    <a class="hs-tile" href="#respostas"><span class="hs-ic">⚡</span><span class="hs-t">Respostas rápidas</span><span class="hs-d">Mensagens prontas da touschat para copiar</span></a>
-    <a class="hs-tile" href="clientes-pdv-novo.html"><span class="hs-ic">🧾</span><span class="hs-t">Clientes PDV novo</span><span class="hs-d">Lista da equipe com os clientes do PDV novo</span></a>
-    <a class="hs-tile" href="clientes-finalizados.html"><span class="hs-ic">✅</span><span class="hs-t">Clientes finalizados</span><span class="hs-d">Registro de quem finalizou cada implantação</span></a>
-    <a class="hs-tile" href="clientes-implantacao.html"><span class="hs-ic">🗂️</span><span class="hs-t">Clientes Implantação</span><span class="hs-d">Acompanhamento com login de quem alterou</span></a>
-    <a class="hs-tile" href="atalhos.html"><span class="hs-ic">⌨️</span><span class="hs-t">Atalhos do Suporte</span><span class="hs-d">Print, gravar tela, Chrome, WhatsApp e mensagens prontas</span></a>
-    <a class="hs-tile" href="agendamentos.html"><span class="hs-ic">📅</span><span class="hs-t">Agendamentos</span><span class="hs-d">Clientes que marcaram horário, com aviso na hora de chamar</span></a>
-  </div>
-</section>
+  <div id="passos">
+    <section class="card">
+      <h2><span class="n">1</span>Escolha o dia</h2>
+      <p class="sub">De segunda a sexta, das 10h às 19h30. Sábado, das 10h às 18h.</p>
+      <div class="dias" id="dias"><span class="load">Carregando datas…</span></div>
+    </section>
 
-<section class="card guia-uso" id="como-usar">
-  <h2 class="gu-title">Buscar no procedimento</h2>
-  <div class="gu-search">
-    <label for="gs-q" class="gs-label">Digite uma palavra para encontrar a etapa</label>
-    <div class="gs-box"><input id="gs-q" type="search" placeholder="Ex.: impressora, senha, caixa, cupom, Instagram" autocomplete="off"><span class="gs-count" id="gs-count" aria-live="polite"></span></div>
-    <div class="gs-results" id="gs-results" hidden></div>
-  </div>
-</section>
+    <section class="card" style="margin-top:18px">
+      <h2><span class="n">2</span>Escolha o horário</h2>
+      <p class="sub" id="horas-sub">Selecione um dia primeiro.</p>
+      <div class="horas" id="horas"></div>
+    </section>
 
-<section class="card pdf" id="finalizar">
-  <h2 class="pdf-title">FINALIZAR CLIENTE EM 1 DIA! 🚀</h2>
-  <p>Configurar, testar, orientar e preparar o cliente para começar a vender.</p>
-  <p>Objetivo: concluir a implantação preferencialmente no mesmo dia da contratação, garantindo que o cliente consiga receber pedidos e conheça as estratégias para aumentar suas vendas diretas.</p>
-  <p><mark class="hl red"><b>A urgência é nossa!</b></mark> O consultor deve conduzir o cliente, antecipar as próximas etapas e resolver o máximo possível durante o mesmo atendimento.</p>
-
-  <h3 class="sub-h">Regras obrigatórias</h3>
-  <ul>
-    <li>Prazo de 1 dia: priorizar a conclusão no mesmo dia da contratação. Havendo impedimento, registrar o motivo, o responsável e o próximo contato.</li>
-    <li>Atendimento ativo: não encerrar a conversa enquanto o cliente executa tarefas. Agendar retorno em 5 minutos e, se necessário, acompanhar em intervalos de aproximadamente 30 minutos, respeitando a disponibilidade do cliente.</li>
-    <li>Economia de mensagens: reunir todas as orientações necessárias em uma mensagem sempre que possível.</li>
-    <li>Áudios curtos: utilizar áudios para orientações técnicas, principalmente no Mobile.</li>
-    <li>Notas atualizadas imediatamente: a cada avanço, marcar OK na etapa correspondente nas Notas do Cliente.</li>
-    <li>Data de início: perguntar quando o cliente pretende começar a operar e registrar.</li>
-    <li>Acesso remoto: quando possível, aproveitar um único acesso autorizado para configurar a impressora e o robô.</li>
-    <li>Continuidade: em transferências, informar ao próximo consultor exatamente o que foi feito e o que falta.</li>
-  </ul>
-
-  <h3 id="etapa-1">1. Bia — E-mail e cardápio</h3>
-  <p>A Bia continuará realizando o primeiro contato, solicitando o e-mail e encaminhando o formulário do cardápio.</p>
-  <p>Após isso, verificará se o cliente está disponível com o dispositivo da loja para iniciar a implantação.</p>
-  <p>Se estiver disponível: transferir para um consultor.</p>
-  <p>Se não estiver disponível: identificar o melhor horário e encaminhar para confirmação do agendamento.</p>
-
-  <h3 id="etapa-2">2. Instalação — Desktop ou Mobile - SE A BEATRIZ JÁ TIVER ENVIADO, SÓ VERIFICAR SE O CLIENTE CONSEGUIU ACESSAR E DEPOIS ORIENTAR A PREENCHER O PERFIL</h3>
-  <p>Cliente disponível agora:</p>
-  <div class="quote">
-    <p>Oii, [nome]! 💚 Sou [consultor] e vou cuidar da sua implantação!</p>
-    <p>Vamos configurar sua loja agora para você começar a receber pedidos ainda hoje! 🚀</p>
-    <p>Vai utilizar Windows ou Android?</p>
-  </div>
-  <p>Cliente com horário agendado:</p>
-  <div class="quote">
-    <p>Oii, [nome]! 💚 Sou [consultor] e vou cuidar da sua implantação!</p>
-    <p>Às [horário] vou te chamar para fazermos suas configurações.</p>
-    <p>Preciso que esteja com o dispositivo da loja e a impressora, se utilizar, para finalizarmos o quanto antes! 🚀</p>
-  </div>
-  <p>O consultor deverá enviar o link adequado ao dispositivo, o e-mail de acesso e a senha inicial <code>123456</code> em uma única mensagem.</p>
-  <p>Explicar brevemente por áudio quando necessário e agendar retorno em 5 minutos.</p>
-  <p>Acompanhamento:</p>
-  <div class="quote">
-    <p>Como estamos por aí, [nome]? Conseguiu entrar?</p>
-  </div>
-  <p>Confirmar que o cliente realmente acessou o sistema, resolver dificuldades e orientar a troca da senha inicial.</p>
-  <p>Registro: Instalação e acesso — OK.</p>
-
-  <h3 id="etapa-3">3. Meu Perfil - ENSINAR CLIENTE A PREENCHER DE FORMA SIMPLES</h3>
-  <p>Orientar o cliente a preencher todas as abas: Estabelecimento, Layout, Endereço, Horário de Funcionamento, Frete e Pagamentos.</p>
-  <p>Agendar retorno em 5 minutos.</p>
-  <p>Acompanhamento:</p>
-  <div class="quote">
-    <p>Como estamos por aí, [nome]?</p>
-  </div>
-  <p>Conferência obrigatória do consultor:</p>
-  <ul>
-    <li>Nome, telefone, descrição e pedido mínimo.</li>
-    <li>Logo, capa, cores e identidade visual.</li>
-    <li>Endereço completo e CEP.</li>
-    <li>Dias e horários de funcionamento.</li>
-    <li>Frete por bairro ou KM e valores.</li>
-    <li>Formas de pagamento e Pix.</li>
-  </ul>
-  <p>Corrigir diretamente o que estiver incompleto e solicitar apenas dados que dependam do cliente.</p>
-  <p>Pergunta obrigatória:</p>
-  <div class="quote">
-    <p>[Nome], em qual dia você pretende começar a utilizar a WhatsMenu para receber pedidos?</p>
-  </div>
-  <p>Registrar a data prevista nas Notas do Cliente imediatamente.</p>
-  <p>Registro: Meu Perfil — OK.</p>
-
-  <h3 id="etapa-4">4. Impressora</h3>
-  <p>Desktop: verificar se a impressora está ligada, com papel e conectada. Solicitar acesso remoto autorizado pelo AnyDesk, configurar e realizar um teste.</p>
-  <p>Mobile: verificar se a impressora Bluetooth está ligada e pareada. Orientar por áudio a configuração e acompanhar o teste.</p>
-  <p>Durante o acesso remoto, aproveitar para adiantar o robô.</p>
-  <p>Registro: Impressora — OK / Não utiliza / Pendente.</p>
-
-  <h3 id="etapa-5">5. Robô / Mensagens automáticas</h3>
-  <p>O consultor deverá identificar se será utilizado o robô da WhatsMenu ou as mensagens automáticas do WhatsApp Business.</p>
-  <p>Ações obrigatórias:</p>
-  <ul>
-    <li>Confirmar o número da loja.</li>
-    <li>Configurar a modalidade adequada.</li>
-    <li>Conferir as mensagens e o link do cardápio.</li>
-    <li>Realizar um teste.</li>
-    <li>Orientar o cliente a verificar as conexões ao iniciar o expediente.</li>
-  </ul>
-  <p>Registro: Robô/Mensagens — OK.</p>
-
-  <h3 id="etapa-6">6. Cardápio — Conferência e Instagram</h3>
-  <p>O consultor deverá acompanhar a produção em paralelo com as outras configurações, independentemente de quem esteja cadastrando os produtos.</p>
-  <p>Conferência obrigatória: logo, capa, cores, categorias, produtos, preços, adicionais, descrições, imagens, produtos em destaque, flags e funcionamento das opções de compra.</p>
-  <p>Depois, encaminhar o link para o cliente aprovar.</p>
-  <h4 class="h-green">Instagram — Assim que o cardápio estiver pronto</h4>
-  <p>Mensagem:</p>
-  <div class="quote">
-    <p>[Nome], agora vamos deixar seu Instagram preparado para receber pedidos diretos! 🚀</p>
-    <p>Me envia o @ da loja? Vou conferir sua bio e o link de pedidos.</p>
-  </div>
-  <p>O consultor deverá verificar a biografia e sugerir uma apresentação personalizada.</p>
-  <p>Exemplo:</p>
-  <div class="quote">
-    <p>🍔 Hambúrgueres artesanais feitos com capricho!<br>📍 [Cidade/Bairro]<br>🛵 Delivery e retirada<br>👇 Peça pelo link abaixo!</p>
-    <p>[Link WhatsMenu]</p>
-  </div>
-  <p>Orientar o cliente a atualizar a bio e verificar se o link funciona.</p>
-  <p><mark class="hl"><b>VERIFICAR SE O CLIENTE FEZ!!!!</b></mark></p>
-  <p>Registro: Cardápio — OK. Instagram — OK / Não possui / Pendente.</p>
-
-  <h3 id="etapa-7">7. Áudio — Funcionamento do dia a dia e convite para ligação</h3>
-  <p>Após finalizar a parte operacional, enviar um único áudio explicando rapidamente a rotina e já convidando o cliente para a ligação de marketing.</p>
-  <h4>Roteiro completo do áudio</h4>
-  <div class="quote audio">
-    <p>Pronto, [nome]! Agora sua loja está preparada para receber pedidos! 💚</p>
-    <p>Vou te explicar rapidinho como vai funcionar.</p>
-    <p>O cliente vai mandar mensagem no seu WhatsApp e receber o link do cardápio, ou entrar no seu Instagram e clicar no link da bio.</p>
-    <p>Ele escolhe os produtos e faz o pedido sem precisar criar uma conta. Na primeira compra, informa nome, telefone e endereço, e esses dados ficam disponíveis para facilitar os próximos pedidos.</p>
-    <p>Finalizou? O pedido já chega prontinho para você! Toca a notificação, sai na impressora conforme a configuração e você já pode mandar para a cozinha.</p>
-    <p>Simples assim!</p>
-    <p>Agora, para finalizarmos sua implantação e eu te encaminhar para nossa equipe de Suporte, falta só prepararmos o marketing do seu delivery!</p>
-    <p>Vou te ligar rapidinho para configurarmos essas estratégias e já deixar sua loja preparada para atrair mais clientes.</p>
-    <p>Posso te ligar agora?</p>
-  </div>
-  <p>Orientações para o consultor:</p>
-  <ul>
-    <li>O convite para a ligação já está dentro do áudio. Não enviar outra mensagem perguntando se pode ligar.</li>
-    <li>Aguardar a confirmação e iniciar a ligação imediatamente.</li>
-    <li>Caso o cliente não possa atender, combinar um horário e registrar.</li>
-    <li>Enviar esse áudio somente após os testes operacionais essenciais.</li>
-    <li>Confirmar se o fluxo descrito corresponde às funcionalidades realmente habilitadas para aquela loja.</li>
-  </ul>
-  <p>Registro: Áudio do dia a dia — OK.</p>
-  <p class="big-alert"><mark class="hl red"><b>SE O CLIENTE FALAR QUE NÃO QUER LIGAÇÃO, DEVERÁ ENVIAR POR ÁUDIO NO MESMO MOMENTO!</b></mark></p>
-</section>
-
-<section class="card pdf" id="ligacao">
-  <h2 class="pdf-title">LIGAÇÃO — MÁQUINA DE VENDAS DELIVERY</h2>
-
-  <h3 id="etapa-8">8. Abertura da ligação</h3>
-  <p>Objetivo: apresentar a consultoria gratuita, obter a confirmação do interesse e conduzir o cliente pelas estratégias de atração, recompra e divulgação.</p>
-  <h4>Roteiro</h4>
-  <div class="quote fala">
-    <p>Oii, [nome]! Tudo bem?</p>
-    <p>Agora chegamos à etapa mais importante: configurar o marketing do seu delivery!</p>
-    <p>Estamos liberando nossa consultoria de marketing sem custo adicional para você, que acabou de entrar na WhatsMenu.</p>
-    <p>Ela funciona em duas etapas.</p>
-    <p>A primeira atrai clientes do iFood e do seu bairro utilizando um cupom especial.</p>
-    <p>A segunda faz esses clientes comprarem de novo, de novo e de novo, utilizando cashback e marketing automático pelo WhatsApp!</p>
-    <p>Você quer vender mais e ganhar mais dinheiro com a WhatsMenu do seu restaurante?</p>
-  </div>
-  <p>Aguardar o SIM do cliente e avançar.</p>
-  <p>Se o cliente não vender em marketplaces, adaptar o exemplo aos clientes do bairro, do Instagram e do WhatsApp.</p>
-
-  <h3 id="etapa-9">9. Cupom e cashback</h3>
-  <h4>Cupom de primeira compra</h4>
-  <div class="quote fala">
-    <p>Perfeito, [nome]! 🔥</p>
-    <p>Vamos começar atraindo clientes para seu cardápio.</p>
-    <p>Você prefere oferecer frete grátis ou 10% de desconto na primeira compra?</p>
-  </div>
-  <p>Confirmar as condições, o pedido mínimo e a autorização do estabelecimento. Configurar e testar.</p>
-  <h4>Cashback</h4>
-  <div class="quote fala">
-    <p>Excelente! Agora vamos trabalhar a recompra.</p>
-    <p>O cashback incentiva o cliente a voltar ao seu restaurante em vez de procurar outra opção.</p>
-    <p>Podemos começar com 5% ou prefere outro percentual?</p>
-  </div>
-  <p>Confirmar o percentual, explicar as regras e o custo para a loja e, depois, configurar.</p>
-  <h4>Transição</h4>
-  <div class="quote fala">
-    <p>Show! Agora já temos a estratégia para atrair clientes e incentivar que voltem.</p>
-    <p>O próximo passo é fazer essas ofertas chegarem até mais pessoas!</p>
+    <section class="card" style="margin-top:18px">
+      <h2><span class="n">3</span>Seus dados</h2>
+      <p class="sub">Usamos esses dados só para confirmar e realizar o atendimento.</p>
+      <form class="grid" id="form" novalidate>
+        <label>Seu nome<input id="nome" autocomplete="name" required maxlength="80"></label>
+        <label>Nome da loja<input id="loja" autocomplete="organization" required maxlength="80"></label>
+        <label>WhatsApp (com DDD)<input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(13) 99999-9999" required maxlength="20"></label>
+        <label>E-mail<input id="email" type="email" autocomplete="email" required maxlength="120"></label>
+        <label class="hp" aria-hidden="true">Site<input id="site" tabindex="-1" autocomplete="off"></label>
+        <div class="resumo full" id="resumo">Nenhum horário escolhido ainda.</div>
+        <p class="msg full" id="msg" role="status"></p>
+        <button class="btn full" id="enviar" disabled>Confirmar agendamento</button>
+      </form>
+    </section>
   </div>
 
-  <h3 id="etapa-10">10. Folder — Divulgação e fechamento</h3>
-  <h4>Apresentação durante a ligação</h4>
-  <p>Roteiro do consultor:</p>
-  <div class="quote fala">
-    <p>Perfeito, [nome]! 🔥 Agora que configuramos suas estratégias para atrair clientes e fazer com que eles comprem novamente, vamos colocar isso para funcionar!</p>
-    <p>Uma estratégia que nossos clientes de maior destaque utilizam é divulgar o próprio cardápio através de flyers personalizados, tanto no bairro quanto nos pedidos que já entregam.</p>
-    <p>Assim, quem já compra de você conhece seu canal direto e tem um incentivo para voltar a pedir!</p>
-    <p>E a WhatsMenu vai preparar toda a arte personalizada para você, sem custo algum! É um presente nosso! 🎁</p>
-    <p>Vamos preparar seu material com o QR Code do cardápio e as ofertas que acabamos de configurar.</p>
-    <p>Me confirma uma coisa: podemos utilizar o CEP [CEP cadastrado] para calcular a entrega dos seus 2.000 flyers ou prefere outro endereço?</p>
-  </div>
-  <h4>Após a confirmação do CEP — Encerramento da ligação</h4>
-  <div class="quote fala">
-    <p>Perfeito, [nome]! 💚</p>
-    <p>Agora nosso time de design vai preparar sua arte personalizada!</p>
-    <p>Assim que estiver pronta, vou te chamar no WhatsApp para você aprovar.</p>
-    <p>Depois da aprovação, já te passo as condições de impressão e o link da gráfica para você confirmar o pedido e receber seus 2.000 flyers o quanto antes!</p>
-    <p>Vamos colocar seu cardápio na frente de mais clientes e começar a fortalecer suas vendas diretas! 🚀</p>
-  </div>
-  <h4>Orientações para o consultor</h4>
-  <ul>
-    <li>Consultar previamente o CEP cadastrado em Meu Perfil.</li>
-    <li>Confirmar outro endereço caso o cliente solicite.</li>
-    <li>Encaminhar a criação da arte imediatamente para o design.</li>
-    <li>Enviar a arte para aprovação assim que estiver pronta.</li>
-    <li>Apresentar as condições e o valor final da impressão antes de solicitar o pagamento.</li>
-    <li>Registrar a decisão do cliente nas Notas.</li>
-  </ul>
-
-  <h3 id="etapa-11">11. Aprovação do folder e finalização da implantação</h3>
-  <h4>1. Cliente aprovou a arte</h4>
-  <p>Mensagem:</p>
-  <div class="quote">
-    <p>Perfeito, [nome]! 🎉💚 Sua arte ficou pronta e aprovada!</p>
-    <p>Agora vamos finalizar a impressão dos seus 2.000 flyers personalizados para você começar a divulgar seu delivery!</p>
-    <p>Link para pagamento: [link da gráfica]</p>
-    <p>Me avisa assim que finalizar para eu conferir se ficou tudo certo! 🚀</p>
-  </div>
-  <h4>2. Após a confirmação do pagamento</h4>
-  <p>Mensagem:</p>
-  <div class="quote">
-    <p>Maravilha, [nome]! 🎉💚</p>
-    <p>Agora está tudo encaminhado! Sua loja está configurada, seu cardápio está pronto e suas estratégias de vendas já estão preparadas!</p>
-    <p>Agora é colocar tudo isso em prática e começar a receber pedidos! 🚀</p>
-  </div>
-  <h4>3. Orientação final — Exploração da plataforma</h4>
-  <p>Mensagem:</p>
-  <div class="quote">
-    <p>[Nome], antes de encerrarmos sua implantação, quero te pedir uma última coisa! 💚</p>
-    <p>Aproveite agora para explorar a WhatsMenu! Entre nos menus, teste os recursos e conheça as funcionalidades disponíveis.</p>
-    <p>Esse é o melhor momento para tirar suas dúvidas e ficar seguro para começar a utilizar tudo no dia a dia!</p>
-    <p>Se tiver qualquer dúvida, me chama aqui que vamos resolver juntos! 🚀</p>
-  </div>
-  <h4>4. Encerramento e passagem para o Suporte</h4>
-  <p>Após o cliente confirmar que realizou os testes e não possui dúvidas pendentes:</p>
-  <p>Mensagem:</p>
-  <div class="quote">
-    <p>Prontinho, [nome]! 🎉💚</p>
-    <p>Sua implantação está finalizada!</p>
-    <p>A partir de agora, nossa equipe de Suporte estará disponível para te ajudar no dia a dia sempre que precisar.</p>
-    <p>Desejamos muito sucesso e ótimas vendas para sua loja! 🚀💚</p>
-  </div>
-  <h4>Orientações para o consultor</h4>
-  <ul>
-    <li>Confirmar que o cliente aprovou a arte antes de encaminhar o link de pagamento.</li>
-    <li>Registrar o pagamento somente após a confirmação.</li>
-    <li>Se o cliente não contratar a impressão, entregar a arte gratuita e seguir normalmente com a finalização.</li>
-    <li>Incentivar o cliente a explorar os menus e testar os recursos enquanto ainda está acompanhado pela Implantação.</li>
-    <li>Não encerrar imediatamente após enviar a orientação: combinar um momento para verificar se surgiram dúvidas.</li>
-    <li>Resolver as dúvidas e registrar as pendências antes de transferir para o Suporte.</li>
-    <li>Atualizar as Notas do Cliente e marcar a implantação como concluída somente após validar as etapas operacionais.</li>
-  </ul>
-  <p><mark class="cy"><b>Objetivo final: cliente implantado em 1 dia, sabendo utilizar a plataforma e preparado para começar a vender!</b></mark></p>
-</section>
-
-<section class="card pdf" id="notas">
-  <h2 class="pdf-title">TÓPICOS PARA COLOCAR NAS NOTAS INTERNAS DO CLIENTE</h2>
-  <p class="notas-lines">Data de atualização: QUAL FOI A ÚLTIMA DATA EM QUE VERIFICOU OS TÓPICOS<br>Data de previsão: DATA EM QUE O CLIENTE VAI UTILIZAR</p>
-  <p class="notas-lines">Bia — E-mail e cardápio:<br>Instalação Desktop/Mobile:<br>Meu Perfil:<br>Impressora:<br>Robô/Mensagens:<br>Cardápio:<br>Instagram e link na bio:<br>Áudio do dia a dia:<br>Ligação/áudio de marketing:<br>Cupom:<br>Cashback:<br>Folder — Arte aprovada:</p>
-</section>
-
-<section class="card" id="respostas" hidden>
-  <button type="button" class="rr-back" id="rr-back">← Voltar para Home</button>
-  <h2><span class="num">⚡</span>Respostas rápidas</h2>
-  <p class="where">As respostas rápidas da touschat, separadas por assunto. Busque pelo atalho ou por uma palavra do texto e copie com um clique. Os campos como <mark class="rr-var">[nome]</mark> precisam ser trocados antes de enviar.</p>
-  <div class="rr-bar">
-    <label class="rr-search" for="rr-q"><span class="rr-sr">Buscar resposta rápida</span>
-      <input id="rr-q" type="search" placeholder="Buscar atalho ou texto (ex.: boleto, impressora, frete)" autocomplete="off"></label>
-    <span class="rr-count" id="rr-count"></span>
-  </div>
-  <div class="rr-chips" id="rr-chips" role="group" aria-label="Filtrar por assunto"></div>
-  <div id="rr-list"></div>
-</section>
-</div>
-
+  <section class="card ok" id="ok" hidden>
+    <div class="big" id="ok-emoji" aria-hidden="true">🎉</div>
+    <h2>Agendamento confirmado!</h2>
+    <div class="quando" id="ok-quando"></div>
+    <p class="recado" id="ok-recado"></p>
+    <p>Vamos chamar você no WhatsApp informado nesse horário. Se precisar remarcar, é só falar com o suporte WhatsMenu.</p>
+    <p class="sub" id="ok-cod"></p>
+  </section>
+  <p style="text-align:center;color:#fff;opacity:.85;font-size:.85rem;margin:8px 0 0">WhatsMenu · Equipe de suporte e implantação</p>
+</main>
 <script>
 (function(){
-  var $=function(id){return document.getElementById(id);};
-  var norm=function(t){return (t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();};
-  var smooth=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
-  // Blocos de busca: cada etapa (h3) ou o fluxo inteiro quando não tem etapas
-  var blocks=[];
-  [].forEach.call(document.querySelectorAll('section.card.pdf'),function(sec){
-    var h2=sec.querySelector('h2'), flow=h2?h2.textContent.trim():'';
-    var hs=[].slice.call(sec.querySelectorAll('h3'));
-    var intro=[],n=h2?h2.nextElementSibling:sec.firstElementChild;
-    while(n&&n.tagName!=='H3'){intro.push(n);n=n.nextElementSibling;}
-    blocks.push({el:h2||sec,target:sec,flow:flow,title:flow,text:intro.map(function(e){return e.innerText;}).join(' ')});
-    hs.forEach(function(h,i){
-      var parts=[],x=h.nextElementSibling;
-      while(x&&x.tagName!=='H3'){parts.push(x.innerText);x=x.nextElementSibling;}
-      blocks.push({el:h,target:h,flow:flow,title:h.textContent.trim(),text:parts.join(' ')});
+  var $=function(i){return document.getElementById(i)}, agenda=[], dia=null, hora=null, enviando=false;
+  var DS=['dom','seg','ter','qua','qui','sex','sáb'], MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+  async function carregar(){
+    try{
+      var r=await fetch('/api/agendamento'); var j=await r.json();
+      if(!r.ok) throw new Error(j.erro||'erro');
+      agenda=j.agenda; desenhaDias();
+    }catch(e){ $('dias').innerHTML='<span class="msg err">Não foi possível carregar a agenda. Atualize a página.</span>'; }
+  }
+  function desenhaDias(){
+    var c=$('dias'); c.innerHTML='';
+    agenda.forEach(function(d){
+      var livres=d.horarios.some(function(h){return h.vagas>0});
+      var dt=new Date(d.data+'T12:00:00');
+      var b=document.createElement('button'); b.type='button'; b.className='dia'; b.disabled=!livres;
+      b.setAttribute('aria-pressed', dia===d.data); b.setAttribute('aria-label', d.rotulo+(livres?'':' — lotado'));
+      b.innerHTML='<span class="ds">'+DS[dt.getDay()]+'</span><span class="dn">'+dt.getDate()+'</span><span class="dm">'+(livres?MS[dt.getMonth()]:'lotado')+'</span>';
+      b.onclick=function(){dia=d.data;hora=null;desenhaDias();desenhaHoras();atualiza();};
+      c.appendChild(b);
     });
+    if(!dia){var p=agenda.find(function(d){return d.horarios.some(function(h){return h.vagas>0})}); if(p){dia=p.data;desenhaDias();desenhaHoras();}}
+  }
+  function desenhaHoras(){
+    var d=agenda.find(function(x){return x.data===dia}), c=$('horas'); c.innerHTML='';
+    if(!d){$('horas-sub').textContent='Selecione um dia primeiro.';return;}
+    $('horas-sub').textContent=d.rotulo.charAt(0).toUpperCase()+d.rotulo.slice(1);
+    var livres=d.horarios.filter(function(h){return h.vagas>0});
+    if(!livres.length){c.innerHTML='<p class="sub" style="margin:0">Não há mais horários livres neste dia. Escolha outro dia.</p>';return;}
+    livres.forEach(function(h){
+      var b=document.createElement('button'); b.type='button'; b.className='hora';
+      b.setAttribute('aria-pressed', hora===h.hora);
+      b.innerHTML='<b>'+h.hora+'</b><small>disponível</small>';
+      b.onclick=function(){hora=h.hora;desenhaHoras();atualiza();};
+      c.appendChild(b);
+    });
+  }
+  function atualiza(){
+    var d=agenda.find(function(x){return x.data===dia}), h=d&&d.horarios.find(function(x){return x.hora===hora});
+    $('resumo').textContent=h?('📅 '+d.rotulo+' às '+h.hora):'Escolha um dia e um horário acima.';
+    $('enviar').disabled=!h||enviando;
+  }
+  $('whatsapp').addEventListener('input',function(){
+    var v=this.value.replace(/\D/g,'').slice(0,11);
+    if(v.length>6) this.value='('+v.slice(0,2)+') '+v.slice(2,v.length-4)+'-'+v.slice(-4);
+    else if(v.length>2) this.value='('+v.slice(0,2)+') '+v.slice(2);
+    else this.value=v;
   });
-  blocks.forEach(function(b){b.n=norm(b.title+' '+b.text);});
-  var esc=function(t){return t.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-  function snippet(text,q){
-    var i=norm(text).indexOf(q); if(i<0)return '';
-    var a=Math.max(0,i-60),b=Math.min(text.length,i+q.length+80);
-    return (a>0?'… ':'')+esc(text.slice(a,i))+'<b class="gs-hit">'+esc(text.slice(i,i+q.length))+'</b>'+esc(text.slice(i+q.length,b))+(b<text.length?' …':'');
-  }
-  function go(b){
-    if(window.showView)showView('guia');
-    var t=b.target; t.scrollIntoView({behavior:smooth,block:'start'});
-    var h=b.el; h.classList.remove('gs-flash'); void h.offsetWidth; h.classList.add('gs-flash');
-  }
-  function makeSearch(inp,box,cnt,after){
-    function run(){
-      var q=norm(inp.value.trim());
-      if(q.length<2){box.hidden=true;box.textContent='';cnt.textContent='';return;}
-      var hits=blocks.filter(function(b){return b.n.indexOf(q)>=0;});
-      cnt.textContent=hits.length+(hits.length===1?' resultado':' resultados');
-      box.hidden=false;
-      if(!hits.length){box.innerHTML='<p class="gs-none">Nada encontrado no procedimento. Tente outra palavra ou procure nas ⚡ Respostas rápidas.</p>';return;}
-      box.innerHTML=hits.map(function(b){var i=blocks.indexOf(b);
-        var sn=snippet(b.text,q)||snippet(b.title,q);
-        return '<a href="#" data-i="'+i+'">'+(b.title!==b.flow?'<span class="gs-where">'+esc(b.flow)+'</span>':'')+'<span class="gs-t">'+esc(b.title)+'</span>'+(sn?'<span class="gs-snip">'+sn+'</span>':'')+'</a>';}).join('');
-    }
-    inp.addEventListener('input',run);
-    inp.addEventListener('keydown',function(e){if(e.key==='Enter'){var f=box.querySelector('a');if(f){e.preventDefault();f.click();}}});
-    box.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;e.preventDefault();if(after)after();go(blocks[+a.dataset.i]);});
-  }
-  makeSearch($('gs-q'),$('gs-results'),$('gs-count'));
-  var panel=$('gbar-panel'), sbtn=$('gbar-search');
-  function closePanel(){panel.hidden=true;sbtn.setAttribute('aria-expanded','false');}
-  makeSearch($('gb-q'),$('gb-results'),$('gb-count'),closePanel);
-  // Barra de posição
-  var bar=$('gbar'), header=document.querySelector('header'), rr=$('respostas');
-  var heads=[].slice.call(document.querySelectorAll('section.card.pdf h2, section.card.pdf h3'));
-  var ticking=false;
-  function update(){
-    ticking=false;
-    var show=header.getBoundingClientRect().bottom<0 && !(rr&&!rr.hidden);
-    bar.hidden=!show; if(!show){if(typeof closePanel==='function')closePanel();return;}
-    var line=80, cur=null;
-    heads.forEach(function(h){if(h.getBoundingClientRect().top<=line)cur=h;});
-    var flow='',et='';
-    if(cur){var sec=cur.closest('section'), h2=sec.querySelector('h2'); flow=h2?h2.textContent.trim():''; et=cur.tagName==='H3'?cur.textContent.trim():'';}
-    $('gbar-flow').textContent=flow; $('gbar-etapa').textContent=et||(flow?'Introdução':'');
-    $('gbar-sep').hidden=!et&&!flow;
-    if(innerWidth<=560&&!et){$('gbar-etapa').textContent=flow;}
-    var doc=document.documentElement, max=doc.scrollHeight-innerHeight;
-    $('gbar-fill').style.width=(max>0?Math.min(100,scrollY/max*100):0)+'%';
-  }
-  addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});
-  addEventListener('resize',update); addEventListener('hashchange',function(){setTimeout(update,50);});
-  document.addEventListener('click',function(){setTimeout(update,50);});
-  $('gbar-top').addEventListener('click',function(){scrollTo({top:0,behavior:smooth});});
-  sbtn.addEventListener('click',function(e){
-    e.stopPropagation();
-    var open=panel.hidden; panel.hidden=!open; sbtn.setAttribute('aria-expanded',open?'true':'false');
-    if(open)$('gb-q').focus();
+  $('form').addEventListener('submit',async function(e){
+    e.preventDefault(); if(enviando)return;
+    var msg=$('msg'); msg.className='msg full';
+    var dados={data:dia,hora:hora,nome:$('nome').value,loja:$('loja').value,whatsapp:$('whatsapp').value,email:$('email').value,site:$('site').value};
+    if(!dados.nome.trim()||!dados.loja.trim()){msg.textContent='Preencha seu nome e o nome da loja.';msg.classList.add('err');return;}
+    if(dados.whatsapp.replace(/\D/g,'').length<10){msg.textContent='Informe o WhatsApp com DDD.';msg.classList.add('err');$('whatsapp').focus();return;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email.trim())){msg.textContent='Informe um e-mail válido.';msg.classList.add('err');$('email').focus();return;}
+    enviando=true; atualiza(); $('enviar').textContent='Confirmando…';
+    try{
+      var r=await fetch('/api/agendamento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+      var j=await r.json().catch(function(){return {}});
+      if(!r.ok){
+        msg.textContent=j.erro||'Não foi possível agendar.'; msg.classList.add('err');
+        if(r.status===409){hora=null;await carregar();desenhaHoras();}
+        return;
+      }
+      $('passos').hidden=true; $('ok').hidden=false;
+      $('ok-quando').textContent=j.rotulo.charAt(0).toUpperCase()+j.rotulo.slice(1)+' às '+j.hora;
+      festa();
+      $('ok-recado').textContent='Te espero '+(/^(sábado|domingo)/.test(j.rotulo)?'no ':'na ')+j.rotulo+', às '+j.hora+', para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚';
+      $('ok-cod').textContent='Código do agendamento: '+j.id;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){msg.textContent='Sem conexão. Tente de novo.';msg.classList.add('err');}
+    finally{enviando=false;$('enviar').textContent='Confirmar agendamento';atualiza();}
   });
-  panel.addEventListener('click',function(e){e.stopPropagation();});
-  document.addEventListener('click',function(e){if(!panel.hidden&&!bar.contains(e.target))closePanel();});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden){closePanel();sbtn.focus();}});
-  update();
-})();
-</script>
-<script id="rr-data" type="application/json">[{"a":"24h","n":"24h","t":"Pode ficar tranquilo [nome], realizei uma liberação de emergência que dura 24h, para você continuar com suas vendas! 😀\nPara pagamentos via pix, a liberação é automática! Já para pagamentos via boleto, teria um período de até 48h até ser dado baixa, tudo bem?","f":"","c":"Financeiro"},{"a":"99food","n":"99food","t":"Para você realizar a integração da 99food, basta seguir esse passo a passo:\n\n1 - Clique no botão da 99food, na coluna do lado esquerdo do seu painel da WhatsMenu\n\n2 - Clique em \"Quero integrar minha loja\" (Assim que você clicar, vai abrir uma janela no seu navegador da 99food)\n\n3 - Clique em \"Confirmar autorização e continuar\"\n\n4 - Você vai selecionar a sua loja, clicando no quadradinho, para marcar a sua loja da 99food e logo em seguida, clicar em \"Autorizar\"\n\n5 - Vai aparecer uma mensagem para você confirmar a autorização, clique em \"Confirmar\"\n\n6 - Logo em seguida, você vai clicar em \"99foodAdmin\" na parte superior, do lado esquerdo da página\n\n7 - Vá na coluna do lado esquerdo e clique em \"Lojas\"\n\n8 - Depois, clique em \"Configurações\", abaixo de Ações\n\n9 - Feito isso, você vai copiar o seu \"ID do Loja\" que aparecer e colar na parte do \"ID da Loja\" no sistema da WhatsMenu e clicar em \"Integrar com a 99food\"\n\nProntinho! Integração feita com sucesso! 💚","f":"","c":"Integrações"},{"a":"acesso_remoto","n":"Acesso remoto","t":"Para realizarmos um acesso preciso que instale o programa abaixo:\n\nSegue o link para baixar: https://anydesk.com/pt/downloads/windows \nApós baixar peço que envie o código de 9 dígitos que aparecerá na tela inicial do aplicativo, para que o técnico já tenha acesso ao código quando entrar em contato!","f":"","c":"Acesso remoto"},{"a":"adm_antigo","n":"adm antigo","t":"Vi que acessou pelo link adm.whatsmenu.com.br, este link foi descontinuado em novembro/2023, verifiquei que ao acessar você não foi redirecionado automaticamente pelo navegador, nesse caso peço que clique neste link para acessar seu painel Whatsmenu: \nhttps:/\nnext.whatsmenu.com.br/login  \nMe avisa se deu certinho por favor! 🤗","f":"","c":"Atendimento e suporte"},{"a":"alterarcomplementos","n":"Alterarcomplementos","t":"Um vídeo bem rápido de como realizar a alteração de produtos e complementos pelo painel 😊\nPasso a passo: https://youtu.be/YhtOdFIFKgk","f":"","c":"Cardápio"},{"a":"anydesk","n":"anydesk","t":"Passo a passo para baixar e instalar o anydesk *no seu computador*\n\n1 - Clique neste link para baixar: https://anydesk.com/pt/downloads/thank-you?dv=win_exe\n2 - Verifique na parte de downloads ou na pasta de downloads do windows o arquivo do anydesk que foi baixado\n3 - Clique no arquvio com o nome \"anydesk\" para instalar \n4 - Na janela que abrir, clique em \"Aceitar & instalar\"\n5 - Na mensagem que aparecer, clique em \"Sim\"\n \nProntinho! Anydesk instalado no seu computador.","f":"","c":"Acesso remoto"},{"a":"instalardesktop","n":"instalardesktop","t":"Certo [NOME], agora eu vou pedir para você instalar o sistema da WhatsMenu clicando neste link *NO SEU COMPUTADOR*\n\nhttps://github.com/Grove-Company/.github/releases/download/v3.0.28/whatsmenu-desktop-3.0.28-x64-setup.exe\n\n1️⃣ Copie e cole o link no Google Chrome, ele vai baixar o app que vai aparecer na setinha para baixo do lado da barra de busca\n2️⃣ Após baixar e abrir, na tela azul, clique em “Mais informações” e depois em “Executar mesmo assim”\n\n✅ Pronto! Sistema instalado.\n\nMe avise aqui se finalizou ou se ficou alguma dúvida para darmos continuidade, combinado?","f":"","c":"Computador/Desktop"},{"a":"autorizarnotas","n":"Autorizarnotas","t":"Para autorizar sua NFe voce precisa:\n1- Acesse a página da Fazenda do seu estado\n2- Acesse no menu lateral esquerdo a opção UPD>Autorização de Uso>Cadastro de Autorização de uso\n\n3- Informe o CNPJ do Fornecedor de Sistemas (CNPJ da Acras: 07504505000132) e clique no botão “Continuar”.\n\n4- Selecione qual o sistema deverá ser utilizado\nCódigo 72962 (FNFCE) – Emissão de NFCe\n\n5- Informe os dados do seu estabelecimento (I.E e CNPJ) e clique no botão “Continuar”.\n\n6- Confirme os dados do seu estabelecimento.\n\n7- Marcar todas as opções de documentos fiscais que aparecer e clicar no botão “Continuar”.a","f":"","c":"Notas"},{"a":"cadastrando-combo-de-pizza","n":"Cadastrando-Combo-de-pizza","t":"https://whatsmenu.com.br/videoaulas/cadastro/aula/4\nUma Imagem vale mais que 1.000 palavras! ;)","f":"","c":"Cardápio"},{"a":"cadastrando-produtos","n":"cadastrando-produtos","t":"Um video bem curtinho de como cadastrar seus produtos \nhttps://www.youtube.com/watch?v=WGaGvntV0i4","f":"","c":"Cardápio"},{"a":"cadastrando_açaí_e_sorvetes","n":"cadastrando açaí e sorvetes","t":"Cadastrando açaí e sorvetes\nhttps://youtu.be/-q9IyNjfdQ0","f":"","c":"Cardápio"},{"a":"cadastrando_bebidas","n":"cadastrando bebidas","t":"Cadastrando bebidas:\nhttps://youtu.be/aFJxzkenaYU","f":"","c":"Cardápio"},{"a":"cadastrando_combos","n":"Cadastrando combos","t":"Cadastrando combos:\nhttps://youtu.be/PfOQuhCfR5A","f":"","c":"Cardápio"},{"a":"cadastrando_hortifruit","n":"Cadastrando hortifruit","t":"Cadastrando produtos de hortifruit:\nhttps://youtu.be/9drpc_IgYrM","f":"","c":"Cardápio"},{"a":"cadastrando_marmitas","n":"cadastrando marmitas","t":"Cadastrando marmitas\nhttps://youtu.be/GgQy6o3k3MU","f":"","c":"Cardápio"},{"a":"cadastrando_marmitas_com_diversos_tamanhos","n":"Cadastrando marmitas com diversos tamanhos","t":"Cadastrando marmitas com escolha de tamanhos\nhttps://youtu.be/MSR366YYiXQ","f":"","c":"Cardápio"},{"a":"cadastrando_pizzas","n":"Cadastrando pizzas","t":"Cadastrando pizzas\nhttps://youtu.be/zVAarMwsCHI","f":"","c":"Cardápio"},{"a":"cadastrando_produtos_por_kg","n":"cadastrando produtos por kg","t":"Cadastrando itens por kg:\n\nhttps://youtu.be/LQg6D_OnvN4","f":"","c":"Cardápio"},{"a":"caixa","n":"caixa","t":"Veja agora como abrir e fechar seu caixa:\nhttps://youtu.be/vIxOQZu3QKk\nQualquer dúvida é só chamar!","f":"","c":"Recursos"},{"a":"caixacegas","n":"caixacegas","t":"Para você ativar ou desativar o caixa cegas (não mostrar nenhum valor e pedido no caixa), basta ir em *Configurações* > Caixas > E desativar a opção \"Mostrar operações de caixa apenas para gerentes\", nisso ele vai pedir a senha financeira para confirmar 💚","f":"","c":"Recursos"},{"a":"cancelamento_-_telefone","n":"cancelamento - Telefone","t":"Certo, [nome].\n\nCompreendi sua solicitação e o cancelamento da sua conta já foi realizado.\n\nVou te enviar um e-mail apenas confirmando que a conta foi cancelada, combinado? Não será necessário responder esse e-mail.\nVamos sentir sua falta por aqui.\n\nCaso precise novamente no futuro, estaremos à disposição.","f":"","c":"Cancelamento"},{"a":"cardapio","n":"cardapio","t":"Perfeito, [nome]! 💚\n\nRecebemos as informações e agora nosso time de produção vai conferir tudo.\n\nSe faltar algum dado no formulário, entraremos em contato por aqui antes de seguir com o cadastro.\n\nO prazo de entrega do seu cardápio é de até 1 dia útil.\n\nDepois que você me confirmar com um ok, qualquer alteração futura ficará sob responsabilidade do lojista, combinado?\n\nPode me confirmar com um “ok”, por favor?","f":"","c":"Cardápio"},{"a":"vendacardapio","n":"vendacardapio","t":"A gente pode seguir de dois jeitos: você cadastra agora comigo te guiando passo a passo, ou nossa equipe faz a montagem do primeiro cardápio por R$ 29,90 (até 100 itens).\nQual opção você prefere?","f":"","c":"Cardápio"},{"a":"cashback","n":"cashback","t":"Este é um vídeo bem curtinho explicando sobre uma das novas funções do WhatsMenu, o cashback para fidelizar seus clientes! 😎\nhttps://youtu.be/CBBI_YDzuoU","f":"","c":"Ferramentas de descontos"},{"a":"cashback_e_cupom","n":"cashback e cupom","t":"[nome]. deixa eu te mostrar 2 recursos que geram mais pedidos e faz o cliente voltar a comprar mais vezes 🚀\n\n1️⃣ Cashback: a cada pedido o cliente gera um crédito para usar na próxima compra. Você define a porcentagem (ex: 2% ou 5%) e também a validade para usar, isso faz o cliente sempre voltar para aproveitar o saldo.\n\n2️⃣ Cupom de primeira compra: quando um cliente novo chama pelo WhatsMenu Desktop, o robô identifica que ele ainda não fez pedidos e já libera automaticamente um cupom para incentivar o primeiro pedido.\n\nQual você prefere ativar: Cashback ou Cupom de primeira compra? 💚","f":"","c":""},{"a":"celular","n":"celular","t":"Vamos iniciar a configuração no celular da loja 📱\n\nPara fazer a instalação, precisamos que:\n1️⃣ Você esteja com o celular da loja em mãos\n2️⃣ O celular tenha WhatsApp Business instalado\n\nAgora instale o WhatsMenu Mobile (Android) pelo link:\nhttps://github.com/Grove-Company/.github/releases/download/mobile-v1.0.9/application-1bbac0f4-69bc-476c-a887-c55c54091ed2.apk \n\n📖 Passo a passo da configuração:\nhttps://youtu.be/uxXoyyGW5mk\n\n*Se tiver impressora, ela precisa ser Bluetooth e estar pareada no celular da loja* 🖨️\n\nVocê já está com o celular da loja aí?","f":"","c":"Celular"},{"a":"clientepedido","n":"clientepedido","t":"Neste vídeo curtinho, mostramos como seu cliente pode realizar um pedido no cardápio digital 😉 https://www.youtube.com/watch?v=_jYvhbJFylI","f":"","c":"Garçom"},{"a":"comoregistrardominio","n":"comoregistrardominio","t":"Depois que o domínio estiver pago, você deve:\n1 - Acessar o next.whatsmenu.com.br | Menu Configurações | Domínios e insira o domínio que você registrou\n2 - Acesse o painel do registro.br, clique em cima do domínio e altere os servidores DNS para:\na) Servidor 1 - melissa.ns.cloudflare.com\nb) Servidor 2 - viddy.ns.cloudflare.com\n\nCaso sobre dúvidas assita esse vídeo: https://youtu.be/rRlIHSyykuE\nPronto 🥳   \nAgora é só aguardar o prazo de propagação do domínio de 2h a 48h. \nQualquer dúvida, só me mandar uma mensagem! 😉","f":"","c":"Integrações"},{"a":"complementos_geral_(obrigatório_e_não_obrigatório)","n":"complementos geral (obrigatório e não obrigatório)","t":"Um video beem curtinho de como cadastrar complementos:\nhttps://www.youtube.com/watch?v=AZowVbOpIvw","f":"","c":"Cardápio"},{"a":"complementosdeoutrositens","n":"Complementosdeoutrositens","t":"Como usar complementos de outros itens:\nhttps://www.youtube.com/watch?v=cPXbA7NRmqs","f":"","c":"Cardápio"},{"a":"contato_asaas","n":"Contato asaas","t":"Os canais de atendimento do Asaas são:\n\n📧 E-mail: contato@asaas.com.br\n📱 WhatsApp: 0800 009 0037 (atendimento por mensagens)\n\nPara assuntos relacionados a cobranças, conta digital, PIX, cadastro ou suporte geral, recomendamos entrar em contato pelo e-mail ou WhatsApp acima.","f":"","c":"Financeiro"},{"a":"controledeestoque","n":"controledeestoque","t":"Um video beem curtinho de como habilitar e utilizar o controle de estoque. \nhttps://youtu.be/H8eZMWDN8Yg","f":"","c":"Recursos"},{"a":"controledemotoboys","n":"controledemotoboys","t":"Aqui um vídeo bem curtinho de como utilizar o controle e o relatório de entregadores \nhttps://www.loom.com/share/7efb69a1dae3458aa58da4d4c758cd01?sid=56c98008-7015-4a0d-b069-85d92e8afef0\nhttps://www.youtube.com/watch?v=DF8j9EV58rI","f":"","c":"Recursos"},{"a":"criar_atalho_celular","n":"criar atalho celular","t":"Como deixar um ícone do Whatsmenu no celular?\n  \n1.Abra o Google Chrome no seu celular \n2.Acesse o site que deseja criar um atalho; \n3.Toque nos três pontinhos no canto superior direito; \n4.Toque na opção \"Adicionar à tela inicial\";\n\nProntinho, me avisa se deu certo!","f":"","c":"Celular"},{"a":"cupom_de_desconto","n":"cupom de desconto","t":"Como criar cupom de desconto\n\nhttps://youtu.be/LfQ4cyVQp8s","f":"","c":"Ferramentas de descontos"},{"a":"dados","n":"dados","t":"Preciso que você me confirme esses dados que estão no seu painel, por favor\n\n*Nome* ou *Razão Social*\n*CPF* ou *CNPJ*\n*E-mail*\n*WhatsApp do painel*","f":"","c":"Cancelamento"},{"a":"dadosdeacesso","n":"dadosdeacesso","t":"Dados de acesso:\nLink de acesso: https://new.whatsmenu.com.br\nEmail:\nSenha:","f":"","c":"Atendimento e suporte"},{"a":"desconto-progressivo","n":"desconto-progressivo","t":"Com o desconto progressivo, seu cliente vai ter um incentivo visual na hora que adicionar um produto no carrinho!\nEle vai conseguir ver o valor que falta, para que ele consiga um desconto maior na compra dele, incentivando a adicionar mais itens, e aumentando o ticket médio!!  💚\n\nVou deixar aqui um vídeo para você verificar como funciona o desconto progressivo no seu painel: https://drive.google.com/file/d/1dun5ProKOk_5bFDPaqnioy7pLM_yT1cX/view?usp=drive_link\n\nSe tiver qualquer dúvida, pode voltar aqui comigo, combinado?","f":"","c":"Ferramentas de descontos"},{"a":"descontoeacrescimo","n":"descontoeacrescimo","t":"Desconto e acréscimo por forma de pagamento \nAssista esse passo a passo: \nhttps://www.loom.com/share/6375ef84e1064dafb53f26a1f8aa1d8d?sid=625ce696-afcf-4ba9-ac99-e2c1fa0ef3c7","f":"","c":"Meu Perfil"},{"a":"destaque","n":"destaque","t":"Vou deixar aqui um vídeo curtinho, para você verificar como funciona esse recurso de destaque para o seu cardápio! 🤩 \n\nVídeo: https://drive.google.com/file/d/1spGZC8dwSrZQdfVq8i26Iz0jZrTBy9Ks/view?usp=sharing\n\nCaso tenha ficado qualquer dúvida, pode me chamar aqui, combinado? 💚","f":"","c":"Cardápio"},{"a":"disponibilidade","n":"disponibilidade","t":"Como exibir produtos automáticamente em dias e horários específicos:\n\nhttps://www.youtube.com/watch?v=3CKI4sh9wKA\n\nUm vídeo beeeem curtinho pra te explicar melhor, me avisa se deu certinho","f":"","c":"Cardápio"},{"a":"documentos-asaas","n":"documentos-asaas","t":"Segue um vídeo bem curto de como realizar o envio dos documentos para finalizar o cadastro da sua conta do banco asaas:\nhttps://youtu.be/zw0R_sgBDnA?si=Tnm38P2unsZqZQfM&t=38\n\nCaso tenha qualquer dúvida, me avisa por aqui 💚","f":"","c":"Financeiro"},{"a":"domínio","n":"domínio","t":"O registro de um domínio é feito pelo registro.br.\nNeste vídeo tem o passo a passo completo 😉\nhttps://youtu.be/gZRYDxWuYpk","f":"","c":"Integrações"},{"a":"download-desktop","n":"download-desktop","t":"Certo, nesse caso, segue esse passo a passo por gentileza!! 😀\n\n- Passa o mouse em cima do download e clica nos 3 pontinhos\n- Clica em Manter\n- Clica em Mostrar mais, e depois em Manter mesmo assim!","f":"","c":"Computador/Desktop"},{"a":"ebook","n":"ebook","t":"Descubra todos os recursos secretos que ajudam nossos lojistas a crescer e prosperar!!\n\nhttps://drive.google.com/file/d/1fl4cr4Wtiojr4pM2MnfHQSKNGsyYcAAt/view?usp=sharing","f":"","c":"Recursos"},{"a":"encerrardesktop","n":"Encerrardesktop","t":"Como encerrar o WhatsMenu Desktop:\nhttps://www.youtube.com/watch?v=_rYjJpeTPcc","f":"","c":"Computador/Desktop"},{"a":"encomendas","n":"encomendas","t":"Sobre como funciona Encomendas por completo!\n\nhttps://www.youtube.com/watch?v=BGBA9120Y_A\n\nMe avisa aqui se ficar qualquer duvida!!","f":"","c":"Recursos"},{"a":"entrega_alteração","n":"entrega alteração","t":"Oi, [nome]! 👋\nFizemos as alterações que você pediu e seu cardápio já está atualizado 🥳\nDá uma olhadinha pra ver se ficou tudo certinho agora 👇\n👉 link do cardápio\n\nMe dê um OK pra gente finalizar essa etapa.","f":"","c":"Cardápio"},{"a":"entrega_cardapio","n":"entrega cardapio","t":"Oi, [nome]! 🥳\nSeu cardápio foi finalizado!\nDá uma olhadinha no link abaixo e me confirma se está tudo certo 👇\n👉 link do cardápio\n\nAssim que me der um OK teremos finalizado essa etapa e seguimos pros últimos passos 🚀","f":"","c":"Cardápio"},{"a":"entrega_cardápio","n":"Entrega_cardápio","t":"Prontinho, [nome]! 🥳\n\neste pelo link para ver como seu cliente vai comprar.\nAgora vou conferir se o perfil da loja já foi preenchido para seguirmos com os próximos passos 🚀","f":"","c":"Cardápio"},{"a":"envio_do_cardápio","n":"Envio do cardápio","t":"Link para envio do cardápio:https://tally.so/r/81PNJY\n\nDica: inclua nomes, tamanhos, adicionais, preços e fotos se tiver.\n\nSe for colocar link de cardápio de outras plataformas, verifique se tem itens pausados para serem cadastrados.\n\nE se no arquivo/link não tiver o produto que você quer cadastrar, coloque neste link os produtos, com os valores 💚 ","f":"","c":"Cardápio"},{"a":"fazerpedido","n":"fazerpedido","t":"Sobre essa questão de não carregar os pedidos, o meu time de TI já está verificando o ocorrido e realizando otimizações nessa parte para normalizar o funcionamento o quanto antes.\n\nVou acompanhar de perto e já retorno com você assim que tiver um posicionamento, combinado? 💚","f":"","c":"Atendimento e suporte"},{"a":"fecharestabelecimento","n":"fecharestabelecimento","t":"No caso, já temos essa opção dentro do sistema, Rosária! Onde você consegue fechar seu estabelecimento fora do horário que está programado! 😊 \n\nPasso a passo: https://youtu.be/7HiNEggvgX4","f":"","c":"Meu Perfil"},{"a":"filadeimpressao","n":"filadeimpressao","t":"No teclado, aperte a tecla do Windows \n(ela fica perto da tecla ALT)\n\nQuando abrir a pesquisa, digite:\nimpressoras\n\nVai aparecer uma opção chamada:\nImpressoras e scanners 🖨️\n\nClique nela com o mouse e me mande uma foto da tela que abrir, por favor 💚","f":"","c":"Impressão"},{"a":"finalizado","n":"finalizado","t":"Tudo certo, [Nome do cliente]! 💚\nImpressão, robô e link funcionando, sua loja já está pronta para receber pedidos pelo WhatsMenu 🚀\n\nNo dia e horário configurado no seu horário de funcionamento, o cardápio ficará disponível para seus clientes realizarem pedidos normalmente.\nParabéns por automatizar seus pedidos com o WhatsMenu! 🎉\n\nAqui estão alguns materiais de apoio para consultar quando quiser:\n📘 FAQ\nhttps://whatsmenu.tawk.help/\n📹 Como receber pedidos\nhttps://www.youtube.com/watch?v=RX-j14y3Sc0\n💡 Dicas e recursos\nhttps://drive.google.com/file/d/1WPXqj5UObwjRypqCCuwxUBQ_fK2DeI_4/view\nSe surgir qualquer dúvida, é só clicar no ícone de Suporte dentro do seu painel Whatsmenu.\n💬 Atendimento: segunda a sábado, das 8h30 às 20h30.","f":"","c":"Atendimento e suporte"},{"a":"financeira","n":"financeira","t":"Peço que clique no seu *email*, no painel da WhatsMenu, lá em cima, no canto direito, depois clique em *senhas*, logo em seguida, vá na parte de *alterar senha financeira* e clique em *recuperar senha*\n\nDepois, peço que verifique no seu email, na caixa de entrada ou na caixa de spam, um email que vai chegar para você redefinir a sua senha financeira!","f":"","c":"Financeiro"},{"a":"frete_por_bairro","n":"Frete por bairro","t":"Como cadastrar seus fretes por bairro\nhttps://youtu.be/0zdst312OkQ","f":"","c":"Meu Perfil"},{"a":"frete_por_km","n":"Frete por km","t":"Como cadastrar fretes por km\nhttps://youtu.be/7PkgbAmpJS8","f":"","c":"Meu Perfil"},{"a":"garcom-celular","n":"garcom-celular","t":"📲 Nesse passo a passo mostramos como o seu garçom pode realizar os pedidos das mesas diretamente pelo celular, de forma rápida e prática!\n🔗 Passo a passo: https://youtu.be/fjuS0YxbOcg\nCom isso, você ganha mais agilidade no atendimento e organização no salão!\nSe precisar de qualquer apoio durante a configuração, é só me chamar! 💚","f":"","c":"Garçom"},{"a":"generic","n":"generic","t":"Como instalar sua impressora no Windows:\nhttps://youtu.be/cWonmi8q_PE","f":"","c":"Impressão"},{"a":"gerais","n":"gerais","t":"Peço que vá lá no seu painel da WhatsMenu, que esta instalado no seu computador. Nessa parte, peço que vá em *Configurações* > *Gerais* > Desça um pouco e vá na parte de *Textões Padrões*, nessa parte, você vai conseguir ver a parte de *Mensagem de saudação*","f":"","c":"Robô"},{"a":"guia_dos_primeiros_passos","n":"Guia dos primeiros passos","t":"Guia de primeiros passos\nhttps://blog.whatsmenu.com.br/primeiros-passos/","f":"","c":"Atendimento e suporte"},{"a":"habilitardisponibilidade","n":"habilitardisponibilidade","t":"Como exibir os mesmos produtos para as mesa, encomenda ou delivery:\nhttps://whatsmenu.com.br/videoaulas/restante/aula/2\nUma Imagem vale mais que 1.000 palavras! ;)","f":"","c":"Cardápio"},{"a":"horariodoestabelecimento","n":"horariodoestabelecimento","t":"Veja o passo a passo para cadastrar os horários do seu estabelecimento: https://www.youtube.com/watch?v=N98FO-PGmoA","f":"","c":"Meu Perfil"},{"a":"impressao","n":"impressao","t":"Certo! Nesse caso, no aplicativo, clica em Impressão no canto superior esquerdo > seleciona sua impressora e me envia uma foto da tela inteira por gentileza !! 😊","f":"IMAGE","c":"Impressão"},{"a":"impressaopelorawbt","n":"impressaopeloRAWBT","t":"APP para Impressão manual no celular: \n1 - Baixar e instalar o Aplicativo RAWBT \n2 - Passo a Passo: https://www.youtube.com/watch?v=nRYVzEeNcKU \nQualquer dúvida, pode me chamar 😉","f":"","c":"Impressão"},{"a":"impressão_automática_celular","n":"IMPRESSÃO AUTOMÁTICA CELULAR","t":"📲 App para Impressão Automática no Celular - somente para Android\n1️⃣ Baixe e instale o app WhatsMenu Impressora\n2️⃣ Veja como usar: https://youtu.be/uxXoyyGW5mk\n\n🔗 Link para instalação: https://github.com/Grove-Company/.github/releases/download/mobile-v1.0.9/application-1bbac0f4-69bc-476c-a887-c55c54091ed2.apk\n\n(Importante: esse link é temporário, em breve estará de volta na play store!)\n\n✅ Me avisa aqui se deu tudo certo! 🤩","f":"","c":"Impressão"},{"a":"impressão_automática_pelo_navegador","n":"impressão automática pelo navegador","t":"Configurando a Impressão automática no Google Chrome:\n\nAssista esse vídeo primeiro: https://whatsmenu.com.br/videoaulas/impressao/aula/3\n\nEsse é o comando que você precisa colar depois das \" (aspas).\n\nhttps:/next.whatsmenu.com.br --kiosk-printing --autoplay-policy=no-user-gesture-required\n\nQuando configurar peço que realize um pedido de teste e me avise se imprimiu automaticamente ok?","f":"","c":"Impressão"},{"a":"informações_faltantes","n":"Informações faltantes","t":"Oi, [nome]! 👋\nSou o aqui do time de produção da WhatsMenu 💚\n\nEstou conferindo o seu cardápio e notei que ficou faltando ...\n\nPode me enviar essas informações para eu finalizar o seu cardápio? 💚\nAssim que estiver tudo certinho, te avisamos por aqui!","f":"","c":"Cardápio"},{"a":"iniciando-o-acesso","n":"iniciando-o-acesso","t":"Olá, eu sou o técnico responsável pelo seu acesso remoto. Preciso fazer 3 acordos contigo:\n\n1 - Eu consigo ficar conectado no seu computador por até 20 minutos ok? ⏱️\n2 - Preciso que esteja na frente do computador enquanto realizo o acesso, pois terei algumas dúvidas durante o acesso. 😊\n3 - Em caso de ausência por um periodo de 5 minutos, entenderemos que não é um momento adequado, o acesso será encerrado e agendaremos um horário melhor.\n*Estou 100% aqui para te ajudar.*\nEm instantes darei inicio ao seu acesso remoto.","f":"","c":"Acesso remoto"},{"a":"iniciando_acesso_remoto","n":"Iniciando Acesso Remoto","t":"Olá, eu sou o técnico responsável pelo seu acesso remoto. Preciso fazer 3 acordos contigo:\n\n1 - Eu consigo ficar conectado no seu computador por até 20 minutos ok? ⏱️\n2 - Preciso que esteja na frente do computador enquanto realizo o acesso, pois terei algumas dúvidas durante o acesso. 😊\n3 - Em caso de ausência por um periodo de 5 minutos, entenderemos que não é um momento adequado, o acesso será encerrado e agendaremos um horário melhor.\nEstou 100% aqui para te ajudar.\nEm instantes darei inicio ao seu acesso remoto.","f":"","c":"Acesso remoto"},{"a":"instagram_whatsmenu","n":"instagram whatsmenu","t":"Veja dicas e facilidades em nosso Instagram https://www.instagram.com/whatsmenu.oficial/","f":"","c":"Recursos"},{"a":"integração-99","n":"integração-99","t":"*Passo a passo para conseguir o ID do 99food:*\n\nPara obter o ID da 99Food (Store ID) do seu restaurante, faça login no portal 99Food Admin, vá ao menu \"Estabelecimentos\" e depois \"Configurações\". O ID da loja estará visível nessa seção.\n\nSeria pelo link abaixo:\n\nhttps://merchant.99app.com/pt-BR/store","f":"","c":"Integrações"},{"a":"integração-keeta","n":"integração-keeta","t":"*Passo a passo para conseguir o ID da Keeta:*\n\nAcesse o gestor da loja Keeta com seu e-mail cadastrado e vá em \"App Activation\" (Ativação do Aplicativo) para visualizar o \"Store ID\".\n\nLink: merchant.keeta-global.com","f":"","c":"Integrações"},{"a":"integração_ifood","n":"integração ifood","t":"Com a integração ifood você receberá os pedidos por dentro do painel Whatsmenu de forma rápida e simples! 🤩\nFerramentas disponíveis aos parceiros integrados:\n- Receber pedidos\n- Detalhes de Pedido\n- Plataforma de Disputa de Cancelamento\n- Controle de status do pedido (recebido, despachar, para retirar, cancelar)\n\nVeja como é fácil integrar sua loja do Ifood no Whatsmenu: https://www.youtube.com/watch?v=i9fvdWWD5rc","f":"","c":"Integrações"},{"a":"internet","n":"internet","t":"Certo! Consegue abrir esse site no seu computador, e me enviar uma foto do resultado por gentileza?? 😀\nSeria apenas para que eu consiga verificar se está tudo certinho com sua internet! 💚 \n\nhttps://fast.com/pt/","f":"","c":"Computador/Desktop"},{"a":"iphone","n":"iphone","t":"Atualmente, nosso sistema foi desenvolvido para funcionar exclusivamente em dispositivos Android.\nNo iPhone ou iPad (iOS), ele não é compatível — principalmente na integração com impressoras. Isso acontece porque o sistema do iOS tem algumas limitações técnicas e restringe o uso de impressoras térmicas via Bluetooth, dificultando a conexão.\n\nPor isso, pra garantir que o sistema rode completo, inclusive com impressão, o ideal é usar um celular ou tablet Android. Assim você utiliza todos os recursos disponíveis e conecta facilmente às impressoras compatíveis sem dor de cabeça! 💚","f":"","c":"Celular"},{"a":"iphone-whatsapp","n":"iphone-whatsapp","t":"Peço por  gentileza que vá nas Configurações do seu celular, procure o Safari, e desative a opção \"Bloquear Pop-ups\"! Fazendo isso, os botões de status de pedido vão voltar a funcionar corretamente! 💚","f":"IMAGE","c":"Celular"},{"a":"limpar_cache","n":"limpar cache","t":"No Chrome\n1 No computador, abra o Chrome.\n2 No canto superior direito, clique em Mais. Limpar dados de navegação.\n3 Escolha um intervalo de tempo, como Última hora ou Todo o período.\n4 Selecione os tipos de informação que você quer remover.\n5 Clique em Limpar dados.","f":"","c":"Computador/Desktop"},{"a":"link-garçom","n":"link-garçom","t":"Maravilha! Para encontrar o link que você vai enviar para seus garçons, basta seguir esses passos abaixo:\n\n- No menu lateral na esquerda, clica em Configurações.\n- Depois, clica em Mesas, e abre a aba \"Garçons\".\n- Lá, basta clicar no botão azul \"Link das mesas\"! O link vai ser copiado automaticamente, e basta você enviar ele para seus garçons!! 💚 \n\nSe ficar alguma dúvida, eu estou aqui para te auxiliar! 😉","f":"","c":"Garçom"},{"a":"link_testar","n":"link testar","t":"[NOME DO CLIENTE], agora preciso que faça um pedido teste rapidinho pelo link do seu cardápio pra você ver como o cliente vai comprar 😊\n\nPode escolher qualquer item e, na hora de finalizar, seleciona qualquer bairro mesmo, tá? Essa parte a gente ajusta certinho com as informações reais da sua loja no próximo passo.\n\nEsse pedido é só um teste pra garantir que está tudo funcionando direitinho 👍\n\nQuando terminar, me conta o que achou!\nE fica tranquilo: depois que tudo estiver finalizado, se quiser ajustar qualquer coisa, nosso time de suporte te ajuda e você também vai ter total autonomia pra mexer no painel 🚀","f":"","c":"Atendimento e suporte"},{"a":"mensagem_robo","n":"mensagem robo","t":"Me passa o número do WhatsApp da loja que configuramos.\n\nVou mandar um “oi” pra testar se responde automaticamente com o link do cardápio 👌","f":"","c":"Robô"},{"a":"mensagemautomatica1","n":"mensagemautomatica1","t":"Olá ! Seja bem vindo ao *NOME DA LOJA* 🥳\n👇Veja o nosso cardápio e faça seu pedido👇\nhttps://whatsmenu.com.br/burguerino\n*Fazendo o primeiro pedido pelo link ganhe X% de desconto com o cupom NOME DO CUPOM*🚀\nE ganhe 5% de cashback em cada pedido realizado pelo link\n*Equipe NOME DA LOJA*","f":"","c":"Robô"},{"a":"mensagemautomatica2","n":"mensagemautomatica2","t":"🚀Agora seus clientes vão receber automaticamente o link para fazer pedidos! 🥳\n Siga o passo a passo abaixo para configurar no *WhatsApp Business*:\n📌 Passo a passo:\n 1️⃣ Copie a mensagem que enviamos acima (com o link do cardápio)\n 2️⃣ Acesse o WhatsApp Business da loja\n 3️⃣ Toque na casinha no canto inferior direito e vá em Ferramentas\n 4️⃣ Vá em Mensagem de Ausência e Mensagem de Saudação\n 5️⃣ Cole a mensagem nas duas opções\n 6️⃣ Ative: \"Enviar sempre\" e \"Enviar para todos\"\n 7️⃣ Clique em Salvar\n✅ Quando finalizar, envie a mensagem *“FINALIZEI”* aqui para concluirmos juntos! 😎","f":"","c":"Robô"},{"a":"mesas-celular","n":"mesas-celular","t":"📽️ Preparamos um vídeo completo com o passo a passo para configurar o sistema de mesas no seu painel!\nNesse vídeo você vai aprender:\n• Como cadastrar as mesas\n• Como gerar o QR Code para cada mesa\n• Como criar taxas como couvert artístico ou taxa de garçom\n• E também como cadastrar os garçons no sistema\nTudo de forma simples e rápida para deixar sua operação ainda mais organizada! 💡\n\nPasso a passo: https://youtu.be/mT9HEQ04KrA","f":"","c":"Garçom"},{"a":"mesas-desktop","n":"Mesas-Desktop","t":"📽️ Preparamos um vídeo completo com o passo a passo para configurar o sistema de mesas no seu painel!\nNesse vídeo você vai aprender:\n• Como cadastrar as mesas\n• Como gerar o QR Code para cada mesa\n• Como criar taxas como couvert artístico ou taxa de garçom\n• E também como cadastrar os garçons no sistema\nTudo de forma simples e rápida para deixar sua operação ainda mais organizada! 💡\n\nPasso a passo: https://youtu.be/UEhEuUBRUXU","f":"","c":"Garçom"},{"a":"mesas-pedidos","n":"mesas-pedidos","t":"Aqui está um vídeo explicando certinho como abrir suas mesas, cadastrar uma comanda, e depois encerrar essa mesa! 🤗 \n\nhttps://www.youtube.com/watch?v=ODSwO7PAasI\n\nSe ficar alguma dúvida, eu estou aqui para te auxiliar! 💚","f":"","c":"Garçom"},{"a":"modem","n":"modem","t":"Peço que reinicie o seu *modem da sua internet*! Você vai tirar a tomada do seu modem de internet, aguardar 30 segundos e ligar novamente! Nesse meio tempo, peço que também já reinicie o seu computador. \n\nFeito isso, peço que volte aqui e me confirme, por favor 💚","f":"","c":"Computador/Desktop"},{"a":"monte_sua_marmita","n":"monte sua marmita","t":"Monte sua marmita\nhttps://youtu.be/ZFCIXM7V13M","f":"","c":"Cardápio"},{"a":"motivo_do_cancelamento","n":"motivo do cancelamento","t":"Ok já estou preenchendo o formulário de cancelamento, para eu poder avançar, me diga o que você mais gostou na ferramenta e os pontos fracos?💚😊","f":"","c":"Cancelamento"},{"a":"notasfiscais","n":"notasfiscais","t":"Aqui está um video bem simples que vai te explicar mais sobre a automação de notas fiscais na plataforma! \nhttps://youtu.be/Ukv_c32w_E4","f":"","c":"Notas"},{"a":"pagamento_online","n":"Pagamento online","t":"Como funciona o Pagamento Online:\nhttps://www.youtube.com/watch?v=uo7zxBqTBXE","f":"","c":"Meu Perfil"},{"a":"pagamentomanual","n":"pagamentomanual","t":"Como funciona o Pagamento Manual:\nhttps://www.youtube.com/watch?v=cVnU3b67NY0","f":"","c":"Meu Perfil"},{"a":"paracriar","n":"Paracriar","t":"Para criar seu acesso, preciso:\n*Nome* ou *Razão Social*\n*CPF* ou *CNPJ*\n*E-mail* (diferente do painel que você já possui)\n*WhatsApp*","f":"","c":"Financeiro"},{"a":"pdv","n":"PDV","t":"Separei alguns materiais essenciais pra facilitar o seu uso da plataforma no dia a dia:\n📩 Como acompanhar seus pedidos recebidos:\n https://www.youtube.com/watch?v=RX-j14y3Sc0\n🧾 Utilizando o PDV (para vendas por telefone ou balcão):\n• Com cadastro do cliente: https://www.youtube.com/watch?v=kfif91jSOHU\n• Sem cadastro: https://www.youtube.com/watch?v=-bXRO4QQx4g\n• Como lançar um pedido: https://www.youtube.com/watch?v=HRVEY780QgU\n💡 Dicas extras e recursos úteis da plataforma:\n https://drive.google.com/file/d/1fl4cr4Wtiojr4pM2MnfHQSKNGsyYcAAt/view?usp=sharing","f":"","c":"PDV"},{"a":"pedido_teste","n":"pedido teste","t":"[nome], para finalizarmos a implantação, preciso que você faça um pedido teste pelo PDV 👍\n\nEsse tipo de pedido é usado, por exemplo, quando a venda acontece por telefone ou no balcã quando o cliente não quer informar os dados.\n\nAqui vão vídeos rápidos mostrando como lançar o pedido pelo PDV:\n📹 Venda com cadastro: https://www.youtube.com/watch?v=kfif91jSOHU\n📹 Venda sem cadastro: https://youtu.be/abMcq_cCw3s\n📹 Como lançar pedido: https://www.youtube.com/watch?v=HRVEY780QgU\n\nAssim que fizer o pedido teste, me avisa aqui para eu acompanhar com você e confirmar que chegou certinho.\n\nDepois volta aqui e me conta: viu como será simples lançar seus pedidos no dia a dia? 🚀","f":"IMAGE","c":"PDV"},{"a":"perfil_novo","n":"Perfil_novo","t":"Aqui está seu acesso ao painel da WhatsMenu 💚\n👉 https://next.whatsmenu.com.br/login\nLogin:\nSenha:\nVocê pode acessar pelo computador ou celular.\nAgora vá em Meu Perfil e preencha:\n ✅ Dados da loja\n ✅ Horário de funcionamento\n ✅ Frete\n ✅ Formas de pagamento\nDentro das abas tem vídeos de ajuda para te orientar. É bem simples e isso garante que seus pedidos cheguem certinhos.\nConsegue preencher enquanto finalizamos seu cardápio?","f":"","c":"Meu Perfil"},{"a":"perfil_pendente","n":"Perfil_pendente","t":"Vi aqui que ainda falta finalizar algumas informações do perfil da loja.\nEsses dados são importantes para os pedidos chegarem certinhos, principalmente horário, frete e formas de pagamento.\nConsegue preencher agora para seguirmos com a configuração final?","f":"","c":"Meu Perfil"},{"a":"permissões","n":"permissões","t":"Eu vou te orientar rapidinho pra resolver isso, tá? 😊\n\n- Vai nas configurações do seu celular e abre a parte de \"Apps\" ou \"Aplicativos\".\n- Procure pelo \"WhatsMenu Mobile\" na lista.\n- Dentro das opções do app, desmarque a opção “Pausar atividade do app quando sem uso”.\n- Na aba \"Bateria\", deixa a opção \"Sem restrições\" ou \"Não restrito\" marcada.\n- Depois, entra nas “Permissões do app” e desmarque também “Remover permissões e liberar espaço”.\n\nFazendo isso, o aplicativo vai funcionar certinho o tempo todo, sem ser interrompido pelo celular. Se precisar de qualquer ajuda no passo a passo, me chama aqui que te ajudo rapidinho!","f":"","c":"Celular"},{"a":"portas","n":"Portas","t":"Peço que siga esse passo a passo:\n1- Abra o painel de controle no seu computador\n2 - Vá em dispositivos e impressoras\n3 - Clica com o botão direito do mouse em cima do driver da sua impressora\n4 Clique em propriedades da impressora\n5 - Vá na opção de portas\n6 - Selecione a porta USB001, USB002 ou USB003\n7 - Clica em aplicar e OK\n8- Faça uma impressão de teste","f":"","c":"Impressão"},{"a":"preencheu_formulario","n":"Preencheu formulario","t":"Perfeito, [nome]! 💚\nRecebemos as informações e agora o nosso time de produção vai conferir tudo.\nCaso falte alguma informação no formulário, o time entrará em contato por aqui antes de cadastrar, tá bem? 😊\n \nO prazo para entrega do seu cardápio é de *até 1 dia útil.*\nAssim que estiver finalizado, enviaremos o link por aqui pra você conferir e realizar um pedido teste.\n\nApós o OK, liberaremos seu login e senha para preencher seu perfil 🚀","f":"","c":"Cardápio"},{"a":"promocional","n":"promocional","t":"Segue um passo a passo rápido pra cadastrar promoções no cardápio digital:\n\n1. Acesse o painel do sistema\n2. Vá em **Cardápio**\n3. Encontre o item que deseja colocar em promoção\n4. Clique em **Editar**\n5. Acesse a opção **Promoção**\n6. Cadastre o valor promocional e salve\n\nPronto! O item já vai aparecer no cardápio para o cliente com destaque de promoção, ajudando a chamar mais atenção e aumentar as vendas 🙂","f":"","c":"Cardápio"},{"a":"qrcode","n":"qrcode","t":"Para gerar um QR code do seu cardápio, basta você clicar neste link abaixo e colocar o link do seu cardápio para gerar o qr code, depois, só clicar para baixar 💚 \n\nhttps://qrcode-whatsmenu-braga.vercel.app/","f":"","c":"Cardápio"},{"a":"recebi_cardápio","n":"recebi_cardápio","t":"Perfeito, [nome]! 💚\nRecebi o nome da loja e o cardápio.\nNosso time interno vai iniciar o cadastro dos produtos do seu cardápio.\nEnquanto isso, vou liberar seu acesso para preenchermos o perfil da loja e seguirmos com as configurações da plataforma.\nAssim conseguimos avançar com tudo em paralelo para deixar sua loja pronta ainda hoje 🚀\nPra localizar seu cadastro certinho, me confirma o e-mail usado na contratação?","f":"","c":"Cardápio"},{"a":"reordenar_cardapio","n":"reordenar cardapio","t":"Como reordenar Categorias, produtos e complementos\n\nhttps://whatsmenu.com.br/videoaulas/cadastro/aula/11","f":"","c":"Cardápio"},{"a":"retirada-no-local","n":"retirada-no-local","t":"No caso, é possível sim!! Basta ir em Configurações > Gerais > e na parte de Entregas, desativar a opção \"O cliente pode retirar o pedido no local?\".\nDepois disso, basta clicar em Salvar, e vai ficar tudo certinho! 😉","f":"IMAGE","c":"Meu Perfil"},{"a":"robo-mensagens-repetidas","n":"robo-mensagens-repetidas","t":"Certo! Nesse caso, peço por gentileza que no seu painel, acesse a aba \"Robô Whatsapp\", e verifique se a opção \"Não permitir falar com atendente\" está habilitada!\nSe ela estiver, peço por gentileza que desative ela, e não será mais enviado várias mensagens para seus clientes!!  😉","f":"","c":"Robô"},{"a":"sobremeuperfil","n":"Sobremeuperfil","t":"Visão Geral do Menu Meu Perfil (1 passo):\nhttps://youtu.be/xGvK42_sfp8","f":"","c":"Meu Perfil"},{"a":"solicitou_alteração","n":"solicitou alteração","t":"Perfeito, [NOME]! Pode me enviar por escrito todos os ajustes que precisa no cardápio?\n\nAproveita e já confere se tem mais alguma alteração, pra gente enviar tudo de uma vez para o time de produção.\nAssim que você me confirmar que está tudo listado, eu encaminho para eles. \n\nDepois que ajustarem, voltamos aqui para você validar se ficou tudo certo e seguir para os últimos passos.","f":"","c":"Cardápio"},{"a":"som_no_computador","n":"som no computador","t":"Configurando Som (Computador - Chrome) https://www.youtube.com/watch?v=eUo1c_iC3F4\n  \nCole este link no seu navegador Chrome para acessar a configuração:  \nchrome://settings/content/sound \nAo finalizar me informe se deu certinho, por favor","f":"","c":"Computador/Desktop"},{"a":"sorvete-acai-por-kg","n":"sorvete-acai-por-kg","t":"Ahhh certo Lucas, eu compreendo totalmente! No caso, temos uma opção de produtos por KG no sistema, justamente para isso!! 😀 \n\nPara fazer isso, basta você ir no seu cardápio, e criar um item chamado \"Sorvete por KG\"!\nLá, basta clicar em Editar, e ir em \"Tipo de Produto\"!\n\nBasta selecionar a opção \"Granel\", e depois definir o Valor do Kilo!! 😉 \nFazendo isso, você vai conseguir colocar o peso exato que seu cliente pegou, e o sistema já vai calcular o valor automaticamente!!","f":"IMAGE","c":"Cardápio"},{"a":"statuspedidos","n":"statuspedidos","t":"✨ Como funciona o Status dos Pedidos:\nhttps://youtu.be/ERVe2YeKRUQ","f":"","c":"Garçom"},{"a":"suporte-asaas","n":"suporte-asaas","t":"Suporte Banco Asaas  \n\n*Telefone:* 0800 009 0037 (exclusivo para contas pessoa jurídica);  \n*Chat:* acesse sua conta Asaas pela web e clique no ícone do messenger do Intercom ao lado direito da sua tela para iniciar;  \n*WhatsApp:* https://web.whatsapp.com/send?phone=558000090037 \n*E-mail:* contato@asaas.com.br;  \n*Ouvidoria:* asaas.com/ouvidoria.","f":"","c":"Financeiro"},{"a":"tamanho","n":"Tamanho","t":"Foto de capa: 768 x 307 Logo: 145 x 145  Foto do item: 600 x 450","f":"","c":"Meu Perfil"},{"a":"taxas","n":"taxas","t":"Vou deixar aqui um vídeo para você verificar como funciona a parte de *taxas* no seu painel da WhatsMenu: https://drive.google.com/file/d/1idElps5K1AvLNJbybHXvwlUmA_PvcFLh/view\n\nSe tiver qualquer dúvida, pode voltar aqui comigo, combinado?","f":"","c":"Meu Perfil"},{"a":"taxas-asaas","n":"taxas-asaas","t":"No caso, essas seriam as taxas dos pagamentos online pelo banco Asaas!\n\nSeria de R$0,99 por pagamento via Pix, e de 2,99% em cima do valor para recebimento via crédito nos próximos 32 dias. \nPara o recebimento via crédito em 2 dias úteis, a taxa seria de 4,99% em cima do valor! 💚","f":"IMAGE","c":"Meu Perfil"},{"a":"tecnico","n":"tecnico","t":"Nosso técnico está finalizando alguns acessos no momento, e vai estar disponível em cerca de 30 minutos! \nPorém, posso te auxiliar por aqui enquanto isso!!  😉","f":"","c":"Acesso remoto"},{"a":"trackfy","n":"trackfy","t":"Vou deixar aqui um link para você verificar como funciona a nova ferramenta *TrackFy*.\n\n*Link:* https://www.youtube.com/watch?v=GtgOIBTOtVM\n\nAtive-a no seu painel para facilitar o acompanhamento dos motoboys durante a operação.","f":"","c":"Integrações"},{"a":"vendas","n":"vendas","t":"Tenho certeza que o WhatsMenu fará toda diferença no seu negócio! \nClique neste link que você será direcionado ao nosso setor comercial: https://wa.me/whatsmenu\n\nAqui é o setor de suporte, ok?\nEspero que nos falemos em breve novamente 💚","f":"","c":"Setor de vendas"},{"a":"vincularcomplemento","n":"Vincularcomplemento","t":"Explicando os complementos vinculados: \nhttps://youtu.be/cPXbA7NRmqs","f":"","c":"Cardápio"},{"a":"windows_7","n":"windows 7","t":"Entendi! \nO que acontece é que o Windows 7/8 não recebe mais atualizações da Microsoft desde 2020. Com isso, muitos navegadores e programas pararam de funcionar corretamente nesse sistema, porque não têm mais suporte de segurança nem compatibilidade.  Navegadores como Chrome, Edge e até alguns recursos do próprio site deixam de funcionar corretamente em sistemas antigos como o Windows 7.  \nO ideal seria atualizar o sistema operacional para uma versão mais recente (como Windows 10 ou 11) pra garantir que tudo funcione certinho, com segurança e sem travar.","f":"","c":"Computador/Desktop"},{"a":"xml","n":"xml","t":"Basta você ir no seu painel da WhatsMenu > Relatório NFCe > Escolher se vai ser delivery, mesa ou encomenda > Clicar em Buscar > Clicar em Históricos XMLs > Colocar a o mês e o ano nos dois campos de início e fim e depois clicar em Buscar > Nisso, você pode baixar esse arquivo XML","f":"","c":"Notas"}]</script>
-<script>(function(){
-  var D=JSON.parse(document.getElementById('rr-data').textContent);
-  var ORDER=['Cardápio','Meu Perfil','Robô','Impressão','Celular','Computador/Desktop','Acesso remoto','Notas','Integrações','Ferramentas de descontos','Recursos','PDV','Garçom','Financeiro','Setor de vendas','Cancelamento','Atendimento e suporte'];
-  var norm=function(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();};
-  D.forEach(function(x){x.s=norm(x.a+' '+x.n+' '+x.t);});
-  var $=function(id){return document.getElementById(id);};
-  var cat='';
-  var esc=function(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-  function fmt(t){
-    var h=esc(t);
-    h=h.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
-    h=h.replace(/\[([^\]\n]{1,40})\]/g,'<mark class="rr-var">[$1]</mark>');
-    h=h.replace(/\*([^*\n]+)\*/g,'<b>$1</b>');
-    return h;
+  function festa(){
+    var e=$('ok-emoji'); e.classList.remove('festa'); void e.offsetWidth; e.classList.add('festa');
+    var box=$('ok'), cores=['#ffd23f','#00a63e','#ff6b6b','#4dabf7','#b197fc','#ff922b'];
+    for(var i=0;i<36;i++){var c=document.createElement('span');c.className='confete';
+      var ang=Math.random()*Math.PI*2, dist=120+Math.random()*220;
+      c.style.setProperty('--x',Math.round(Math.cos(ang)*dist)+'px');c.style.setProperty('--y',Math.round(Math.sin(ang)*dist*0.8+60)+'px');c.style.setProperty('--r',Math.round(Math.random()*720-360)+'deg');
+      c.style.background=cores[i%cores.length];c.style.animationDelay=(Math.random()*0.15)+'s';box.appendChild(c);}
+    setTimeout(function(){box.querySelectorAll('.confete').forEach(function(n){n.remove();});},2400);
   }
-  function chips(base){
-    var n={};base.forEach(function(x){n[x.c]=(n[x.c]||0)+1;});
-    var b=function(c,l,k){return '<button type="button" class="rr-chip" data-c="'+c+'" aria-pressed="'+(cat===c)+'">'+l+'<span>'+k+'</span></button>';};
-    $('rr-chips').innerHTML=b('','Todos',base.length)+ORDER.filter(function(c){return n[c];}).map(function(c){return b(c,c,n[c]);}).join('');
-  }
-  function render(){
-    var q=norm($('rr-q').value.trim()).replace(/^\//,'');
-    var base=D.filter(function(x){return !q||x.s.indexOf(q)>=0;});
-    chips(base);
-    var list=base.filter(function(x){return !cat||x.c===cat;});
-    $('rr-count').textContent=list.length+' respostas';
-    if(!list.length){$('rr-list').innerHTML='<p class="rr-empty">Nenhuma resposta encontrada. Tente outra palavra.</p>';return;}
-    var open=!!(q||cat);
-    $('rr-list').innerHTML=ORDER.concat(cat?[]:['']).map(function(c){
-      var g=list.filter(function(x){return x.c===c;}); if(!g.length)return '';
-      return '<details class="rr-group"'+(open?' open':'')+'><summary>'+(c||'Outras respostas')+'<span>'+g.length+'</span></summary><div class="rr-items">'+g.map(function(x){
-        var i=D.indexOf(x);
-        var file=x.f?'<span class="rr-file">Anexo: '+(x.f==='IMAGE'?'imagem':x.f==='DOCUMENT'?'documento':esc(x.f))+'</span>':'';
-        var body=x.t?'<div class="rr-text">'+fmt(x.t)+'</div>':'<div class="rr-text rr-nofile">Sem texto: envia só um arquivo anexado.</div>';
-        return '<div class="rr-item"><div class="rr-head"><span class="rr-sc">/'+esc(x.a.replace(/^\//,''))+'</span>'+(norm(x.n)!==norm(x.a)?'<span class="rr-nm">'+esc(x.n)+'</span>':'')+file+(x.t?'<button type="button" class="rr-copy" data-i="'+i+'">Copiar</button>':'')+'</div>'+body+'</div>';
-      }).join('')+'</div></details>';
-    }).join('');
-  }
-  $('rr-chips').addEventListener('click',function(e){var b=e.target.closest('.rr-chip');if(!b)return;cat=b.dataset.c;render();});
-  $('rr-list').addEventListener('click',function(e){
-    var b=e.target.closest('.rr-copy');if(!b)return;var t=D[+b.dataset.i].t;
-    var done=function(){b.textContent='Copiado';b.classList.add('ok');setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok');},1600);};
-    var fallback=function(){var m=b.closest('.rr-item').querySelector('.rr-text');var r=document.createRange();r.selectNodeContents(m);var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selecionado: Ctrl+C';};
-    try{navigator.clipboard.writeText(t).then(done,fallback);}catch(_){fallback();}
-  });
-  $('rr-q').addEventListener('input',render);
-  render();
-  var sec=$('respostas'), cards=[].slice.call(document.querySelectorAll('section.card')).filter(function(s){return s!==sec;});
-  var guia=document.querySelector('nav.steps details.guia');
-  function view(m){
-    sec.hidden=m!=='respostas'; cards.forEach(function(s){s.hidden=m!=='guia';});
-    var hs=$('inicio'); if(hs)hs.hidden=m!=='home';
-    var hn=document.querySelector('nav.steps a.home-nav'); if(hn)hn.setAttribute('aria-current',m==='home'?'page':'false');
-    var rr=document.querySelector('nav.steps a.rr-nav'); if(rr)rr.setAttribute('aria-current',m==='respostas'?'page':'false');
-    if(guia)guia.querySelector('summary').classList.toggle('on',m==='guia');
-    window.dispatchEvent(new Event('scroll'));
-  }
-  window.showView=view;
-  function fromHash(){var h=location.hash; if(h==='#respostas')return 'respostas'; if(h==='#inicio')return 'home'; if(h&&h.length>1&&document.getElementById(h.slice(1))&&!sec.contains(document.getElementById(h.slice(1))))return 'guia'; return 'home';}
-  document.querySelector('nav.steps').addEventListener('click',function(e){
-    var a=e.target.closest('a'); if(!a)return;
-    var h=a.getAttribute('href')||'';
-    if(h==='#inicio'){e.preventDefault();view('home');if(guia)guia.open=false;try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);}
-    else if(h==='#respostas'){e.preventDefault();view('respostas');try{history.replaceState(null,'','#respostas');}catch(_){}sec.scrollIntoView({block:'start'});}
-    else if(h.charAt(0)==='#'){view('guia');}
-  });
-  if(guia)guia.addEventListener('toggle',function(){if(guia.open)view('guia');});
-  document.querySelectorAll('a[href="#como-usar"]').forEach(function(a){a.addEventListener('click',function(){setTimeout(function(){var q=$('gs-q');if(q)q.focus({preventScroll:true});},60);});});
-  $('inicio').addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;var h=a.getAttribute('href')||'';
-    if(h==='#respostas'){e.preventDefault();view('respostas');try{history.replaceState(null,'','#respostas');}catch(_){}window.scrollTo(0,0);}
-    else if(h==='#finalizar'){e.preventDefault();view('guia');try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);}
-  });
-  $('rr-back').addEventListener('click',function(){view('home');try{history.replaceState(null,'',location.pathname);}catch(_){}window.scrollTo(0,0);});
-  window.addEventListener('hashchange',function(){view(fromHash());});
-  view(fromHash());
-  if(fromHash()==='guia'){var t=document.getElementById(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView({block:'start'});},0);}
-})();
-</script>
-<script>
-(function(){
-  var fl=[].slice.call(document.querySelectorAll('nav.steps details.flow'));
-  fl.forEach(function(d){d.addEventListener('toggle',function(){if(d.open)fl.forEach(function(o){if(o!==d)o.open=false;});});});
-  document.addEventListener('click',function(e){fl.forEach(function(d){if(!d.contains(e.target)||e.target.closest('.flow-menu a'))d.open=false;});});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')fl.forEach(function(d){d.open=false;});});
-})();
-</script>
-<script>
-document.querySelectorAll('.pdf .quote:not(.audio):not(.fala)').forEach(function(q){
-  var btn=document.createElement('button');btn.type='button';btn.className='qcopy';btn.textContent='Copiar';
-  q.appendChild(btn);
-  btn.addEventListener('click',function(){
-    var t=[].map.call(q.querySelectorAll('p'),function(p){return p.innerText.trim();}).join('\n\n').trim();
-    t=t.replace(/^"/,'').replace(/"$/,'').trim();
-    function done(){btn.textContent='Copiado';btn.classList.add('ok');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('ok');},1600);}
-    function fallback(){var r=document.createRange();r.setStartBefore(q.firstElementChild);r.setEndBefore(btn);var s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Selecionado: Ctrl+C';}
-    try{navigator.clipboard.writeText(t).then(done,fallback);}catch(e){fallback();}
-  });
-});
-document.querySelectorAll('.copy').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    var pre=btn.parentElement.querySelector('pre');
-    function done(t){btn.textContent=t;setTimeout(function(){btn.textContent='Copiar';},1600);}
-    function fallback(){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r);done('Selecionado: Ctrl+C');}
-    try{navigator.clipboard.writeText(pre.innerText).then(function(){done('Copiado');},fallback);}catch(e){fallback();}
-  });
-});
-</script>
-
-
-<!-- ===== Chat IA WM (canto inferior direito) ===== -->
-<style>
-#iawm-btn{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:9998;display:flex;align-items:center;gap:12px;
-  background:linear-gradient(135deg,#0b3d1f 0%,#14251b 100%);color:#fff;border:0;border-radius:999px;padding:8px 22px 8px 8px;cursor:pointer;
-  box-shadow:0 10px 28px rgba(5,40,20,.45),inset 0 0 0 1.5px rgba(255,255,255,.18);transition:transform .18s ease,box-shadow .18s ease;font-family:var(--f-body)}
-#iawm-btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(5,40,20,.55),inset 0 0 0 1.5px rgba(255,210,63,.6)}
-#iawm-btn:focus-visible{outline:3px solid #ffd23f;outline-offset:3px}
-#iawm-btn .av-ic{position:relative;flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#ffe680,#ffd23f 55%,#f0b400);box-shadow:0 2px 8px rgba(0,0,0,.25)}
-#iawm-btn .av-ic svg{width:30px;height:30px;color:#14251b}#iawm-btn .av-ic .ic-chat{width:32px;height:32px;margin-top:1px}
-#iawm-btn .av-ic::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(255,210,63,.75);animation:iawm-pulse 2.2s ease-out infinite}
-#iawm-btn .av-ic::after{content:"";position:absolute;right:1px;bottom:1px;width:11px;height:11px;border-radius:50%;background:#22c55e;border:2px solid #14251b}
-#iawm-btn .tx{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;text-align:left}
-#iawm-btn .tx b{font:800 1.05rem var(--f-display);letter-spacing:.01em}
-#iawm-btn .tx small{font-size:.78rem;opacity:.8;font-weight:600}
-#iawm-btn[aria-expanded="true"] .av-ic::before{animation:none;opacity:0}
-#iawm-btn .ic-x{display:none}
-#iawm-btn[aria-expanded="true"] .ic-chat{display:none}
-#iawm-btn[aria-expanded="true"] .ic-x{display:block}
-@keyframes iawm-pulse{0%{transform:scale(.9);opacity:.9}80%,100%{transform:scale(1.35);opacity:0}}
-@media (prefers-reduced-motion:reduce){#iawm-btn .av-ic::before{animation:none}#iawm-btn{transition:none}}
-#iawm{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:92px;z-index:9999;width:min(400px,calc(100vw - 32px));height:min(560px,max(380px,calc(100dvh - 350px)));background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden;color:var(--ink);font:15px/1.5 var(--f-body)}
-#iawm[hidden]{display:none}
-#iawm .hd{background:var(--green-deep);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px}
-#iawm .hd .lg{width:42px;height:42px;flex:none;background:#fff;border-radius:50%;padding:4px;box-shadow:0 2px 0 rgba(0,0,0,.2)}
-#iawm .hd b{font:800 1.05rem var(--f-display);display:block}
-#iawm .hd small{opacity:.85;font-size:.78rem}
-#iawm .hd .x{margin-left:auto;background:rgba(255,255,255,.15);border:0;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer}
-#iawm .hd .lim{background:none;border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:999px;padding:3px 10px;font:600 .75rem var(--f-body);cursor:pointer}
-#iawm .ms{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#f7fbf8}
-#iawm .m{max-width:88%;padding:9px 13px;border-radius:14px;overflow-wrap:anywhere}
-#iawm .m.u{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:4px}
-#iawm .m.b{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
-#iawm .m.e{align-self:flex-start;background:#fdecea;color:#b42318}
-#iawm .m.t{color:var(--muted);font-style:italic}
-#iawm .m p{margin:0 0 6px}#iawm .m p:last-child{margin:0}
-#iawm .m ul,#iawm .m ol{margin:2px 0 6px;padding-left:20px}
-#iawm .m code{background:var(--green-soft);border-radius:4px;padding:0 4px}
-#iawm .cp{margin-top:6px;font:600 .75rem var(--f-body);background:var(--green-soft);border:0;border-radius:999px;padding:3px 10px;cursor:pointer;color:var(--green-deep)}
-#iawm .ini{color:var(--muted);text-align:center;margin:auto 0;font-size:.9rem}
-#iawm .sg{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-#iawm .sg button{font:600 .85rem var(--f-body);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;color:var(--ink);text-align:left}
-#iawm .sg button:hover{border-color:var(--green)}
-#iawm form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
-#iawm textarea{flex:1;resize:none;font:15px/1.4 var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:40px;max-height:120px}
-#iawm textarea:focus{outline:none;border-color:var(--green)}
-#iawm form button{background:var(--green);color:#fff;border:0;border-radius:10px;padding:0 14px;font:700 .95rem var(--f-body);cursor:pointer}
-#iawm form button:disabled{opacity:.5}
-#iawm .av{font-size:.72rem;color:var(--muted);text-align:center;padding:0 10px 8px}
-#iawm .sn{padding:16px;display:flex;flex-direction:column;gap:8px}
-#iawm .sn input{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:9px}
-@media (max-width:560px){#iawm{bottom:84px;height:calc(100dvh - 104px)}#iawm-btn .tx{display:none}#iawm-btn{padding:6px}}
-</style>
-<button id="iawm-btn" type="button" aria-controls="iawm" aria-expanded="false" aria-label="Abrir IA WM"><span class="av-ic"><svg class="ic-chat" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3.2v3.6" stroke="#14251b" stroke-width="2.2" stroke-linecap="round"/><circle cx="16" cy="3" r="2.1" fill="#00a63e" stroke="#14251b" stroke-width="1.4"/><rect x="5" y="7.5" width="22" height="18" rx="7" fill="#fff" stroke="#14251b" stroke-width="2.2"/><rect x="8.6" y="11.2" width="14.8" height="9.2" rx="4.6" fill="#14251b"/><circle cx="12.8" cy="15.6" r="1.9" fill="#4ade80"/><circle cx="19.2" cy="15.6" r="1.9" fill="#4ade80"/><path d="M13.6 22.6q2.4 1.4 4.8 0" stroke="#14251b" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M3.2 14.5v5M28.8 14.5v5" stroke="#14251b" stroke-width="2.4" stroke-linecap="round"/><path d="M26.6 1.6l.75 1.75 1.75.75-1.75.75-.75 1.75-.75-1.75-1.75-.75 1.75-.75z" fill="#fff"/></svg><svg class="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span class="tx"><b>IA WM</b><small>Tire suas dúvidas</small></span></button>
-<div id="iawm" role="dialog" aria-label="IA WM" hidden>
-  <div class="hd"><img class="lg" src="logo.png" alt="WhatsMenu"><div><b>IA WM</b><small>Tira dúvidas sobre o sistema WhatsMenu</small></div><button class="lim" type="button" id="iawm-lim">Limpar</button><button class="x" type="button" id="iawm-x" aria-label="Fechar">✕</button></div>
-  <form class="sn" id="iawm-sn" hidden><label for="iawm-pw"><b>Senha da equipe</b></label><input id="iawm-pw" type="password" autocomplete="current-password"><button style="background:var(--green);color:#fff;border:0;border-radius:10px;padding:9px;font-weight:700">Entrar</button></form>
-  <div class="ms" id="iawm-ms"></div>
-  <form id="iawm-f"><textarea id="iawm-q" rows="1" placeholder="Digite sua dúvida…" aria-label="Sua dúvida"></textarea><button id="iawm-go">Enviar</button></form>
-  <div class="av">A IA pode errar. Confira antes de passar ao cliente. Não cole senhas nem dados de clientes.</div>
-</div>
-<script>
-(function(){
-  var $=function(i){return document.getElementById(i)}, box=$('iawm'), btn=$('iawm-btn'), ms=$('iawm-ms');
-  var hist=[], senha='', ocupado=false;
-  try{senha=sessionStorage.getItem('assist-senha')||'';}catch(e){}
-  var SUG=['Como cadastrar um operador de caixa?','O relatório de entregadores está zerado, por quê?','O que significa CMV muito alto?','Como configurar a taxa de entrega por bairro?'];
-  function inicio(){ms.innerHTML='<div class="ini"><b>Olá! Qual é a sua dúvida?</b><br>Pergunte sobre o painel, PDV, relatórios ou integrações.<div class="sg"></div></div>';var sg=ms.querySelector('.sg');SUG.forEach(function(t){var b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=function(){envia(t)};sg.appendChild(b);});}
-  function esc(s){return s.replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
-  function md(t){var L=esc(t).split('\n'),o=[],l=null;function f(){if(l){o.push('</'+l+'>');l=null;}}
-    L.forEach(function(x){var u=x.match(/^\s*[-*•]\s+(.*)/),n=x.match(/^\s*\d+[.)]\s+(.*)/);
-      if(u||n){var tp=u?'ul':'ol';if(l!==tp){f();o.push('<'+tp+'>');l=tp;}o.push('<li>'+(u||n)[1]+'</li>');}
-      else if(!x.trim())f(); else{f();o.push('<p>'+x.replace(/^#{1,4}\s*/,'')+'</p>');}});
-    f();return o.join('').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');}
-  function add(tp,tx){var i=ms.querySelector('.ini');if(i)i.remove();var d=document.createElement('div');d.className='m '+tp;
-    if(tp==='b'){d.innerHTML=md(tx);var c=document.createElement('button');c.className='cp';c.type='button';c.textContent='Copiar';c.onclick=function(){navigator.clipboard.writeText(tx).then(function(){c.textContent='Copiado!';setTimeout(function(){c.textContent='Copiar'},1500)})};d.appendChild(c);}
-    else d.textContent=tx;ms.appendChild(d);ms.scrollTop=ms.scrollHeight;return d;}
-  async function envia(q){q=(q||'').trim();if(ocupado||!q)return;ocupado=true;$('iawm-go').disabled=true;add('u',q);var w=add('t','Pensando…');w.className='m b t';
-    try{var r=await fetch('/api/assistente',{method:'POST',headers:{'Content-Type':'application/json','x-senha':senha},body:JSON.stringify({pergunta:q,historico:hist})});
-      var j=await r.json().catch(function(){return {}});w.remove();
-      if(r.status===401){$('iawm-sn').hidden=false;ms.hidden=true;$('iawm-f').hidden=true;$('iawm-pw').focus();return;}
-      if(!r.ok){add('e',j.erro||('Erro '+r.status));return;}
-      add('b',j.resposta);hist.push({papel:'user',texto:q},{papel:'model',texto:j.resposta});hist=hist.slice(-10);
-    }catch(e){w.remove();add('e','Sem conexão. Tente de novo.');}
-    finally{ocupado=false;$('iawm-go').disabled=false;$('iawm-q').focus();}}
-  function abre(v){box.hidden=!v;btn.setAttribute('aria-expanded',v);btn.setAttribute('aria-label',v?'Fechar IA WM':'Abrir IA WM');if(v){if(!ms.children.length)inicio();$('iawm-q').focus();}}
-  btn.onclick=function(){abre(box.hidden)};
-  $('iawm-x').onclick=function(){abre(false);btn.focus()};
-  $('iawm-lim').onclick=function(){hist=[];inicio();};
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!box.hidden){abre(false);btn.focus();}});
-  $('iawm-f').addEventListener('submit',function(e){e.preventDefault();var q=$('iawm-q').value;$('iawm-q').value='';$('iawm-q').style.height='auto';envia(q);});
-  $('iawm-q').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('iawm-f').requestSubmit();}});
-  $('iawm-q').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
-  $('iawm-sn').addEventListener('submit',function(e){e.preventDefault();senha=$('iawm-pw').value;try{sessionStorage.setItem('assist-senha',senha);}catch(_){}$('iawm-sn').hidden=true;ms.hidden=false;$('iawm-f').hidden=false;});
-})();
-</script>
-
-<style>
-#tile-novidades{position:relative}
-#tile-novidades .nov-badge{position:absolute;top:12px;right:12px;background:#ffd23f;color:#14251b;font:800 .72rem/1 var(--f-body,system-ui);letter-spacing:.08em;padding:6px 10px;border-radius:999px;box-shadow:0 2px 0 #c99a00}
-#tile-novidades.tem-novidade{animation:novPisca 1.1s ease-in-out infinite;outline:3px solid #ffd23f;outline-offset:0}
-@keyframes novPisca{0%,100%{box-shadow:0 2px 0 var(--green-deep,#007a2e),0 0 0 0 rgba(255,210,63,.95);transform:translateY(0)}50%{box-shadow:0 2px 0 var(--green-deep,#007a2e),0 0 0 12px rgba(255,210,63,0);transform:translateY(-2px)}}
-@media (prefers-reduced-motion:reduce){#tile-novidades.tem-novidade{animation:none}}
-</style>
-<script>
-(function(){
-  var tile=document.getElementById('tile-novidades'); if(!tile)return;
-  var badge=tile.querySelector('.nov-badge'), ultima=0;
-  function visto(){try{return +localStorage.getItem('nov-clicou')||0;}catch(e){return 0;}}
-  function marca(){tile.classList.toggle('tem-novidade',ultima>visto());badge.hidden=!(ultima>visto());}
-  function avisado(){try{return +localStorage.getItem('nov-avisada')||0;}catch(e){return 0;}}
-  function notifica(titulo){
-    try{localStorage.setItem('nov-avisada',String(ultima));}catch(e){}
-    if(!('Notification' in window)||Notification.permission!=='granted')return;
-    try{var n=new Notification('📣 Nova novidade no Suporte WhatsMenu',{body:titulo||'Clique para ver.',icon:'logo.png',tag:'novidade-'+ultima});
-      n.onclick=function(){window.focus();try{localStorage.setItem('nov-clicou',String(Date.now()));}catch(e){}location.href='novidades.html';n.close();};}catch(e){}
-  }
-  function checa(){fetch('/api/novidades?acao=ultima',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){
-    var antes=ultima; ultima=+j.ultima||0; marca();
-    if(ultima>visto()&&ultima>avisado()&&(antes||document.hidden||true))notifica(j.titulo);
-  }).catch(function(){});}
-  tile.addEventListener('click',function(){
-    try{localStorage.setItem('nov-clicou',String(Math.max(ultima,Date.now())));}catch(e){}marca();
-    try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}
-  });
-  checa(); setInterval(checa,120000);
-  window.addEventListener('storage',function(e){if(e.key==='nov-clicou')marca();});
-})();
-</script>
-
-<!-- ===== Respostas rápidas flutuantes em qualquer tela (tecla / ) ===== -->
-<style>
-#rq-btn{position:fixed;left:max(18px,env(safe-area-inset-left,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:9997;display:flex;align-items:center;gap:10px;background:#ffd23f;color:#14251b;border:0;border-radius:999px;padding:8px 18px 8px 8px;cursor:pointer;font-family:var(--f-body);box-shadow:0 10px 26px rgba(5,40,20,.35),inset 0 0 0 1.5px rgba(0,0,0,.06);transition:transform .18s ease}
-#rq-btn:hover{transform:translateY(-2px)}
-#rq-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
-#rq-btn .ic{width:40px;height:40px;border-radius:50%;background:#14251b;color:#ffd23f;display:grid;place-items:center;font:800 1.2rem var(--f-display)}
-#rq-btn .tx{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15}
-#rq-btn .tx b{font:800 .98rem var(--f-display)}
-#rq-btn .tx small{font-size:.74rem;font-weight:700;opacity:.75}
-#rq-btn kbd{font:700 .72rem var(--f-body);background:#14251b;color:#fff;border-radius:5px;padding:1px 6px;margin-left:2px}
-#rq{position:fixed;left:max(18px,env(safe-area-inset-left,0px));bottom:84px;z-index:9999;width:min(460px,calc(100vw - 32px));height:min(620px,calc(100dvh - 110px));background:#fff;border-radius:16px;box-shadow:0 14px 44px rgba(0,0,0,.32);display:flex;flex-direction:column;overflow:hidden;color:var(--ink);font:14.5px/1.5 var(--f-body)}
-#rq[hidden]{display:none}
-#rq .hd{background:#14251b;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px}
-#rq .hd b{font:800 1.05rem var(--f-display);display:block}
-#rq .hd small{opacity:.8;font-size:.78rem}
-#rq .hd .x{margin-left:auto;background:rgba(255,255,255,.14);border:0;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.05rem;cursor:pointer}
-#rq .busca{padding:12px;border-bottom:1px solid var(--line);background:#fafdfb}
-#rq .busca input{width:100%;font:16px var(--f-body);border:2px solid var(--line);border-radius:12px;padding:11px 14px}
-#rq .busca input:focus{outline:none;border-color:var(--green)}
-#rq .busca p{margin:6px 2px 0;font-size:.76rem;color:var(--muted)}
-#rq .lst{flex:1;overflow-y:auto;padding:8px}
-#rq .it{border:1.5px solid transparent;border-radius:12px;padding:10px 12px;cursor:pointer}
-#rq .it+.it{margin-top:4px}
-#rq .it:hover,#rq .it.sel{background:var(--green-soft);border-color:#bfe3cc}
-#rq .it .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-#rq .it .sc{font:800 .92rem var(--f-display);color:var(--green-deep)}
-#rq .it .nm{font-size:.82rem;color:var(--muted)}
-#rq .it .cat{font-size:.7rem;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
-#rq .it .cp{margin-left:auto;font:700 .78rem var(--f-body);background:var(--green);color:#fff;border:0;border-radius:8px;padding:5px 12px;cursor:pointer}
-#rq .it .cp.ok{background:#14251b}
-#rq .it .pv{margin-top:4px;color:var(--ink);font-size:.86rem;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-#rq .it.aberto .pv{display:block;-webkit-line-clamp:unset}
-#rq .it .pv mark{background:#fff3c4;border-radius:3px;padding:0 2px}
-#rq .vz{color:var(--muted);text-align:center;padding:24px 10px}
-#rq .ft{font-size:.74rem;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line);display:flex;gap:12px;flex-wrap:wrap}
-#rq .ft kbd{font:700 .7rem var(--f-body);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:#fff}
-@media (max-width:560px){#rq{bottom:76px;height:calc(100dvh - 96px)}#rq-btn .tx{display:none}#rq-btn{padding:6px}}
-@media (prefers-reduced-motion:reduce){#rq-btn{transition:none}}
-</style>
-<button id="rq-btn" type="button" aria-controls="rq" aria-expanded="false" title="Respostas rápidas (tecla /)"><span class="ic">/</span><span class="tx"><b>Respostas rápidas</b><small>Busque e copie · tecla <kbd>/</kbd></small></span></button>
-<div id="rq" role="dialog" aria-label="Respostas rápidas" hidden>
-  <div class="hd"><span style="font-size:1.4rem">⚡</span><div><b>Respostas rápidas</b><small>Ache e copie uma resposta pronta sem sair desta tela</small></div><button class="x" type="button" id="rq-x" aria-label="Fechar">✕</button></div>
-  <div class="busca"><input id="rq-q" type="search" autocomplete="off" placeholder="Digite /atalho ou uma palavra (ex.: /24h, impressora, pix)" aria-label="Buscar resposta rápida"><p>Busca no atalho, no nome e no texto da mensagem. Lembre de trocar o que estiver entre [colchetes].</p></div>
-  <div class="lst" id="rq-lst" role="listbox"></div>
-  <div class="ft"><span><kbd>↑</kbd> <kbd>↓</kbd> escolher</span><span><kbd>Enter</kbd> copiar</span><span><kbd>Esc</kbd> fechar</span><span>Clique no texto para ver inteiro</span></div>
-</div>
-<script>
-(function(){
-  var el=document.getElementById('rr-data'); if(!el)return;
-  var D=JSON.parse(el.textContent).filter(function(x){return x.t;});
-  var norm=function(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();};
-  D.forEach(function(x){x.k=norm(x.a);x.s=norm(x.a+' '+x.n+' '+x.c+' '+x.t);});
-  var $=function(i){return document.getElementById(i)}, box=$('rq'), btn=$('rq-btn'), q=$('rq-q'), lst=$('rq-lst'), achados=[], sel=0;
-  var esc=function(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-  function busca(){
-    var t=norm(q.value.trim()), ehAtalho=t.charAt(0)==='/', termo=t.replace(/^\/+/,'');
-    var r=D.map(function(x){
-      var p=-1;
-      if(!termo)p=1;
-      else if(x.k===termo)p=100;
-      else if(x.k.indexOf(termo)===0)p=80;
-      else if(x.k.indexOf(termo)>=0)p=60;
-      else if(!ehAtalho&&norm(x.n).indexOf(termo)>=0)p=40;
-      else if(!ehAtalho&&termo.split(/\s+/).every(function(w){return x.s.indexOf(w)>=0;}))p=20;
-      return {x:x,p:p};
-    }).filter(function(o){return o.p>0;}).sort(function(a,b){return b.p-a.p||a.x.k.localeCompare(b.x.k);});
-    achados=r.slice(0,40).map(function(o){return o.x;}); sel=0; desenha();
-  }
-  function desenha(){
-    if(!achados.length){lst.innerHTML='<div class="vz">Nada encontrado. Tente outra palavra ou abra <a href="#respostas" id="rq-todas">todas as respostas</a>.</div>';return;}
-    lst.innerHTML=achados.map(function(x,i){
-      return '<div class="it'+(i===sel?' sel':'')+'" role="option" aria-selected="'+(i===sel)+'" data-i="'+i+'"><div class="top"><span class="sc">/'+esc(x.a.replace(/^\//,''))+'</span>'+(norm(x.n)!==x.k?'<span class="nm">'+esc(x.n)+'</span>':'')+(x.c?'<span class="cat">'+esc(x.c)+'</span>':'')+'<button type="button" class="cp" data-i="'+i+'">Copiar</button></div><div class="pv">'+esc(x.t).replace(/\[([^\]\n]{1,40})\]/g,'<mark>[$1]</mark>')+'</div></div>';
-    }).join('');
-  }
-  function copia(i,b){
-    var x=achados[i]; if(!x)return; b=b||lst.querySelector('.cp[data-i="'+i+'"]');
-    var ok=function(){if(b){b.textContent='Copiado!';b.classList.add('ok');setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok');},1500);}};
-    try{navigator.clipboard.writeText(x.t).then(ok,function(){prompt('Copie o texto (Ctrl+C):',x.t);});}catch(e){prompt('Copie o texto (Ctrl+C):',x.t);}
-  }
-  function abre(v,inicial){
-    box.hidden=!v; btn.setAttribute('aria-expanded',v);
-    if(v){var ia=document.getElementById('iawm'); if(ia&&!ia.hidden){var x=document.getElementById('iawm-x'); if(x)x.click();}
-      if(typeof inicial==='string')q.value=inicial; busca(); setTimeout(function(){q.focus();var n=q.value.length;q.setSelectionRange(n,n);},0);}
-  }
-  btn.onclick=function(){abre(box.hidden);};
-  $('rq-x').onclick=function(){abre(false);btn.focus();};
-  q.addEventListener('input',busca);
-  q.addEventListener('keydown',function(e){
-    if(e.key==='ArrowDown'){e.preventDefault();sel=Math.min(sel+1,achados.length-1);desenha();var s=lst.querySelector('.sel');if(s)s.scrollIntoView({block:'nearest'});}
-    else if(e.key==='ArrowUp'){e.preventDefault();sel=Math.max(sel-1,0);desenha();var s2=lst.querySelector('.sel');if(s2)s2.scrollIntoView({block:'nearest'});}
-    else if(e.key==='Enter'){e.preventDefault();copia(sel);}
-  });
-  lst.addEventListener('click',function(e){
-    var a=e.target.closest('#rq-todas'); if(a){abre(false);return;}
-    var b=e.target.closest('.cp'); if(b){copia(+b.dataset.i,b);return;}
-    var it=e.target.closest('.it'); if(it){sel=+it.dataset.i;lst.querySelectorAll('.it').forEach(function(n){n.classList.toggle('sel',n===it);});it.classList.toggle('aberto');}
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'&&!box.hidden){abre(false);btn.focus();return;}
-    if(e.key!=='/'||e.ctrlKey||e.metaKey||e.altKey)return;
-    var t=e.target, tag=(t.tagName||'').toLowerCase();
-    if(tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable)return;
-    e.preventDefault(); abre(true,'/');
-  });
+  carregar();
 })();
 </script>
 </body>
