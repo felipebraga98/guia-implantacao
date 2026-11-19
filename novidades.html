@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Novidades</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22; --yellow:#ffd23f;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --bad:#b3261e;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--green);color:var(--ink);font:15px/1.6 var(--f-body);padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
+.sub{margin:0;max-width:62ch;opacity:.95}
+.me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
+.me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .85rem var(--f-body);cursor:pointer}
+.card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,28px);box-shadow:0 2px 0 var(--green-deep)}
+.card h2{margin:0 0 12px;font:800 1.25rem/1.2 var(--f-display)}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
+input,select,textarea{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green)}
+textarea{resize:vertical;min-height:110px;line-height:1.5}
+.auth form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.novo form{display:grid;grid-template-columns:1fr 200px;gap:12px}
+.novo .full{grid-column:1/-1}
+.btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:700 .95rem var(--f-body);cursor:pointer}
+.btn.y{background:var(--yellow);color:var(--ink)}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.msg{margin:6px 0 0;font-weight:600;color:var(--bad)}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+.barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#filtros button{border:1.5px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font:700 .88rem var(--f-body);cursor:pointer}
+#filtros button[aria-pressed="true"]{background:#fff;color:var(--green-deep);border-color:#fff}
+#filtros input{margin-left:auto;min-width:220px;border-color:transparent}
+.post{position:relative}
+.post.fix{box-shadow:0 0 0 3px var(--yellow),0 2px 0 var(--green-deep)}
+.post .topo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+.cat{border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;background:var(--green-soft);color:var(--green-deep)}
+.cat.Aviso{background:#fff3dc;color:#9a5b00}.cat.Atualização{background:#e8efff;color:#1d4ed8}.cat.Processo{background:#f3e8ff;color:#6b21a8}.cat.Treinamento{background:#fdecec;color:#9b1c1c}
+.selo{border-radius:999px;padding:2px 10px;font-size:.75rem;font-weight:800;background:var(--yellow);color:var(--ink)}
+.post h3{font:800 1.3rem/1.25 var(--f-display);margin:0 0 6px}
+.post .meta{color:var(--muted);font-size:.85rem;margin-bottom:10px}
+.post .txt{white-space:pre-wrap;overflow-wrap:anywhere}
+.post .txt a{color:var(--green-deep);font-weight:700}
+.post .acoes{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.post .acoes button{font:700 .8rem var(--f-body);border-radius:8px;padding:6px 10px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink)}
+.post .acoes button:hover{border-color:var(--green)}
+.vazio{color:var(--muted);margin:0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;max-width:calc(100vw - 32px)}
+@media (max-width:640px){.auth form,.novo form{grid-template-columns:1fr}#filtros input{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="./">← Voltar ao Suporte</a>
+      <div class="eyebrow">Suporte · WhatsMenu</div>
+      <h1>Novidades</h1>
+      <p class="sub">Mural da equipe: atualizações do sistema, mudanças de processo e avisos importantes. A mais recente aparece primeiro. Só administradores publicam.</p>
+    </div>
+    <div class="me" id="me" hidden><span id="me-nome"></span><button type="button" id="sair">Sair</button></div>
+  </header>
+
+  <section class="card auth" id="auth" hidden>
+    <h2>Entrar</h2>
+    <form id="f-entrar" autocomplete="on">
+      <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
+      <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+    <p class="hint" style="margin-top:10px">É o mesmo login da página <a href="clientes-implantacao.html">Clientes Implantação</a>. Não tem conta? Crie lá.</p>
+    <p class="msg" id="auth-msg" role="status"></p>
+  </section>
+
+  <div id="app" hidden style="display:contents">
+    <section class="card novo" id="sec-novo" hidden>
+      <h2 id="form-tit">Publicar novidade</h2>
+      <form id="f-post">
+        <label>Título<input id="p-titulo" maxlength="120" placeholder="Ex.: Nova versão do Desktop 3.0.28" required></label>
+        <label>Categoria<select id="p-cat"></select></label>
+        <label class="full">Texto<textarea id="p-texto" maxlength="5000" placeholder="Explique o que mudou, o que a equipe precisa fazer e coloque links se tiver." required></textarea></label>
+        <div class="full barra" style="gap:10px">
+          <button class="btn" type="submit" id="p-enviar">Publicar</button>
+          <button class="btn ghost" type="button" id="p-cancelar" hidden>Cancelar edição</button>
+          <p class="hint">Links começando com https:// viram clicáveis.</p>
+        </div>
+        <p class="msg full" id="p-msg" role="status"></p>
+      </form>
+    </section>
+
+    <div class="barra" role="group" aria-label="Filtrar por categoria" id="filtros"></div>
+    <div id="lista" style="display:contents"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)}, API='/api/novidades', token='', lista=[], eu=null, cats=[], filtro='Todas', busca='', editando=null, ultimaVisita=0;
+  try{token=localStorage.getItem('impl-token')||'';ultimaVisita=+localStorage.getItem('nov-visita')||0;}catch(e){}
+  function guardaToken(t){token=t;try{t?localStorage.setItem('impl-token',t):localStorage.removeItem('impl-token');}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function linkify(t){return esc(t).replace(/https?:\/\/[^\s<]+/g,function(u){var limpo=u.replace(/[.,;:!?)]+$/,''),resto=u.slice(limpo.length);return '<a href="'+limpo+'" target="_blank" rel="noopener">'+limpo+'</a>'+resto;});}
+  function quando(ms){return new Date(ms).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+  function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},3500);}
+  async function api(method,body,qs){
+    var r=await fetch(API+(qs||''),{method:method,headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+    var j=await r.json().catch(function(){return {}});
+    if(r.status===401){guardaToken('');mostraLogin();throw new Error('login');}
+    if(!r.ok)throw new Error(j.erro||('Erro '+r.status));
+    return j;
+  }
+  function mostraLogin(){$('auth').hidden=false;$('app').hidden=true;$('me').hidden=true;}
+
+  async function carregar(){
+    try{
+      var j=await api('GET'); lista=j.lista; eu=j.eu;
+      if(!cats.length){cats=j.categorias;$('p-cat').innerHTML=cats.map(function(c){return '<option'+(c==='Aviso'?' selected':'')+'>'+c+'</option>'}).join('');filtros();}
+      $('me-nome').textContent=eu.nome+(eu.admin?' · admin':''); $('sec-novo').hidden=!eu.admin; $('me').hidden=false; $('auth').hidden=true; $('app').hidden=false;
+      render();
+      try{localStorage.setItem('nov-visita',String(Date.now()));}catch(e){}
+    }catch(e){if(e.message!=='login')toast(e.message);}
+  }
+  function filtros(){
+    $('filtros').innerHTML=['Todas'].concat(cats).map(function(c){return '<button type="button" data-c="'+c+'" aria-pressed="'+(c===filtro)+'">'+c+'</button>'}).join('')+'<input type="search" id="busca" placeholder="Buscar nas novidades…" aria-label="Buscar">';
+    $('busca').addEventListener('input',function(){busca=this.value.toLowerCase();render();});
+  }
+  function render(){
+    var itens=lista.filter(function(n){return (filtro==='Todas'||n.categoria===filtro)&&(!busca||(n.titulo+' '+n.texto).toLowerCase().indexOf(busca)>=0);});
+    $('lista').innerHTML=itens.map(function(n){
+      var pode=!!(eu&&eu.admin), nova=ultimaVisita&&n.criadoEm>ultimaVisita&&n.autorUsuario!==(eu&&eu.usuario);
+      return '<article class="card post'+(n.fixada?' fix':'')+'"><div class="topo"><span class="cat '+esc(n.categoria)+'">'+esc(n.categoria)+'</span>'+(n.fixada?'<span class="selo">📌 Fixada</span>':'')+(nova?'<span class="selo">Nova</span>':'')+'</div>'+
+        '<h3>'+esc(n.titulo)+'</h3><div class="meta">Por '+esc(n.autor)+' em '+quando(n.criadoEm)+(n.editadoEm?' · editada por '+esc(n.editadoPor)+' em '+quando(n.editadoEm):'')+'</div>'+
+        '<div class="txt">'+linkify(n.texto)+'</div>'+
+        (pode?'<div class="acoes">'+'<button type="button" data-a="editar" data-id="'+n.id+'">Editar</button>'+(eu.admin?'<button type="button" data-a="fixar" data-id="'+n.id+'">'+(n.fixada?'Desafixar':'📌 Fixar no topo')+'</button>':'')+'<button type="button" data-a="excluir" data-id="'+n.id+'">Excluir</button>'+'</div>':'')+
+        '</article>';
+    }).join('')||'<section class="card"><p class="vazio">'+(lista.length?'Nenhuma novidade com esse filtro.':(eu&&eu.admin?'Nenhuma novidade publicada ainda. Publique a primeira!':'Nenhuma novidade publicada ainda.'))+'</p></section>';
+  }
+  $('filtros').addEventListener('click',function(e){var b=e.target.closest('button[data-c]');if(!b)return;filtro=b.dataset.c;$('filtros').querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});render();});
+  $('lista').addEventListener('click',async function(e){
+    var b=e.target.closest('button[data-a]');if(!b)return;var n=lista.find(function(x){return x.id===b.dataset.id});if(!n)return;
+    try{
+      if(b.dataset.a==='editar'){editando=n.id;$('p-titulo').value=n.titulo;$('p-cat').value=n.categoria;$('p-texto').value=n.texto;$('form-tit').textContent='Editar novidade';$('p-enviar').textContent='Salvar alterações';$('p-cancelar').hidden=false;window.scrollTo({top:0,behavior:'smooth'});$('p-titulo').focus();return;}
+      if(b.dataset.a==='fixar'){await api('PATCH',{id:n.id,fixada:!n.fixada});toast(n.fixada?'Desafixada.':'Fixada no topo.');}
+      if(b.dataset.a==='excluir'){if(!confirm('Excluir a novidade "'+n.titulo+'"?'))return;await api('DELETE',null,'?id='+encodeURIComponent(n.id));toast('Excluída.');}
+      carregar();
+    }catch(err){if(err.message!=='login')toast(err.message);}
+  });
+  function limpaForm(){editando=null;$('f-post').reset();$('p-cat').value='Aviso';$('form-tit').textContent='Publicar novidade';$('p-enviar').textContent='Publicar';$('p-cancelar').hidden=true;$('p-msg').textContent='';}
+  $('p-cancelar').onclick=limpaForm;
+  $('f-post').addEventListener('submit',async function(e){
+    e.preventDefault();$('p-msg').textContent='';
+    var dados={titulo:$('p-titulo').value,categoria:$('p-cat').value,texto:$('p-texto').value};
+    $('p-enviar').disabled=true;
+    try{
+      if(editando){dados.id=editando;await api('PATCH',dados);toast('Novidade atualizada.');}
+      else{await api('POST',dados);toast('Novidade publicada!');}
+      limpaForm();carregar();
+    }catch(err){if(err.message!=='login')$('p-msg').textContent=err.message;}
+    finally{$('p-enviar').disabled=false;}
+  });
+  $('f-entrar').addEventListener('submit',async function(e){
+    e.preventDefault();$('auth-msg').textContent='';
+    try{
+      var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
+      var j=await r.json().catch(function(){return {}});
+      if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
+      guardaToken(j.token);$('e-pass').value='';carregar();
+    }catch(err){$('auth-msg').textContent=err.message;}
+  });
+  $('sair').onclick=function(){guardaToken('');mostraLogin();};
+  if(token)carregar();else mostraLogin();
+})();
+</script>
+</body>
+</html>
