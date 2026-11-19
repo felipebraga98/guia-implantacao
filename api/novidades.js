@@ -1,10 +1,10 @@
 // Mural de Novidades da equipe.
 // Usa o mesmo banco (Upstash) e o mesmo login da página "Clientes Implantação".
-//   GET    /api/novidades              -> lista (precisa estar logado)
-//   POST   /api/novidades              -> publica {titulo, categoria, texto}
+//   GET    /api/novidades              -> lista (pública, sem login)
+//   POST   /api/novidades              -> publica {titulo, categoria, texto} (só admin)
 //   PATCH  /api/novidades              -> edita {id, titulo, categoria, texto} ou fixa {id, fixada}
 //   DELETE /api/novidades?id=...       -> exclui (autor ou admin)
-// Admins = usuários da variável ADMINS_IMPLANTACAO (podem fixar e excluir qualquer novidade).
+// Admins = usuários da variável ADMINS_IMPLANTACAO: só eles publicam, editam, fixam e excluem. Os demais só leem.
 
 const CATEGORIAS = ['Sistema', 'Atualização', 'Processo', 'Aviso', 'Treinamento'];
 const CHAVE = 'novidades:itens';
@@ -57,16 +57,27 @@ module.exports = async function handler(req, res) {
   const { url, token } = cfg();
   if (!url || !token) return res.status(500).json({ erro: 'Mural sem banco de dados conectado.' });
   try {
+    // público: só a data da novidade mais recente (sem conteúdo), para o bloco da tela inicial piscar
+    const acao = String((req.query && req.query.acao) || new URL(req.url, 'http://x').searchParams.get('acao') || '');
+    if (acao === 'ultima' && req.method === 'GET') {
+      const todos = (await redis(['HVALS', CHAVE])) || [];
+      let ultima = 0, titulo = '';
+      todos.forEach(v => { try { const n = JSON.parse(v); if ((n.criadoEm || 0) > ultima) { ultima = n.criadoEm; titulo = n.titulo; } } catch (e) {} });
+      return res.status(200).json({ ultima, titulo });
+    }
+
     const eu = await logado(req);
-    if (!eu) return res.status(401).json({ erro: 'Entre com seu login da equipe.' });
 
     if (req.method === 'GET') {
       const todos = (await redis(['HGETALL', CHAVE])) || [];
       const lista = [];
       for (let i = 0; i < todos.length; i += 2) { try { lista.push(JSON.parse(todos[i + 1])); } catch (e) {} }
       lista.sort((a, b) => (b.fixada ? 1 : 0) - (a.fixada ? 1 : 0) || b.criadoEm - a.criadoEm);
-      return res.status(200).json({ lista, eu: { usuario: eu.usuario, nome: eu.nome, admin: eu.admin }, categorias: CATEGORIAS });
+      return res.status(200).json({ lista, eu: eu ? { usuario: eu.usuario, nome: eu.nome, admin: eu.admin } : null, categorias: CATEGORIAS });
     }
+
+    if (!eu) return res.status(401).json({ erro: 'Entre com seu login de administrador.' });
+    if (req.method !== 'GET' && !eu.admin) return res.status(403).json({ erro: 'Só administradores podem publicar ou alterar novidades.' });
 
     if (req.method === 'POST') {
       const v = valida(lerBody(req));
