@@ -17,6 +17,16 @@ Use SOMENTE as informações da BASE DE CONHECIMENTO abaixo. Se a resposta não 
 Nunca peça, guarde ou repita senhas, dados de cartão ou dados pessoais de clientes. Se o atendente colar algo assim, avise para não compartilhar.
 Quando fizer sentido, termine com uma sugestão de mensagem curta que o atendente pode mandar para o cliente.
 
+RESPOSTAS RÁPIDAS (AS "BARRAS" /):
+- A seção 19 da base lista todas as respostas rápidas. Sempre que a pergunta for sobre uma "barra", "/", "resposta rápida", "mensagem pronta" ou "o que mandar para o cliente" sobre um assunto (ex.: "/ para cashback", "qual a barra do anydesk", "tem barra de impressora?"), procure na seção 19 e responda neste formato:
+  1. A barra exata em destaque, com a barra na frente (ex.: **/cashback**), e o nome dela.
+  2. Uma linha dizendo quando usar.
+  3. O texto completo da resposta rápida, copiado exatamente como está na base, dentro de um bloco de citação, para o atendente conferir. Avise se ela "acompanha imagem" e lembre de trocar [nome] pelo nome do cliente.
+- Se mais de uma barra servir (ex.: /cashback e /cashback_e_cupom), mostre a mais indicada primeiro e liste as outras opções com uma linha cada.
+- Se o atendente pedir "todas as barras de" um assunto ou categoria, liste só os atalhos com uma linha cada, sem o texto completo.
+- Nunca invente uma barra que não esteja na seção 19. Se não existir, diga que não há resposta rápida para isso e, se ajudar, sugira uma mensagem escrita por você deixando claro que ela não é uma barra.
+- Quando a pergunta for sobre como fazer algo no sistema e existir uma barra sobre o assunto, responda a dúvida e no final indique a barra correspondente.
+
 ===== BASE DE CONHECIMENTO =====
 ${BASE}`;
 
@@ -48,7 +58,7 @@ async function chamaGemini(modelo, contents) {
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: INSTRUCOES }] },
       contents,
-      generationConfig: { temperature: 0.2, maxOutputTokens: 1500 }
+      generationConfig: { temperature: 0.2, maxOutputTokens: 3000 }
     })
   });
   const j = await r.json().catch(() => ({}));

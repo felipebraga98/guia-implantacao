@@ -7,6 +7,7 @@
 // SITE_URL (opcional): endereço do site usado no link do e-mail. Sem ela, usa o endereço que a pessoa está acessando.
 
 const crypto = require('crypto');
+const EQUIPE = require('./_equipe.js');
 const DADOS_INICIAIS = require('./_implantacao-dados.js');
 
 const K = {
@@ -67,14 +68,7 @@ async function criarSessao(usuario) {
 }
 
 async function usuarioLogado(req) {
-  const m = String(req.headers.authorization || '').match(/^Bearer ([a-f0-9]{48})$/);
-  if (!m) return null;
-  const usuario = await redis(['GET', K.sessao(m[1])]);
-  if (!usuario) return null;
-  const raw = await redis(['HGET', K.usuarios, usuario]);
-  if (!raw) return null;
-  const u = JSON.parse(raw);
-  return { usuario: u.usuario, nome: u.nome, email: u.email || '', token: m[1], admin: ehAdmin(u.usuario) };
+  return EQUIPE.equipeLogada(req, { marcarAcesso: true });
 }
 
 /** Conta quantas vezes uma ação aconteceu na janela (segundos) e diz se passou do limite. */
@@ -118,13 +112,7 @@ async function importarPlanilha() {
   if (cmd.length > 2) await redis(cmd);
 }
 
-function ehAdmin(usuario) {
-  return String(process.env.ADMINS_IMPLANTACAO || '')
-    .split(',')
-    .map((u) => u.trim().toLowerCase())
-    .filter(Boolean)
-    .includes(usuario);
-}
+const ehAdmin = (usuario) => EQUIPE.ehAdmin(usuario);
 
 async function registrarLog(texto) {
   await redis(['LPUSH', K.log, JSON.stringify({ quando: agora(), texto })]);
@@ -184,7 +172,7 @@ module.exports = async function handler(req, res) {
       await redis(['HSET', K.emails, email, usuario]);
 
       await registrarLog(`${nome} (${usuario}) criou a conta`);
-      return res.status(201).json({ token: await criarSessao(usuario), usuario, nome, email, admin: ehAdmin(usuario) });
+      return res.status(201).json({ token: await criarSessao(usuario), usuario, nome, email, admin: await ehAdmin(usuario) });
     }
 
     if (acao === 'entrar' && req.method === 'POST') {
@@ -200,7 +188,10 @@ module.exports = async function handler(req, res) {
         return res.status(401).json({ erro: 'Usuário ou senha incorretos.' });
       }
       await redis(['DEL', K.tentativas(usuario)]);
-      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, email: user.email || '', admin: ehAdmin(usuario) });
+      if (user.bloqueado) return res.status(403).json({ erro: 'Sua conta está bloqueada. Fale com um administrador.' });
+      user.ultimoAcesso = agora();
+      await redis(['HSET', K.usuarios, usuario, JSON.stringify(user)]);
+      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, email: user.email || '', admin: await ehAdmin(usuario), trocarSenha: !!user.trocarSenha });
     }
 
     // ---------- esqueci minha senha ----------
@@ -246,18 +237,149 @@ module.exports = async function handler(req, res) {
       user.salt = crypto.randomBytes(16).toString('hex');
       user.hash = hashSenha(senha, user.salt);
       user.senhaTrocadaEm = agora();
+      delete user.trocarSenha;
       await redis(['HSET', K.usuarios, usuario, JSON.stringify(user)]);
       await redis(['DEL', K.reset(tk)]);
       await redis(['DEL', K.tentativas(usuario)]);
       await registrarLog(`${user.nome} (${usuario}) criou uma senha nova pelo e-mail`);
-      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, email: user.email || '', admin: ehAdmin(usuario) });
+      return res.status(200).json({ token: await criarSessao(usuario), usuario, nome: user.nome, email: user.email || '', admin: await ehAdmin(usuario) });
     }
 
     // daqui pra baixo precisa estar logado
     const eu = await usuarioLogado(req);
     if (!eu) return res.status(401).json({ erro: 'Entre com seu usuário e senha.', precisaLogin: true });
 
-    if (acao === 'eu') return res.status(200).json({ usuario: eu.usuario, nome: eu.nome, email: eu.email, admin: eu.admin });
+    if (acao === 'eu') return res.status(200).json({ usuario: eu.usuario, nome: eu.nome, email: eu.email, admin: eu.admin, trocarSenha: eu.trocarSenha });
+
+    // ---------- trocar a própria senha (obrigatório depois que um admin gera senha nova) ----------
+    if (acao === 'trocarsenha' && req.method === 'POST') {
+      const raw = await redis(['HGET', K.usuarios, eu.usuario]);
+      const user = JSON.parse(raw);
+      if (!senhaConfere(String(body.atual || ''), user)) return res.status(400).json({ erro: 'A senha atual não confere.' });
+      const nova = String(body.nova || '');
+      if (nova.length < 6) return res.status(400).json({ erro: 'A senha nova precisa ter pelo menos 6 caracteres.' });
+      if (nova === String(body.atual || '')) return res.status(400).json({ erro: 'Escolha uma senha diferente da atual.' });
+      user.salt = crypto.randomBytes(16).toString('hex');
+      user.hash = hashSenha(nova, user.salt);
+      user.senhaTrocadaEm = agora();
+      delete user.trocarSenha;
+      await redis(['HSET', K.usuarios, eu.usuario, JSON.stringify(user)]);
+      await registrarLog(`${eu.nome} (${eu.usuario}) trocou a própria senha`);
+      return res.status(200).json({ ok: true });
+    }
+
+    // ---------- painel de usuários (só administradores) ----------
+    if (acao === 'usuarios' && req.method === 'GET') {
+      if (!eu.admin) return res.status(403).json({ erro: 'Só administradores podem ver os usuários.' });
+      const arr = (await redis(['HGETALL', K.usuarios])) || [];
+      const fixos = EQUIPE.adminsFixos();
+      const admins = await EQUIPE.listaAdmins();
+      const lista = [];
+      for (let i = 0; i < arr.length; i += 2) {
+        try {
+          const u = JSON.parse(arr[i + 1]);
+          lista.push({
+            usuario: u.usuario, nome: u.nome, email: u.email || '', criadoEm: u.criadoEm || '', ultimoAcesso: u.ultimoAcesso || '',
+            senhaTrocadaEm: u.senhaTrocadaEm || '', bloqueado: !!u.bloqueado, trocarSenha: !!u.trocarSenha,
+            admin: admins.includes(u.usuario), adminFixo: fixos.includes(u.usuario), criadoPor: u.criadoPor || '',
+          });
+        } catch (e) {}
+      }
+      lista.sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
+      const log = ((await redis(['LRANGE', K.log, '0', '79'])) || []).map((x) => { try { return JSON.parse(x); } catch (e) { return null; } }).filter(Boolean)
+        .filter((x) => /conta|senha|admin|bloque|exclu|usuário/i.test(x.texto)).slice(0, 30).map((x) => ({ quando: x.quando, texto: x.texto.replace(/ — \{.*$/, '') }));
+      return res.status(200).json({ usuarios: lista, eu: eu.usuario, log });
+    }
+
+    if (acao === 'usuario' && req.method === 'POST') {
+      if (!eu.admin) return res.status(403).json({ erro: 'Só administradores podem alterar usuários.' });
+      const op = limpa(body.op, 20);
+      const senhaTemporaria = () => {
+        const letras = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let s = ''; const b = crypto.randomBytes(10);
+        for (let i = 0; i < 10; i++) s += letras[b[i] % letras.length];
+        return s;
+      };
+
+      if (op === 'criar') {
+        const nome = limpa(body.nome, 60);
+        const usuario = limpa(body.usuario, 30).toLowerCase();
+        const email = limpa(body.email, 120).toLowerCase();
+        if (nome.length < 2) return res.status(400).json({ erro: 'Informe o nome.' });
+        if (!/^[a-z0-9._-]{3,30}$/.test(usuario)) return res.status(400).json({ erro: 'Usuário deve ter de 3 a 30 letras ou números, sem espaço e sem acento.' });
+        if (email && !EMAIL_RE.test(email)) return res.status(400).json({ erro: 'E-mail inválido.' });
+        if (email && (await redis(['HGET', K.emails, email]))) return res.status(409).json({ erro: 'Esse e-mail já está em outra conta.' });
+        const senha = senhaTemporaria();
+        const salt = crypto.randomBytes(16).toString('hex');
+        const user = { usuario, nome, email, salt, hash: hashSenha(senha, salt), criadoEm: agora(), criadoPor: eu.nome, trocarSenha: true };
+        const criado = await redis(['HSETNX', K.usuarios, usuario, JSON.stringify(user)]);
+        if (!criado) return res.status(409).json({ erro: 'Esse usuário já existe.' });
+        if (email) await redis(['HSET', K.emails, email, usuario]);
+        if (body.admin) await redis(['SADD', 'impl:admins', usuario]);
+        await registrarLog(`${eu.nome} criou a conta de ${nome} (${usuario})`);
+        return res.status(201).json({ ok: true, usuario, senha });
+      }
+
+      const alvo = limpa(body.usuario, 30).toLowerCase();
+      const raw = alvo && (await redis(['HGET', K.usuarios, alvo]));
+      if (!raw) return res.status(404).json({ erro: 'Usuário não encontrado.' });
+      const user = JSON.parse(raw);
+      const fixo = EQUIPE.adminsFixos().includes(alvo);
+      const proprio = alvo === eu.usuario;
+
+      if (op === 'novasenha') {
+        const senha = senhaTemporaria();
+        user.salt = crypto.randomBytes(16).toString('hex');
+        user.hash = hashSenha(senha, user.salt);
+        user.trocarSenha = true;
+        user.senhaTrocadaEm = agora();
+        await redis(['HSET', K.usuarios, alvo, JSON.stringify(user)]);
+        await redis(['DEL', K.tentativas(alvo)]);
+        await registrarLog(`${eu.nome} gerou uma senha nova para ${user.nome} (${alvo})`);
+        return res.status(200).json({ ok: true, senha });
+      }
+      if (op === 'bloquear' || op === 'desbloquear') {
+        if (proprio) return res.status(400).json({ erro: 'Você não pode bloquear a sua própria conta.' });
+        if (fixo && op === 'bloquear') return res.status(400).json({ erro: 'Este administrador é fixo (definido no Vercel) e não pode ser bloqueado.' });
+        user.bloqueado = op === 'bloquear';
+        await redis(['HSET', K.usuarios, alvo, JSON.stringify(user)]);
+        await registrarLog(`${eu.nome} ${user.bloqueado ? 'bloqueou' : 'desbloqueou'} ${user.nome} (${alvo})`);
+        return res.status(200).json({ ok: true });
+      }
+      if (op === 'admin' || op === 'removeradmin') {
+        if (op === 'removeradmin' && fixo) return res.status(400).json({ erro: 'Este administrador é fixo (variável ADMINS_IMPLANTACAO no Vercel). Para remover, tire o nome de lá.' });
+        if (op === 'removeradmin' && proprio) return res.status(400).json({ erro: 'Você não pode tirar o seu próprio acesso de administrador.' });
+        await redis([op === 'admin' ? 'SADD' : 'SREM', 'impl:admins', alvo]);
+        await registrarLog(`${eu.nome} ${op === 'admin' ? 'deu' : 'tirou'} acesso de administrador ${op === 'admin' ? 'para' : 'de'} ${user.nome} (${alvo})`);
+        return res.status(200).json({ ok: true });
+      }
+      if (op === 'editar') {
+        const nome = limpa(body.nome, 60);
+        const email = limpa(body.email, 120).toLowerCase();
+        if (nome.length < 2) return res.status(400).json({ erro: 'Informe o nome.' });
+        if (email && !EMAIL_RE.test(email)) return res.status(400).json({ erro: 'E-mail inválido.' });
+        if (email && email !== user.email) {
+          const dono = await redis(['HGET', K.emails, email]);
+          if (dono && dono !== alvo) return res.status(409).json({ erro: 'Esse e-mail já está em outra conta.' });
+        }
+        if (user.email && user.email !== email) await redis(['HDEL', K.emails, user.email]);
+        user.nome = nome; user.email = email;
+        await redis(['HSET', K.usuarios, alvo, JSON.stringify(user)]);
+        if (email) await redis(['HSET', K.emails, email, alvo]);
+        await registrarLog(`${eu.nome} editou os dados de ${nome} (${alvo})`);
+        return res.status(200).json({ ok: true });
+      }
+      if (op === 'excluir') {
+        if (proprio) return res.status(400).json({ erro: 'Você não pode excluir a sua própria conta.' });
+        if (fixo) return res.status(400).json({ erro: 'Este administrador é fixo (definido no Vercel) e não pode ser excluído.' });
+        await redis(['HDEL', K.usuarios, alvo]);
+        if (user.email) await redis(['HDEL', K.emails, user.email]);
+        await redis(['SREM', 'impl:admins', alvo]);
+        await registrarLog(`${eu.nome} excluiu a conta de ${user.nome} (${alvo})`);
+        return res.status(200).json({ ok: true });
+      }
+      return res.status(400).json({ erro: 'Operação desconhecida.' });
+    }
 
     // cadastrar ou trocar o e-mail da própria conta (contas antigas não tinham e-mail)
     if (acao === 'meuemail' && req.method === 'POST') {

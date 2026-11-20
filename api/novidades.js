@@ -4,7 +4,7 @@
 //   POST   /api/novidades              -> publica {titulo, categoria, texto} (só admin)
 //   PATCH  /api/novidades              -> edita {id, titulo, categoria, texto} ou fixa {id, fixada}
 //   DELETE /api/novidades?id=...       -> exclui (autor ou admin)
-// Admins = usuários da variável ADMINS_IMPLANTACAO: só eles publicam, editam, fixam e excluem. Os demais só leem.
+// Admins = usuários da variável ADMINS_IMPLANTACAO e os promovidos na tela de Usuários: só eles publicam, editam, fixam e excluem. Os demais só leem.
 
 const CATEGORIAS = ['Sistema', 'Atualização', 'Correção de bug', 'Processo', 'Aviso', 'Treinamento'];
 const CHAVE = 'novidades:itens';
@@ -25,18 +25,11 @@ async function redis(cmd) {
   if (!r.ok || j.error) throw new Error(j.error || ('Banco respondeu ' + r.status));
   return j.result;
 }
-function ehAdmin(usuario) {
-  return String(process.env.ADMINS_IMPLANTACAO || '').split(',').map(u => u.trim().toLowerCase()).filter(Boolean).includes(usuario);
-}
+// login e administradores vêm do módulo compartilhado (inclui admins dados pela tela de Usuários e contas bloqueadas)
+const EQUIPE = require('./_equipe.js');
 async function logado(req) {
-  const m = String(req.headers.authorization || '').match(/^Bearer ([a-f0-9]{48})$/);
-  if (!m) return null;
-  const usuario = await redis(['GET', 'impl:sessao:' + m[1]]);
-  if (!usuario) return null;
-  const raw = await redis(['HGET', 'impl:usuarios', usuario]);
-  if (!raw) return null;
-  const u = JSON.parse(raw);
-  return { usuario: u.usuario, nome: u.nome || u.usuario, admin: ehAdmin(u.usuario) };
+  const eu = await EQUIPE.equipeLogada(req);
+  return eu ? { usuario: eu.usuario, nome: eu.nome, admin: eu.admin } : null;
 }
 function limpa(v, max) { return String(v == null ? '' : v).replace(/\r/g, '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, max); }
 function lerBody(req) {
