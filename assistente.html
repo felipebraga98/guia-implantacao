@@ -146,5 +146,6 @@ form.envio button:disabled{opacity:.55;cursor:default}
   $('senha-box').addEventListener('submit',function(e){e.preventDefault();senha=$('senha').value;try{sessionStorage.setItem('assist-senha',senha);}catch(_){}$('senha-box').hidden=true;$('chat').hidden=false;$('senha-msg').textContent='';});
 })();
 </script>
+<script src="alertas.js" defer></script>
 </body>
 </html>
