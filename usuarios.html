@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Usuários</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22; --yellow:#ffd23f;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fdecec; --blue:#1d4ed8; --blue-soft:#e8efff;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--green);color:var(--ink);font:15px/1.55 var(--f-body);padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
+.sub{margin:0;max-width:66ch;opacity:.95}
+.card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,28px);box-shadow:0 2px 0 var(--green-deep);min-width:0}
+.card h2{margin:0 0 10px;font:800 1.2rem/1.2 var(--f-display)}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
+input,select{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--green)}
+.btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:700 .92rem var(--f-body);cursor:pointer}
+.btn.y{background:var(--yellow);color:var(--ink)}
+.btn.g{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin:8px 0 0;font-weight:600;color:var(--bad)}
+.auth form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.num{background:var(--card);border-radius:14px;padding:14px 16px;box-shadow:0 2px 0 var(--green-deep)}
+.num b{display:block;font:800 1.8rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.num span{color:var(--muted);font-weight:600;font-size:.88rem}
+.barra{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.barra label{flex:1;min-width:200px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th{text-align:left;background:var(--green-soft);color:var(--green-deep);font-size:.8rem;letter-spacing:.03em;padding:10px 12px}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:middle}
+td small{display:block;color:var(--muted)}
+.tag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.75rem;font-weight:700;margin:2px 4px 2px 0;white-space:nowrap}
+.t-admin{background:var(--blue-soft);color:var(--blue)}
+.t-fixo{background:#ede9fe;color:#5b21b6}
+.t-bloq{background:var(--bad-soft);color:var(--bad)}
+.t-troca{background:var(--warn-soft);color:var(--warn)}
+.t-ok{background:var(--green-soft);color:var(--green-deep)}
+tr.bloq td{opacity:.6}
+.acoes{display:flex;flex-wrap:wrap;gap:6px}
+.acoes button{font:700 .8rem var(--f-body);border-radius:8px;padding:6px 9px;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);white-space:nowrap}
+.acoes button:hover{border-color:var(--green)}
+.acoes .perigo{color:var(--bad)}
+.aviso{background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:12px 14px;font-weight:600}
+dialog{border:0;border-radius:16px;padding:0;max-width:min(460px,calc(100vw - 32px));width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(15,59,34,.6)}
+dialog form{padding:22px;display:grid;gap:12px}
+dialog h2{margin:0;font:800 1.25rem var(--f-display)}
+.senha{font:700 1.5rem/1.2 ui-monospace,Consolas,monospace;letter-spacing:.06em;background:var(--green-soft);border-radius:10px;padding:14px;text-align:center;user-select:all;overflow-wrap:anywhere}
+.linha{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
+.log{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:.9rem}
+.log li{display:flex;gap:10px}.log time{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;max-width:calc(100vw - 32px)}
+@media (max-width:680px){.auth form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="./">← Voltar ao Suporte</a>
+      <div class="eyebrow">Suporte · WhatsMenu · Administração</div>
+      <h1>Usuários</h1>
+      <p class="sub">Todas as contas da equipe. As senhas ficam protegidas e ninguém consegue vê-las, nem o administrador. Quando alguém esquecer, gere uma senha temporária aqui: a pessoa entra com ela e cria uma senha nova.</p>
+    </div>
+  </header>
+
+  <section class="card auth" id="auth" hidden>
+    <h2>Entrar como administrador</h2>
+    <form id="f-entrar">
+      <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
+      <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+    <p class="msg" id="auth-msg" role="status"></p>
+  </section>
+
+  <section class="card" id="negado" hidden><h2>Só para administradores</h2><p style="margin:0">Sua conta não tem acesso a esta página. Peça para um administrador.</p></section>
+
+  <div id="app" hidden style="display:contents">
+    <div class="resumo" id="resumo"></div>
+    <section class="card">
+      <div class="barra">
+        <label>Buscar<input id="busca" type="search" placeholder="Nome, usuário ou e-mail"></label>
+        <label style="flex:0 0 auto;min-width:170px">Mostrar<select id="filtro"><option value="">Todos</option><option value="admin">Administradores</option><option value="bloq">Bloqueados</option><option value="troca">Com senha temporária</option><option value="sememail">Sem e-mail</option></select></label>
+        <button class="btn y" type="button" id="novo">+ Criar usuário</button>
+      </div>
+    </section>
+    <section class="card">
+      <div class="tbl"><table><thead><tr><th>Pessoa</th><th>Usuário</th><th>E-mail</th><th>Último acesso</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </section>
+    <section class="card">
+      <h2>Últimas alterações em contas</h2>
+      <ul class="log" id="log"></ul>
+    </section>
+  </div>
+</div>
+
+<dialog id="d-senha"><form method="dialog">
+  <h2 id="ds-tit">Senha temporária</h2>
+  <p style="margin:0" id="ds-tx"></p>
+  <div class="senha" id="ds-senha"></div>
+  <p class="aviso" style="margin:0">Copie agora: por segurança, ela não aparece de novo. No primeiro acesso, a pessoa vai criar uma senha só dela.</p>
+  <div class="linha"><button class="btn y" type="button" id="ds-copiar">Copiar senha</button><button class="btn" value="ok">Pronto</button></div>
+</form></dialog>
+
+<dialog id="d-edit"><form id="f-edit">
+  <h2 id="de-tit">Editar</h2>
+  <label>Nome<input id="de-nome" required maxlength="60"></label>
+  <label id="de-user-l">Usuário (login)<input id="de-user" maxlength="30" autocapitalize="off" pattern="[a-z0-9._\-]{3,30}"></label>
+  <label>E-mail<input id="de-email" type="email" maxlength="120"></label>
+  <label class="chk" id="de-admin-l"><input type="checkbox" id="de-admin"> Administrador</label>
+  <p class="msg" id="de-msg" role="status"></p>
+  <div class="linha"><button class="btn g" type="button" id="de-cancelar">Cancelar</button><button class="btn" type="submit">Salvar</button></div>
+</form></dialog>
+
+<dialog id="d-conf"><form method="dialog">
+  <h2 id="dc-tit"></h2><p style="margin:0" id="dc-tx"></p>
+  <div class="linha"><button class="btn g" value="nao">Voltar</button><button class="btn" value="sim" id="dc-sim">Confirmar</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)}, token='', usuarios=[], eu='', editando=null;
+  try{token=localStorage.getItem('impl-token')||'';}catch(e){}
+  function guarda(t){token=t;try{t?localStorage.setItem('impl-token',t):localStorage.removeItem('impl-token');}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},4000);}
+  function quando(iso){if(!iso)return '—';var d=new Date(iso),dif=(Date.now()-d)/60000;
+    if(dif<2)return 'agora';if(dif<60)return 'há '+Math.round(dif)+' min';if(dif<1440)return 'há '+Math.round(dif/60)+' h';if(dif<43200)return 'há '+Math.round(dif/1440)+' dias';
+    return d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});}
+  function dataHora(iso){return iso?new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'';}
+
+  async function api(method,acao,body){
+    var r=await fetch('/api/implantacao?acao='+acao,{method:method,headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined,cache:'no-store'});
+    var j=await r.json().catch(function(){return {}});
+    if(r.status===401){guarda('');tela('auth');throw new Error('login');}
+    if(r.status===403&&acao==='usuarios'){tela('negado');throw new Error('negado');}
+    if(!r.ok)throw new Error(j.erro||('Erro '+r.status));
+    return j;
+  }
+  function tela(q){$('auth').hidden=q!=='auth';$('negado').hidden=q!=='negado';$('app').hidden=q!=='app';}
+
+  async function carregar(){
+    try{var j=await api('GET','usuarios');usuarios=j.usuarios;eu=j.eu;tela('app');render();
+      $('log').innerHTML=(j.log||[]).map(function(l){return '<li><time>'+esc(dataHora(l.quando))+'</time><span>'+esc(l.texto)+'</span></li>';}).join('')||'<li>Nenhuma alteração registrada.</li>';
+    }catch(e){if(e.message!=='login'&&e.message!=='negado')toast(e.message);}
+  }
+  function render(){
+    var q=$('busca').value.trim().toLowerCase(), f=$('filtro').value;
+    var mes=Date.now()-30*86400e3;
+    $('resumo').innerHTML=[
+      [usuarios.length,'contas'],
+      [usuarios.filter(function(u){return u.admin}).length,'administradores'],
+      [usuarios.filter(function(u){return u.ultimoAcesso&&Date.parse(u.ultimoAcesso)>mes}).length,'ativos nos últimos 30 dias'],
+      [usuarios.filter(function(u){return u.bloqueado}).length,'bloqueados']
+    ].map(function(n){return '<div class="num"><b>'+n[0]+'</b><span>'+n[1]+'</span></div>'}).join('');
+    var lista=usuarios.filter(function(u){
+      if(q&&(u.nome+' '+u.usuario+' '+u.email).toLowerCase().indexOf(q)<0)return false;
+      if(f==='admin')return u.admin; if(f==='bloq')return u.bloqueado; if(f==='troca')return u.trocarSenha; if(f==='sememail')return !u.email; return true;
+    });
+    $('tbody').innerHTML=lista.map(function(u){
+      var tags=(u.adminFixo?'<span class="tag t-fixo" title="Definido na variável ADMINS_IMPLANTACAO do Vercel">Admin fixo</span>':u.admin?'<span class="tag t-admin">Admin</span>':'')+
+        (u.bloqueado?'<span class="tag t-bloq">Bloqueado</span>':'<span class="tag t-ok">Ativo</span>')+(u.trocarSenha?'<span class="tag t-troca">Senha temporária</span>':'');
+      var proprio=u.usuario===eu;
+      return '<tr class="'+(u.bloqueado?'bloq':'')+'"><td><b>'+esc(u.nome)+'</b>'+(proprio?' <small style="display:inline">(você)</small>':'')+'<small>Criada '+esc(quando(u.criadoEm))+(u.criadoPor?' por '+esc(u.criadoPor):'')+'</small></td>'+
+        '<td>'+esc(u.usuario)+'</td><td>'+(u.email?esc(u.email):'<small>sem e-mail</small>')+'</td>'+
+        '<td>'+esc(quando(u.ultimoAcesso))+(u.senhaTrocadaEm?'<small>senha trocada '+esc(quando(u.senhaTrocadaEm))+'</small>':'')+'</td><td>'+tags+'</td>'+
+        '<td><div class="acoes">'+
+          '<button type="button" data-op="novasenha" data-u="'+esc(u.usuario)+'">🔑 Gerar senha nova</button>'+
+          '<button type="button" data-op="editar" data-u="'+esc(u.usuario)+'">Editar</button>'+
+          (proprio||u.adminFixo?'':(u.admin?'<button type="button" data-op="removeradmin" data-u="'+esc(u.usuario)+'">Tirar admin</button>':'<button type="button" data-op="admin" data-u="'+esc(u.usuario)+'">Tornar admin</button>'))+
+          (proprio||u.adminFixo?'':(u.bloqueado?'<button type="button" data-op="desbloquear" data-u="'+esc(u.usuario)+'">Desbloquear</button>':'<button type="button" class="perigo" data-op="bloquear" data-u="'+esc(u.usuario)+'">Bloquear</button>'))+
+          (proprio||u.adminFixo?'':'<button type="button" class="perigo" data-op="excluir" data-u="'+esc(u.usuario)+'">Excluir</button>')+
+        '</div></td></tr>';
+    }).join('')||'<tr><td colspan="6">Nenhum usuário encontrado.</td></tr>';
+  }
+  function confirma(tit,tx,botao){
+    return new Promise(function(ok){var d=$('d-conf');$('dc-tit').textContent=tit;$('dc-tx').textContent=tx;$('dc-sim').textContent=botao||'Confirmar';
+      d.returnValue='';d.showModal();d.addEventListener('close',function h(){d.removeEventListener('close',h);ok(d.returnValue==='sim');});});
+  }
+  function mostraSenha(tit,tx,senha){$('ds-tit').textContent=tit;$('ds-tx').textContent=tx;$('ds-senha').textContent=senha;$('d-senha').showModal();}
+  $('ds-copiar').onclick=function(){var s=$('ds-senha').textContent;(navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(function(){toast('Senha copiada.')}).catch(function(){var r=document.createRange();r.selectNodeContents($('ds-senha'));var sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('Selecione e copie com Ctrl+C.');});};
+
+  $('tbody').addEventListener('click',async function(e){
+    var b=e.target.closest('button[data-op]');if(!b)return;
+    var u=usuarios.find(function(x){return x.usuario===b.dataset.u});if(!u)return;
+    var op=b.dataset.op;
+    if(op==='editar'){abreEdit(u);return;}
+    var textos={
+      novasenha:['Gerar senha nova para '+u.nome+'?','A senha atual deixa de funcionar. Você vai ver uma senha temporária para passar para a pessoa.','Gerar senha'],
+      bloquear:['Bloquear '+u.nome+'?','A pessoa sai de todas as páginas e não consegue mais entrar até ser desbloqueada.','Bloquear'],
+      desbloquear:['Desbloquear '+u.nome+'?','A pessoa volta a conseguir entrar com a senha dela.','Desbloquear'],
+      admin:['Tornar '+u.nome+' administrador?','Administradores publicam novidades, mudam as configurações da agenda, excluem clientes e gerenciam usuários.','Tornar admin'],
+      removeradmin:['Tirar o acesso de administrador de '+u.nome+'?','A pessoa continua com acesso normal da equipe.','Tirar admin'],
+      excluir:['Excluir a conta de '+u.nome+'?','A conta é apagada e não dá para desfazer. Os registros feitos por ela continuam com o nome dela.','Excluir conta']
+    }[op];
+    if(!(await confirma(textos[0],textos[1],textos[2])))return;
+    b.disabled=true;
+    try{var j=await api('POST','usuario',{op:op,usuario:u.usuario});
+      if(op==='novasenha')mostraSenha('Senha temporária de '+u.nome,'Passe esta senha para '+u.nome+' (usuário: '+u.usuario+') por um canal privado.',j.senha);
+      else toast('Feito.');
+      await carregar();
+    }catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
+  });
+
+  function abreEdit(u){
+    editando=u||null;
+    $('de-tit').textContent=u?'Editar '+u.nome:'Criar usuário';
+    $('de-nome').value=u?u.nome:''; $('de-email').value=u?u.email:''; $('de-user').value=u?u.usuario:'';
+    $('de-user-l').hidden=!!u; $('de-user').required=!u; $('de-admin-l').hidden=!!u; $('de-admin').checked=false; $('de-msg').textContent='';
+    $('d-edit').showModal();
+  }
+  $('novo').onclick=function(){abreEdit(null);};
+  $('de-cancelar').onclick=function(){$('d-edit').close();};
+  $('f-edit').addEventListener('submit',async function(e){
+    e.preventDefault();$('de-msg').textContent='';
+    try{
+      if(editando){await api('POST','usuario',{op:'editar',usuario:editando.usuario,nome:$('de-nome').value,email:$('de-email').value});$('d-edit').close();toast('Dados salvos.');}
+      else{var j=await api('POST','usuario',{op:'criar',nome:$('de-nome').value,usuario:$('de-user').value,email:$('de-email').value,admin:$('de-admin').checked});
+        $('d-edit').close();mostraSenha('Conta criada','Usuário: '+j.usuario+'. Passe esta senha temporária para a pessoa; no primeiro acesso ela cria a senha dela.',j.senha);}
+      carregar();
+    }catch(err){if(err.message!=='login')$('de-msg').textContent=err.message;}
+  });
+  $('busca').addEventListener('input',render);$('filtro').addEventListener('change',render);
+  $('f-entrar').addEventListener('submit',async function(e){
+    e.preventDefault();$('auth-msg').textContent='';
+    try{var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
+      var j=await r.json().catch(function(){return {}});if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
+      guarda(j.token);$('e-pass').value='';carregar();if(window.WMAlertas)WMAlertas.atualizar();
+    }catch(err){$('auth-msg').textContent=err.message;}
+  });
+  if(token)carregar();else tela('auth');
+})();
+</script>
+<script src="alertas.js" defer></script>
+</body>
+</html>
