@@ -1,5 +1,5 @@
 /* Alertas da equipe WhatsMenu — incluído em todas as páginas do guia.
- * - 15 minutos antes de cada atendimento: faixa vermelha no topo, som repetindo e notificação do Windows,
+ * - Antes de cada atendimento (tempo definido em Agendamentos › Configurações): faixa vermelha no topo, som repetindo e notificação do Windows,
  *   sem parar, até alguém da equipe clicar em "Parar alerta" (para todo mundo).
  * - Aviso de agendamento novo.
  * - Pede para trocar a senha quando um administrador gerou uma senha temporária.
@@ -275,7 +275,7 @@
       atualizar: consulta, liberarSom: liberaSom,
       testar: function () {
         liberaSom(); sirene();
-        if (podeNotificar()) { try { new Notification('⏰ Teste de alarme', { body: 'É assim que aparece 15 minutos antes de cada atendimento.', icon: '/logo.png', tag: 'wm-teste' }); } catch (e) {} }
+        if (podeNotificar()) { try { new Notification('⏰ Teste de alarme', { body: 'É assim que aparece antes de cada atendimento.', icon: '/logo.png', tag: 'wm-teste' }); } catch (e) {} }
         return podeNotificar();
       },
       pedirPermissao: function () { liberaSom(); return 'Notification' in window ? Notification.requestPermission() : Promise.resolve('denied'); },

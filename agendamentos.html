@@ -191,7 +191,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <a class="back" href="./">← Voltar ao Suporte</a>
       <div class="eyebrow">Suporte · WhatsMenu</div>
       <h1>Agendamentos</h1>
-      <p class="sub">Agenda dos atendimentos marcados pelos clientes e pela equipe. 15 minutos antes de cada horário, todas as páginas do guia tocam um alarme até alguém clicar em "Parar alerta".</p>
+      <p class="sub">Agenda dos atendimentos marcados pelos clientes e pela equipe. Antes de cada horário (no tempo definido em Configurações), todas as páginas do guia tocam um alarme até alguém clicar em "Parar alerta".</p>
     </div>
     <div class="me" id="me" hidden><span id="me-nome"></span><button type="button" id="sair">Sair</button></div>
   </header>
@@ -289,6 +289,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <label>Intervalo entre atendimentos (min)<input id="c-int" type="number" min="0" max="240" step="5"></label>
         <label>Antecedência mínima (min)<input id="c-ant" type="number" min="0" max="10080" step="15"></label>
         <label>Dias disponíveis para agendar<input id="c-dias" type="number" min="1" max="90"></label>
+        <label>Avisar a equipe quantos minutos antes<input id="c-alarme" type="number" min="1" max="180"></label>
       </div>
 
       <h3>Tipos de atendimento</h3>
@@ -455,7 +456,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       $('aba-config').hidden=!eu.admin;
       $('link').textContent=siteAgenda;
       preencheConsultores();
-      render();
+      render();estadoAvisos();
     }catch(e){if(e.message!=='login'&&!silencioso)toast(e.message);}
   }
   function preencheConsultores(){
@@ -488,7 +489,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     var p=filtrados().filter(function(r){return r.status==='aguardando'&&!r.emAtendimento&&inicioMs(r)+(r.duracao||60)*60e3>agora;})[0];
     if(!p){$('prox').hidden=true;proxId=null;return;}
     var diff=inicioMs(p)-agora;$('prox').hidden=false;
-    var alerta=diff<=15*60e3;
+    var alerta=diff<=((config&&config.alarmeMin)||15)*60e3;
     $('prox').classList.toggle('alerta',alerta);
     $('prox-lb').textContent=diff<=0?'Está na hora! Chame o cliente':alerta?'Atendimento em instantes':'Próximo atendimento';
     if(proxId!==p.id||$('prox-acts').dataset.al!==String(alerta)){
@@ -766,7 +767,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function montaConfig(){
     cfgEd=clone(config);cfgEd.horarios=cfgEd.horarios||{};sujo=false;$('c-st').textContent='Tudo salvo.';
     pintaDias();
-    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;
+    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;$('c-alarme').value=cfgEd.alarmeMin||15;
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
     var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
@@ -813,10 +814,10 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(b.dataset.esp)delete cfgEd.especiais[b.dataset.esp];
     if(b.dataset.blq){var p=b.dataset.blq.split('|');cfgEd.bloqueios[p[0]]=cfgEd.bloqueios[p[0]].filter(function(h){return h!==p[1]});if(!cfgEd.bloqueios[p[0]].length)delete cfgEd.bloqueios[p[0]];}
     marcaSujo();pintaChips();});});
-  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
+  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-alarme','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
   async function salvaConfig(extra){
     leDias();leTipos();
-    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,
+    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,
       local:$('c-local').value,linkVideo:$('c-video').value,textoSucesso:$('c-sucesso').value,
       lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked},extra||{});
     for(var d=0;d<7;d++){var bad=(body.horarios[d]||[]).some(function(f){return min(f[0])>min(f[1])});if(bad){toast(DSL[d]+': o último horário está antes do primeiro.');return;}}
@@ -848,7 +849,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function estadoAvisos(){
     var tem='Notification' in window,ok=tem&&Notification.permission==='granted',neg=tem&&Notification.permission==='denied';
     $('avisos').classList.toggle('ok',ok);
-    $('avisos-tx').textContent=ok?'Notificações ativadas. Com qualquer página do guia aberta (pode estar minimizada), o alarme toca 15 minutos antes de cada atendimento até alguém clicar em "Parar alerta".':
+    $('avisos-tx').textContent=ok?'Notificações ativadas. Com qualquer página do guia aberta (pode estar minimizada), o alarme toca '+((config&&config.alarmeMin)||15)+' minutos antes de cada atendimento até alguém clicar em "Parar alerta".':
       neg?'As notificações estão bloqueadas neste navegador. Clique no cadeado ao lado do endereço e permita "Notificações". A faixa vermelha e o som continuam funcionando.':
       'Ative as notificações do Windows para ver o alarme mesmo com o navegador minimizado.';
     $('ativar').hidden=ok||neg||!tem;
