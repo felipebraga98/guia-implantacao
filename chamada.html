@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chamada WhatsMenu</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --yellow:#ffd23f;
+  --bg:#0c1a12; --panel:#13261b; --panel2:#1b3326; --ink:#eef6f1; --muted:#9fb8a8; --bad:#e5484d;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);overflow:hidden}
+button{font:inherit;color:inherit}
+.topo{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));background:linear-gradient(#0c1a12ee,#0c1a1200)}
+.topo img{width:38px;height:38px;border-radius:50%;background:#fff;padding:4px}
+.topo b{font:800 1.05rem var(--f-display)}
+.topo small{display:block;color:var(--muted);font-size:.8rem}
+.topo .st{margin-left:auto;display:flex;align-items:center;gap:8px;font-weight:700;font-size:.85rem;background:#00000055;border-radius:999px;padding:6px 12px}
+.st i{width:9px;height:9px;border-radius:50%;background:var(--yellow)}
+.st.on i{background:#2fdc72}.st.off i{background:var(--bad)}
+
+/* entrada */
+.entrada{min-height:100%;display:grid;place-items:center;padding:80px 16px 24px;overflow:auto;height:100%}
+.caixa{width:min(860px,100%);display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center}
+.prev{position:relative;aspect-ratio:16/10;background:#000;border-radius:18px;overflow:hidden;max-width:100%}
+.prev video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.prev .sem{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:20px}
+.prev .bts{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:10px}
+.form h1{font:800 clamp(1.6rem,4vw,2.2rem)/1.1 var(--f-display);margin:0 0 8px}
+.form p{color:var(--muted);margin:0 0 16px}
+.form label{display:grid;gap:6px;font-weight:700;font-size:.88rem;margin-bottom:14px}
+.form input{font:16px var(--f-body);background:var(--panel2);color:var(--ink);border:1.5px solid #2c4a39;border-radius:12px;padding:12px 14px}
+.form input:focus{outline:none;border-color:var(--green)}
+.entrar{width:100%;background:var(--green);color:#fff;border:0;border-radius:14px;padding:15px;font:800 1.05rem var(--f-body);cursor:pointer}
+.entrar:disabled{opacity:.6;cursor:wait}
+.aviso{background:#3a2a06;color:#ffe08a;border-radius:12px;padding:10px 12px;font-weight:600;font-size:.88rem;margin-top:12px}
+
+/* chamada */
+.palco{position:fixed;inset:0;display:grid;padding:calc(64px + env(safe-area-inset-top,0px)) 12px calc(96px + env(safe-area-inset-bottom,0px));gap:10px}
+.palco.n1{grid-template-columns:1fr}
+.palco.n2{grid-template-columns:1fr 1fr}
+.palco.n3,.palco.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.tile{position:relative;background:#000;border-radius:16px;overflow:hidden;min-height:0;min-width:0}
+.tile video{width:100%;height:100%;object-fit:contain;background:#000}
+.tile .nm{position:absolute;left:10px;bottom:10px;background:#000000aa;border-radius:8px;padding:4px 10px;font-weight:700;font-size:.85rem}
+.tile .cx{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-weight:600}
+.espera{display:grid;place-items:center;text-align:center;padding:24px;background:var(--panel);border-radius:16px}
+.espera .pulso{width:84px;height:84px;border-radius:50%;background:var(--green);margin:0 auto 16px;display:grid;place-items:center;font-size:2rem;animation:pulso 1.6s ease-out infinite}
+@keyframes pulso{0%{box-shadow:0 0 0 0 #00a63e88}100%{box-shadow:0 0 0 26px #00a63e00}}
+@media (prefers-reduced-motion:reduce){.espera .pulso{animation:none}}
+.espera h2{font:800 1.4rem var(--f-display);margin:0 0 6px}
+.espera p{color:var(--muted);margin:0 0 14px}
+.eu{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(100px + env(safe-area-inset-bottom,0px));width:min(240px,32vw);aspect-ratio:16/10;border-radius:14px;overflow:hidden;background:#000;border:2px solid #ffffff33;z-index:4;box-shadow:0 10px 30px #0008}
+.eu video{width:100%;height:100%;object-fit:cover}
+.eu video.esp{transform:scaleX(-1)}
+.eu span{position:absolute;left:8px;bottom:6px;font-size:.75rem;font-weight:700;background:#000a;border-radius:6px;padding:2px 7px}
+.barra{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;gap:10px;background:var(--panel);border-radius:999px;padding:10px 14px;box-shadow:0 10px 30px #0009;max-width:calc(100vw - 24px);overflow-x:auto}
+.bt{width:54px;height:54px;border-radius:50%;border:0;background:var(--panel2);cursor:pointer;display:grid;place-items:center;flex:none;position:relative}
+.bt svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bt:hover{background:#25432f}
+.bt[aria-pressed="true"]{background:#fff;color:#0c1a12}
+.bt.off{background:var(--bad);color:#fff}
+.bt.sair{background:var(--bad);color:#fff;width:70px;border-radius:28px}
+.bt:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.bt .bolha{position:absolute;top:4px;right:4px;width:12px;height:12px;border-radius:50%;background:var(--yellow)}
+.chat{position:fixed;right:max(14px,env(safe-area-inset-right,0px));top:calc(64px + env(safe-area-inset-top,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100vw - 28px));background:var(--panel);border-radius:16px;z-index:7;display:grid;grid-template-rows:auto 1fr auto;box-shadow:0 10px 30px #0009}
+.chat h3{margin:0;padding:12px 14px;font:800 1rem var(--f-display);display:flex;justify-content:space-between;align-items:center}
+.chat h3 button{background:none;border:0;font-size:1.3rem;cursor:pointer}
+.msgs{overflow:auto;padding:0 14px;display:flex;flex-direction:column;gap:8px}
+.msg{background:var(--panel2);border-radius:12px;padding:8px 10px;overflow-wrap:anywhere;max-width:85%;align-self:flex-start}
+.msg b{display:block;font-size:.78rem;color:var(--muted)}
+.msg.meu{background:#0f4a26;align-self:flex-end}
+.msg a{color:#8ff0b3}
+.chat form{display:flex;gap:8px;padding:12px}
+.chat input{flex:1;min-width:0;font:15px var(--f-body);background:var(--panel2);color:var(--ink);border:1.5px solid #2c4a39;border-radius:10px;padding:10px}
+.chat form button{background:var(--green);border:0;border-radius:10px;padding:0 14px;font-weight:700;cursor:pointer}
+.fim{position:fixed;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
+.fim h1{font:800 2rem var(--f-display);margin:0 0 8px}
+.fim p{color:var(--muted)}
+.fim button,.fim a{background:var(--green);color:#fff;border:0;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;margin:6px}
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:#fff;color:#0c1a12;border-radius:12px;padding:10px 16px;font-weight:700;z-index:9;box-shadow:0 8px 24px #0008;max-width:calc(100vw - 32px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:760px){
+  .caixa{grid-template-columns:1fr}
+  .palco.n2{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .eu{width:110px;bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .bt{width:48px;height:48px}.bt.sair{width:60px}
+}
+</style>
+</head>
+<body>
+<div class="topo">
+  <img src="logo.png" alt="WhatsMenu">
+  <div><b>Chamada WhatsMenu</b><small id="t-sub">Atendimento por vídeo</small></div>
+  <div class="st" id="st" role="status"><i></i><span id="st-tx">Preparando…</span></div>
+</div>
+
+<main class="entrada" id="entrada">
+  <div class="caixa">
+    <div class="prev">
+      <video id="prev" autoplay muted playsinline></video>
+      <div class="sem" id="prev-sem" hidden></div>
+      <div class="bts">
+        <button class="bt" type="button" id="p-mic" aria-label="Desligar microfone"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <button class="bt" type="button" id="p-cam" aria-label="Desligar câmera"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></button>
+      </div>
+    </div>
+    <form class="form" id="f-entrar">
+      <h1 id="e-tit">Tudo pronto para a chamada?</h1>
+      <p id="e-sub">Confira a câmera e o microfone e clique em entrar.</p>
+      <label>Seu nome<input id="e-nome" maxlength="40" autocomplete="name" required></label>
+      <button class="entrar" id="b-entrar" type="submit">Entrar na chamada</button>
+      <div class="aviso" id="e-aviso" hidden></div>
+    </form>
+  </div>
+</main>
+
+<div id="chamada" hidden>
+  <div class="palco n1" id="palco">
+    <div class="espera" id="espera"><div><div class="pulso">📞</div><h2 id="esp-tit">Aguardando o outro participante…</h2><p id="esp-tx">Assim que a outra pessoa entrar pelo link, a chamada começa sozinha.</p></div></div>
+  </div>
+  <div class="eu" id="eu-box"><video id="eu" autoplay muted playsinline class="esp"></video><span>Você</span></div>
+  <div class="barra" role="toolbar" aria-label="Controles da chamada">
+    <button class="bt" type="button" id="b-mic" aria-label="Desligar microfone" title="Microfone"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <button class="bt" type="button" id="b-cam" aria-label="Desligar câmera" title="Câmera"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg></button>
+    <button class="bt" type="button" id="b-tela" aria-pressed="false" aria-label="Compartilhar a tela" title="Compartilhar a tela"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M12 13V7M9 10l3-3 3 3"/></svg></button>
+    <button class="bt" type="button" id="b-chat" aria-pressed="false" aria-label="Abrir conversa" title="Conversa"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="bolha" id="bolha" hidden></span></button>
+    <button class="bt" type="button" id="b-link" aria-label="Copiar link da chamada" title="Copiar link"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+    <button class="bt sair" type="button" id="b-sair" aria-label="Sair da chamada" title="Sair"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1z"/></svg></button>
+  </div>
+  <aside class="chat" id="chat" hidden aria-label="Conversa">
+    <h3>Conversa <button type="button" id="chat-x" aria-label="Fechar conversa">×</button></h3>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <form id="f-chat"><input id="chat-tx" maxlength="1000" placeholder="Escreva uma mensagem ou cole um link" autocomplete="off"><button type="submit">Enviar</button></form>
+  </aside>
+</div>
+
+<div class="fim" id="fim" hidden><div><h1 id="fim-tit">Chamada encerrada</h1><p id="fim-tx">Obrigado por falar com a WhatsMenu! 💚</p><button type="button" id="fim-voltar">Entrar de novo</button></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var P=new URLSearchParams(location.search), SALA=(P.get('sala')||'').trim(), EQUIPE=P.get('equipe')==='1';
+  var API='/api/chamada';
+  var eu=Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function(b){return (b%36).toString(36)}).join('')+Date.now().toString(36).slice(-6);
+  var ICE=[{urls:['stun:stun.l.google.com:19302']}], local=null, camTrack=null, micTrack=null, telaTrack=null;
+  var pcs={}, nomes={}, entrou=false, saindo=false, ultimaPres=0, ultimoSinal=0, ultimoPeers=0, timer=null, clienteNome='';
+  function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},3500);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function status(tx,cls){$('st-tx').textContent=tx;$('st').className='st'+(cls?' '+cls:'');}
+  function linkConvite(){return location.origin+location.pathname+'?sala='+SALA;}
+
+  async function api(acao,body,q){
+    var r=await fetch(API+'?acao='+acao+'&sala='+encodeURIComponent(SALA)+(q||''),body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({sala:SALA,peer:eu},body))}:{cache:'no-store'});
+    var j=await r.json().catch(function(){return {}});
+    if(!r.ok){var e=new Error(j.erro||('Erro '+r.status));e.status=r.status;throw e;}
+    return j;
+  }
+  function sinal(para,m){ultimoSinal=Date.now();return api('sinal',{para:para,m:m}).catch(function(){});}
+
+  // ---------- câmera e microfone ----------
+  async function pegaMidia(){
+    var aviso='';
+    try{local=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:{width:{ideal:1280},height:{ideal:720}}});}
+    catch(e){
+      try{local=await navigator.mediaDevices.getUserMedia({audio:true});aviso='Não conseguimos usar a câmera. Você vai entrar só com áudio.';}
+      catch(e2){local=new MediaStream();aviso='O navegador não liberou câmera nem microfone. Clique no cadeado ao lado do endereço, permita e recarregue a página. Você ainda pode entrar para ver e ouvir.';}
+    }
+    camTrack=local.getVideoTracks()[0]||null; micTrack=local.getAudioTracks()[0]||null;
+    $('prev').srcObject=local; $('eu').srcObject=local;
+    $('prev-sem').hidden=!!camTrack; $('prev-sem').textContent='Câmera desligada';
+    if(aviso){$('e-aviso').hidden=false;$('e-aviso').textContent=aviso;}
+    pintaBotoes();
+  }
+  function pintaBotoes(){
+    var micOn=!!micTrack&&micTrack.enabled, camOn=!!camTrack&&camTrack.enabled;
+    ['p-mic','b-mic'].forEach(function(id){$(id).classList.toggle('off',!micOn);$(id).setAttribute('aria-label',micOn?'Desligar microfone':'Ligar microfone');$(id).disabled=!micTrack;});
+    ['p-cam','b-cam'].forEach(function(id){$(id).classList.toggle('off',!camOn);$(id).setAttribute('aria-label',camOn?'Desligar câmera':'Ligar câmera');$(id).disabled=!camTrack;});
+    $('prev-sem').hidden=camOn;
+  }
+  function alternaMic(){if(!micTrack)return;micTrack.enabled=!micTrack.enabled;pintaBotoes();toast(micTrack.enabled?'Microfone ligado':'Microfone desligado');}
+  function alternaCam(){if(!camTrack)return;camTrack.enabled=!camTrack.enabled;pintaBotoes();}
+  $('p-mic').onclick=alternaMic;$('b-mic').onclick=alternaMic;$('p-cam').onclick=alternaCam;$('b-cam').onclick=alternaCam;
+
+  // ---------- conexões ----------
+  function esperaIce(pc){
+    return new Promise(function(ok){
+      if(pc.iceGatheringState==='complete')return ok();
+      var t=setTimeout(ok,2500);
+      pc.addEventListener('icegatheringstatechange',function(){if(pc.iceGatheringState==='complete'){clearTimeout(t);ok();}});
+    });
+  }
+  function videoAtual(){return telaTrack||camTrack;}
+  function criaPC(id,ofertante){
+    fecha(id,true);
+    var pc=new RTCPeerConnection({iceServers:ICE});
+    var item={pc:pc,ofertante:ofertante,dc:null,conectou:false,filaIce:[]};
+    pcs[id]=item;
+    if(ofertante){
+      item.ta=pc.addTransceiver(micTrack||'audio',{direction:'sendrecv',streams:[local]});
+      item.tv=pc.addTransceiver(videoAtual()||'video',{direction:'sendrecv',streams:[local]});
+    }
+    pc.ontrack=function(e){
+      var t=tile(id);var v=t.querySelector('video');
+      if(!v.srcObject)v.srcObject=new MediaStream();
+      v.srcObject.addTrack(e.track);v.play().catch(function(){});
+      t.querySelector('.cx').hidden=true;
+    };
+    pc.onicecandidate=function(e){if(e.candidate&&pc.remoteDescription&&item.enviouSdp)sinal(id,{t:'ice',c:e.candidate});};
+    pc.onconnectionstatechange=function(){
+      var s=pc.connectionState;
+      if(s==='connected'){item.conectou=true;atualizaStatus();}
+      if(s==='failed'){atualizaStatus();if(item.ofertante)reconecta(id);}
+      if(s==='disconnected')atualizaStatus();
+    };
+    if(ofertante){item.dc=pc.createDataChannel('chat');ligaDc(id,item.dc);}
+    else pc.ondatachannel=function(e){item.dc=e.channel;ligaDc(id,e.channel);};
+    return item;
+  }
+  function ligaDc(id,dc){dc.onmessage=function(e){try{var m=JSON.parse(e.data);recebeChat(m.nome||nomes[id]||'Participante',m.tx);}catch(x){}};}
+  async function oferta(id,restart){
+    var item=pcs[id]||criaPC(id,true);
+    var off=await item.pc.createOffer(restart?{iceRestart:true}:undefined);
+    await item.pc.setLocalDescription(off);
+    await esperaIce(item.pc);
+    item.enviouSdp=true;
+    await sinal(id,{t:'offer',sdp:item.pc.localDescription,nome:$('e-nome').value,equipe:EQUIPE});
+  }
+  async function reconecta(id){if(!pcs[id]||saindo)return;toast('Reconectando…');try{await oferta(id,true);}catch(e){}}
+  function fecha(id,silencio){
+    var it=pcs[id];if(!it)return;
+    try{it.pc.close();}catch(e){}
+    delete pcs[id];
+    if(!silencio){var t=document.getElementById('tile-'+id);if(t)t.remove();layout();atualizaStatus();}
+  }
+  function tile(id){
+    var t=document.getElementById('tile-'+id);
+    if(!t){t=document.createElement('div');t.className='tile';t.id='tile-'+id;t.innerHTML='<video autoplay playsinline></video><div class="cx">Conectando…</div><span class="nm"></span>';$('palco').appendChild(t);}
+    t.querySelector('.nm').textContent=nomes[id]||'Participante';
+    layout();return t;
+  }
+  function layout(){
+    var n=$('palco').querySelectorAll('.tile').length;
+    $('espera').hidden=n>0;
+    $('palco').className='palco n'+Math.max(1,Math.min(4,n));
+  }
+  function atualizaStatus(){
+    var ids=Object.keys(pcs);
+    if(!ids.length){status('Aguardando',null);return;}
+    var ok=ids.some(function(i){return pcs[i].pc.connectionState==='connected'});
+    var falhou=ids.every(function(i){return pcs[i].pc.connectionState==='failed'});
+    status(ok?'Conectado':falhou?'Sem conexão':'Conectando…',ok?'on':falhou?'off':null);
+    if(falhou)toast('Não foi possível conectar. Tente outra rede (por exemplo, o 4G) ou combine a ligação pelo WhatsApp.');
+  }
+
+  async function trata(de,m){
+    if(!m||!m.t)return;
+    if(m.nome)nomes[de]=m.nome;
+    if(m.t==='offer'){
+      var item=pcs[de];
+      if(!item||item.ofertante||item.pc.signalingState!=='stable')item=criaPC(de,false);
+      await item.pc.setRemoteDescription(m.sdp);
+      // quem responde usa as faixas criadas pela oferta para enviar o próprio áudio e vídeo
+      item.pc.getTransceivers().forEach(function(t){
+        var k=t.receiver&&t.receiver.track&&t.receiver.track.kind;
+        if(k==='audio'&&!item.ta)item.ta=t; if(k==='video'&&!item.tv)item.tv=t;
+      });
+      [[item.ta,micTrack],[item.tv,videoAtual()]].forEach(function(p){
+        if(!p[0])return;p[0].direction='sendrecv';
+        if(p[0].sender.track!==p[1])p[0].sender.replaceTrack(p[1]||null).catch(function(){});
+        try{if(p[0].sender.setStreams)p[0].sender.setStreams(local);}catch(e){}
+      });
+      item.filaIce.splice(0).forEach(function(c){item.pc.addIceCandidate(c).catch(function(){});});
+      var ans=await item.pc.createAnswer();await item.pc.setLocalDescription(ans);
+      await esperaIce(item.pc);item.enviouSdp=true;
+      await sinal(de,{t:'answer',sdp:item.pc.localDescription,nome:$('e-nome').value});
+      tile(de);
+    }else if(m.t==='answer'){
+      var it=pcs[de];if(it&&it.pc.signalingState==='have-local-offer'){await it.pc.setRemoteDescription(m.sdp);it.filaIce.splice(0).forEach(function(c){it.pc.addIceCandidate(c).catch(function(){});});tile(de);}
+    }else if(m.t==='ice'){
+      var i2=pcs[de];if(!i2)return;if(i2.pc.remoteDescription)i2.pc.addIceCandidate(m.c).catch(function(){});else i2.filaIce.push(m.c);
+    }else if(m.t==='bye'){
+      fecha(de);toast((nomes[de]||'O participante')+' saiu da chamada.');
+    }else if(m.t==='chat'){
+      recebeChat(m.nome||nomes[de]||'Participante',m.tx);
+    }
+  }
+
+  // ---------- sinalização (busca rápida enquanto conecta, depois devagar para economizar) ----------
+  function intervalo(){
+    var conectando=Object.keys(pcs).some(function(i){return pcs[i].pc.connectionState!=='connected'});
+    if(conectando||Date.now()-ultimoSinal<20000)return 900;
+    return Object.keys(pcs).length?12000:3000;
+  }
+  async function ciclo(){
+    if(saindo)return;
+    try{
+      var pedePeers=Date.now()-ultimoPeers>20000;
+      var j=await api('receber',null,'&peer='+eu+'&pres='+ultimaPres+(pedePeers?'&peers=1':''));
+      if(Date.now()-ultimaPres>15000)ultimaPres=j.agora;
+      for(var i=0;i<j.msgs.length;i++){ultimoSinal=Date.now();try{await trata(j.msgs[i].de,j.msgs[i].m);}catch(e){console.warn(e);}}
+      if(j.peers){
+        ultimoPeers=Date.now();
+        var vivos={};j.peers.forEach(function(p){vivos[p.id]=1;nomes[p.id]=nomes[p.id]||p.nome;});
+        Object.keys(pcs).forEach(function(id){if(!vivos[id]&&pcs[id].pc.connectionState!=='connected')fecha(id);});
+      }
+    }catch(e){if(e.status===404){fim('Esta sala não existe mais','Confira o link enviado pela WhatsMenu.');return;}}
+    timer=setTimeout(ciclo,intervalo());
+  }
+
+  async function entrar(){
+    $('b-entrar').disabled=true;$('b-entrar').textContent='Entrando…';
+    try{
+      try{localStorage.setItem('wm-chamada-nome',$('e-nome').value);}catch(e){}
+      var j=await api('entrar',{nome:$('e-nome').value,equipe:EQUIPE});
+      entrou=true;$('entrada').hidden=true;$('chamada').hidden=false;
+      status('Aguardando',null);
+      j.outros.forEach(function(p){nomes[p.id]=p.nome;});
+      for(var i=0;i<j.outros.length;i++){tile(j.outros[i].id);oferta(j.outros[i].id).catch(function(){});}
+      ultimoSinal=Date.now();ultimoPeers=Date.now();
+      ciclo();
+    }catch(e){$('e-aviso').hidden=false;$('e-aviso').textContent=e.message;$('b-entrar').disabled=false;$('b-entrar').textContent='Entrar na chamada';}
+  }
+  $('f-entrar').addEventListener('submit',function(e){e.preventDefault();entrar();});
+
+  // ---------- tela ----------
+  $('b-tela').onclick=async function(){
+    if(telaTrack){paraTela();return;}
+    if(!navigator.mediaDevices.getDisplayMedia){toast('Este aparelho não permite compartilhar a tela.');return;}
+    try{
+      var s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:false});
+      telaTrack=s.getVideoTracks()[0];telaTrack.onended=paraTela;
+      trocaVideo(telaTrack);$('eu').srcObject=new MediaStream([telaTrack]);$('eu').classList.remove('esp');
+      $('b-tela').setAttribute('aria-pressed','true');toast('Você está compartilhando a tela.');
+    }catch(e){}
+  };
+  function paraTela(){
+    if(!telaTrack)return;try{telaTrack.stop();}catch(e){}telaTrack=null;
+    trocaVideo(camTrack);$('eu').srcObject=local;$('eu').classList.add('esp');$('b-tela').setAttribute('aria-pressed','false');
+  }
+  function trocaVideo(track){Object.keys(pcs).forEach(function(id){var t=pcs[id].tv;if(t&&t.sender)t.sender.replaceTrack(track||null).catch(function(){});});}
+
+  // ---------- conversa ----------
+  function linkify(s){return esc(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');}
+  function addMsg(nome,tx,meu){var d=document.createElement('div');d.className='msg'+(meu?' meu':'');d.innerHTML='<b>'+esc(nome)+'</b>'+linkify(tx);$('msgs').appendChild(d);$('msgs').scrollTop=1e9;}
+  function recebeChat(nome,tx){addMsg(nome,tx,false);if($('chat').hidden){$('bolha').hidden=false;toast('💬 '+nome+': '+String(tx).slice(0,60));}}
+  $('f-chat').addEventListener('submit',function(e){
+    e.preventDefault();var tx=$('chat-tx').value.trim();if(!tx)return;$('chat-tx').value='';
+    addMsg('Você',tx,true);
+    var dados={nome:$('e-nome').value,tx:tx};
+    Object.keys(pcs).forEach(function(id){var dc=pcs[id].dc;if(dc&&dc.readyState==='open')dc.send(JSON.stringify(dados));else sinal(id,Object.assign({t:'chat'},dados));});
+  });
+  function abreChat(abrir){$('chat').hidden=!abrir;$('b-chat').setAttribute('aria-pressed',String(abrir));if(abrir){$('bolha').hidden=true;$('chat-tx').focus();}}
+  $('b-chat').onclick=function(){abreChat($('chat').hidden);};$('chat-x').onclick=function(){abreChat(false);};
+  $('b-link').onclick=function(){(navigator.clipboard?navigator.clipboard.writeText(linkConvite()):Promise.reject()).then(function(){toast('Link da chamada copiado.')}).catch(function(){toast(linkConvite());});};
+
+  // ---------- sair ----------
+  function avisaSaida(){
+    if(!entrou||saindo)return;saindo=true;clearTimeout(timer);
+    Object.keys(pcs).forEach(function(id){try{navigator.sendBeacon(API+'?acao=sinal&sala='+SALA,new Blob([JSON.stringify({sala:SALA,peer:eu,para:id,m:{t:'bye'}})],{type:'text/plain'}));}catch(e){}});
+    try{navigator.sendBeacon(API+'?acao=sair&sala='+SALA,new Blob([JSON.stringify({sala:SALA,peer:eu})],{type:'text/plain'}));}catch(e){}
+  }
+  window.addEventListener('pagehide',avisaSaida);
+  function fim(tit,tx){
+    avisaSaida();Object.keys(pcs).forEach(function(id){fecha(id,true);});
+    if(local)local.getTracks().forEach(function(t){t.stop();});if(telaTrack)telaTrack.stop();
+    $('entrada').hidden=true;$('chamada').hidden=true;$('fim').hidden=false;$('fim-tit').textContent=tit;$('fim-tx').textContent=tx;status('Encerrada','off');
+  }
+  $('b-sair').onclick=function(){fim('Chamada encerrada',EQUIPE?'Lembre de marcar o atendimento como concluído na página Agendamentos.':'Obrigado por falar com a WhatsMenu! 💚');};
+  $('fim-voltar').onclick=function(){location.reload();};
+
+  // ---------- início ----------
+  (async function(){
+    if(!/^wm-[a-z0-9]{10}$/.test(SALA)){$('entrada').hidden=true;$('fim').hidden=false;$('fim-tit').textContent='Link incompleto';$('fim-tx').textContent='Abra o link exatamente como recebeu da WhatsMenu.';$('fim-voltar').hidden=true;status('Link inválido','off');return;}
+    if(!window.RTCPeerConnection||!navigator.mediaDevices){$('e-aviso').hidden=false;$('e-aviso').textContent='Este navegador não faz chamadas de vídeo. Abra o link no Google Chrome, Edge ou Safari atualizado.';$('b-entrar').disabled=true;}
+    try{var info=await api('info');ICE=info.ice||ICE;clienteNome=info.cliente||'';}
+    catch(e){$('entrada').hidden=true;$('fim').hidden=false;$('fim-tit').textContent='Sala não encontrada';$('fim-tx').textContent=e.message;$('fim-voltar').hidden=true;status('Indisponível','off');return;}
+    var salvo='';try{salvo=localStorage.getItem('wm-chamada-nome')||'';}catch(e){}
+    $('e-nome').value=EQUIPE?(salvo||'Suporte WhatsMenu'):(clienteNome||salvo);
+    $('e-tit').textContent=EQUIPE?'Chamada com '+(clienteNome||'o cliente'):(clienteNome?'Oi, '+clienteNome+'!':'Tudo pronto para a chamada?');
+    $('esp-tit').textContent=EQUIPE?'Aguardando '+(clienteNome||'o cliente')+' entrar…':'Aguardando a equipe WhatsMenu…';
+    $('esp-tx').textContent=EQUIPE?'Mande o link desta sala para o cliente pelo WhatsApp. Quando ele entrar, a chamada começa sozinha.':'Fique nesta tela. Assim que a equipe entrar, a chamada começa sozinha.';
+    status('Pronto',null);
+    if(window.RTCPeerConnection&&navigator.mediaDevices)await pegaMidia();
+  })();
+})();
+</script>
+</body>
+</html>

@@ -64,6 +64,11 @@ a.btn{text-decoration:none;display:inline-block}
 .prox{background:var(--forest);color:#fff;border-radius:14px;padding:16px clamp(16px,3vw,24px);display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;box-shadow:0 2px 0 #062414}
 .prox .lb{font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-weight:700}
 .prox .qm{font:800 1.3rem/1.15 var(--f-display)}
+.prox.alerta{animation:proxPisca 1s ease-in-out infinite alternate}
+@keyframes proxPisca{from{background:var(--forest);box-shadow:0 0 0 0 #ffd23f00}to{background:#8a1c15;box-shadow:0 0 0 6px #ffd23f66}}
+@media (prefers-reduced-motion:reduce){.prox.alerta{animation:none;background:#8a1c15}}
+.prox .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.prox .btn{box-shadow:none}
 .prox .cd{margin-left:auto;font:800 1.5rem var(--f-display);color:var(--yellow);font-variant-numeric:tabular-nums}
 .avisos{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;font-weight:600}
 .avisos.ok{background:var(--green-soft);color:var(--green-deep)}
@@ -137,7 +142,11 @@ td{padding:8px 10px;border-top:1px solid var(--line);font-variant-numeric:tabula
 .faixas{display:flex;flex-direction:column;gap:6px}
 .faixa{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .faixa input{width:120px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
+.regras{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.regras label{display:grid;grid-template-rows:1fr auto;gap:4px;align-items:end}
+.regras small{grid-column:1;color:var(--muted);font-weight:500;font-size:.78rem}
+.regras input,.regras select{height:42px;box-sizing:border-box}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--green-soft);border-radius:999px;padding:4px 6px 4px 11px;font-weight:600;font-size:.85rem}
 .chip button{border:0;background:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-weight:800;color:var(--bad)}
@@ -209,7 +218,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
 
     <div class="avisos" id="avisos"><span id="avisos-tx"></span><button class="btn sm" type="button" id="ativar">Ativar notificações</button><button class="btn y sm" type="button" id="testar">Testar alarme</button></div>
 
-    <div class="prox" id="prox" hidden><div><div class="lb" id="prox-lb">Próximo atendimento</div><div class="qm" id="prox-qm"></div></div><div class="cd" id="prox-cd"></div></div>
+    <div class="prox" id="prox" hidden><div><div class="lb" id="prox-lb">Próximo atendimento</div><div class="qm" id="prox-qm"></div></div><div class="cd" id="prox-cd"></div><div class="acts" id="prox-acts"></div></div>
 
     <div class="topo">
       <div class="abas" role="tablist">
@@ -273,13 +282,13 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <div id="cfg-dias"></div>
 
       <h3>Regras</h3>
-      <div class="grid2">
+      <div class="regras">
         <label>Começar um horário a cada<select id="c-passo"><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">60 minutos</option></select></label>
         <label>Clientes no mesmo horário<input id="c-vagas" type="number" min="1" max="20"></label>
-        <label>Máximo de atendimentos por dia (0 = sem limite)<input id="c-max" type="number" min="0" max="200"></label>
+        <label title="Deixe em branco ou 0 para não ter limite">Máximo de atendimentos por dia<input id="c-max" type="number" min="0" max="200" placeholder="Sem limite"></label>
         <label>Intervalo entre atendimentos (min)<input id="c-int" type="number" min="0" max="240" step="5"></label>
-        <label>Antecedência mínima para o cliente (min)<input id="c-ant" type="number" min="0" max="10080" step="15"></label>
-        <label>Dias com horário que aparecem<input id="c-dias" type="number" min="1" max="90"></label>
+        <label>Antecedência mínima (min)<input id="c-ant" type="number" min="0" max="10080" step="15"></label>
+        <label>Dias disponíveis para agendar<input id="c-dias" type="number" min="1" max="90"></label>
       </div>
 
       <h3>Tipos de atendimento</h3>
@@ -304,8 +313,9 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <h3>Página do cliente</h3>
       <div class="grid2">
         <label>Onde acontece o atendimento<input id="c-local" maxlength="200"></label>
-        <label>Link de videochamada padrão (opcional)<input id="c-video" type="url" placeholder="https://meet.google.com/..."></label>
+        <label>Link fixo de vídeo (opcional, substitui a sala WhatsMenu)<input id="c-video" type="url" placeholder="Deixe vazio para usar a chamada WhatsMenu"></label>
       </div>
+      <label class="chk" style="margin-top:10px"><input type="checkbox" id="c-chamada"> Criar uma chamada de vídeo WhatsMenu com link diferente para cada agendamento (o cliente recebe o link na confirmação e no e-mail)</label>
       <label style="margin-top:10px">Mensagem depois de agendar ({quando} vira "na segunda, 23/11/2026, às 15:00")<textarea id="c-sucesso" maxlength="400"></textarea></label>
 
       <h3>E-mails para o cliente</h3>
@@ -337,9 +347,14 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   <div id="dd-tags"></div>
   <dl class="info" id="dd-info"></dl>
   <div class="row" id="dd-acoes"></div>
+  <div class="card" id="dd-chamada" style="background:var(--green-tint);box-shadow:none;padding:12px 14px" hidden>
+    <b>📹 Chamada de vídeo deste cliente</b>
+    <div class="row" style="margin-top:6px"><code id="dd-link-cli" style="background:#fff;border-radius:8px;padding:6px 10px;font-size:.82rem;flex:1;min-width:180px;overflow-wrap:anywhere"></code></div>
+    <div class="row" style="margin-top:8px"><a class="btn sm" id="dd-entrar" target="_blank" rel="noopener">Entrar na chamada</a><button class="btn y sm" type="button" id="dd-copiar-cli">Copiar link para o cliente</button><a class="btn wa sm" id="dd-wa-link" target="_blank" rel="noopener">Mandar link no WhatsApp</a></div>
+  </div>
   <div class="grid2">
     <label>Consultor responsável<select id="dd-cons"></select></label>
-    <label>Link da videochamada<input id="dd-video" type="url" placeholder="https://..."></label>
+    <label>Usar outro link de vídeo (opcional)<input id="dd-video" type="url" placeholder="https://..."></label>
   </div>
   <label>Anotações da equipe<textarea id="dd-notas" maxlength="4000" placeholder="O que foi combinado, o que falta, observações"></textarea></label>
   <details><summary>Dados do cliente</summary>
@@ -424,9 +439,9 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   }
   function mostraLogin(){$('auth').hidden=false;$('app').hidden=true;$('me').hidden=true;}
 
-  function wa(r){
+  function wa(r,txt0){
     var n=String(r.whatsapp||'').replace(/\D/g,'');if(n.length<=11)n='55'+n;
-    var txt='Olá, '+String(r.nome||'').split(' ')[0]+'! Aqui é do suporte WhatsMenu. Estou entrando em contato para o atendimento agendado '+(r.data===hojeBR()?'de hoje':'do dia '+br(r.data))+' às '+r.hora+'. Podemos começar?';
+    var txt=txt0||'Olá, '+String(r.nome||'').split(' ')[0]+'! Aqui é do suporte WhatsMenu. Estou entrando em contato para o atendimento agendado '+(r.data===hojeBR()?'de hoje':'do dia '+br(r.data))+' às '+r.hora+'. Podemos começar?';
     return 'https://wa.me/'+n+'?text='+encodeURIComponent(txt);
   }
 
@@ -467,12 +482,21 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(aba==='indicadores')renderInd();
   }
 
+  var proxId=null;
   function proximo(){
     var agora=Date.now();
-    var p=filtrados().filter(function(r){return r.status==='aguardando'&&inicioMs(r)+(r.duracao||60)*60e3>agora;})[0];
-    if(!p){$('prox').hidden=true;return;}
+    var p=filtrados().filter(function(r){return r.status==='aguardando'&&!r.emAtendimento&&inicioMs(r)+(r.duracao||60)*60e3>agora;})[0];
+    if(!p){$('prox').hidden=true;proxId=null;return;}
     var diff=inicioMs(p)-agora;$('prox').hidden=false;
-    $('prox-lb').textContent=diff<=0?'Em andamento':'Próximo atendimento';
+    var alerta=diff<=15*60e3;
+    $('prox').classList.toggle('alerta',alerta);
+    $('prox-lb').textContent=diff<=0?'Está na hora! Chame o cliente':alerta?'Atendimento em instantes':'Próximo atendimento';
+    if(proxId!==p.id||$('prox-acts').dataset.al!==String(alerta)){
+      proxId=p.id;$('prox-acts').dataset.al=String(alerta);
+      $('prox-acts').innerHTML=(p.salaWhatsMenu?'<a class="btn g sm" target="_blank" rel="noopener" href="'+esc(p.salaWhatsMenu)+'">📹 Entrar na chamada</a>':'')+
+        '<a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(p)+'">WhatsApp</a>'+
+        (alerta?'<button class="btn y sm" type="button" id="b-ematend">✅ Em atendimento</button>':'');
+    }
     $('prox-qm').innerHTML=esc(p.nome)+' · '+esc(p.loja)+'<br><span style="font:600 .92rem var(--f-body);opacity:.85">'+esc(cap(p.rotulo))+' às '+p.hora+(p.consultorNome?' · '+esc(p.consultorNome):'')+'</span>';
     if(diff<=0)$('prox-cd').innerHTML='<a href="'+wa(p)+'" target="_blank" rel="noopener" style="color:var(--yellow)">Chamar agora →</a>';
     else{var m=Math.floor(diff/60e3),h=Math.floor(m/60),d=Math.floor(h/24);$('prox-cd').textContent=d>0?('em '+d+'d '+(h%24)+'h'):h>0?('em '+h+'h '+(m%60)+'min'):('em '+m+' min');}
@@ -499,21 +523,21 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     var itens=filtrados(), hoje=hojeBR();
     var porDia={};itens.forEach(function(r){if(dias.indexOf(r.data)>=0)(porDia[r.data]=porDia[r.data]||[]).push(r);});
     var vis=dias.filter(function(d){return dow(d)!==0||horariosDoDia(d).length||porDia[d];});
-    var tMin=24*60,tMax=0;
-    vis.forEach(function(d){horariosDoDia(d).forEach(function(h){tMin=Math.min(tMin,min(h));tMax=Math.max(tMax,min(h));});(porDia[d]||[]).forEach(function(r){tMin=Math.min(tMin,min(r.hora));tMax=Math.max(tMax,min(r.hora));});});
-    if(tMin>tMax){tMin=600;tMax=1170;}
-    var passo=config.passo||30; tMin=tMin-(tMin%passo);
+    // linhas = só os horários configurados na semana (mais o horário de algum agendamento fora deles)
+    var linhas={};
+    vis.forEach(function(d){horariosDoDia(d).forEach(function(h){linhas[h]=1;});(porDia[d]||[]).forEach(function(r){linhas[r.hora]=1;});});
+    var horas=Object.keys(linhas).sort();
     $('sem-tit').textContent=br(dias[0])+' a '+brAno(dias[6]);
     var g=$('grade');g.style.gridTemplateColumns='58px repeat('+vis.length+',minmax(108px,1fr))';
     var h='<div class="cab"></div>'+vis.map(function(d){
       var n=(porDia[d]||[]).filter(function(r){return r.status!=='cancelado'}).length;
       return '<div class="cab'+(d===hoje?' hoje':'')+'">'+DS[dow(d)]+' '+br(d)+'<small>'+(faixasDoDia(d).length?n+' agend.':(config.feriados||[]).indexOf(d)>=0?'feriado':'fechado')+'</small></div>';
     }).join('');
-    for(var t=tMin;t<=tMax;t+=passo){
-      var hr=hh(t);
+    if(!horas.length)h+='<div class="hr"></div><div class="cel fora" style="grid-column:span '+vis.length+';padding:14px;font-weight:600;color:var(--muted)">Nenhum horário de atendimento configurado nesta semana. Ajuste em Configurações.</div>';
+    horas.forEach(function(hr){
       h+='<div class="hr">'+hr+'</div>';
       vis.forEach(function(d){
-        var evs=(porDia[d]||[]).filter(function(r){return min(r.hora)>=t&&min(r.hora)<t+passo;});
+        var evs=(porDia[d]||[]).filter(function(r){return r.hora===hr;});
         var aberto=horariosDoDia(d).indexOf(hr)>=0, blq=aberto&&bloqueado(d,hr), passou=Date.parse(d+'T'+hr+':00-03:00')<Date.now();
         var cls='cel'+(!aberto?' fora':blq?' bloq':(!passou&&!evs.length?' livre':''))+(passou?' passou':'');
         var clicavel=aberto&&!passou&&!evs.length;
@@ -521,7 +545,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
           return '<button type="button" class="ev s-'+r.status+'" data-id="'+r.id+'"><b>'+r.hora+' '+esc(r.nome)+'</b><span>'+esc(r.loja)+(r.consultorNome?' · '+esc(r.consultorNome.split(' ')[0]):'')+'</span></button>';
         }).join('')+'</div>';
       });
-    }
+    });
     g.innerHTML=h;
   }
   $('sem-ant').onclick=function(){semanaIni=somaDias(semanaIni,-7);renderSemana();};
@@ -572,10 +596,10 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       return '<section class="card dia"><h2>'+(nome||rot)+(nome?' <small>'+esc(rot)+'</small>':'')+' <small>· '+g.filter(function(r){return r.status!=='cancelado'}).length+' agendado(s)</small></h2>'+
         g.map(function(r){
           return '<div class="item '+r.status+'"><div class="h">'+r.hora+'<small>até '+r.fim+'</small></div>'+
-            '<div><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+
+            '<div><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+(r.emAtendimento&&r.status==='aguardando'?'<span class="tag t-atendido">Em atendimento com '+esc(r.emAtendimento.por)+'</span>':'')+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+
             '<div class="ct">'+esc(r.tipoNome||'Atendimento')+' · '+esc(r.whatsapp)+(r.email?' · '+esc(r.email):'')+' · cód. '+esc(r.id)+(r.origem==='equipe'?' · agendado pela equipe':'')+'</div>'+
             (r.notas?'<div class="nt">'+esc(r.notas)+'</div>':'')+'</div>'+
-            '<div class="acoes"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(r)+'">WhatsApp</a>'+
+            '<div class="acoes"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(r)+'">WhatsApp</a>'+(r.salaWhatsMenu&&r.status==='aguardando'?'<a class="btn g sm" target="_blank" rel="noopener" href="'+esc(r.salaWhatsMenu)+'">📹 Chamada</a>':'')+
             (r.status==='aguardando'?'<button class="btn g sm" type="button" data-st="atendido" data-id="'+r.id+'">✓ Atendido</button><button class="btn g sm" type="button" data-st="nao-atendeu" data-id="'+r.id+'">Não atendeu</button>':'')+
             '<button class="btn sm" type="button" data-det="'+r.id+'">Detalhes</button></div></div>';
         }).join('')+'</section>';
@@ -608,6 +632,12 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(r.status==='aguardando'||r.status==='pendente')ac+='<button class="btn g sm" type="button" data-s="atendido">✓ Atendido</button><button class="btn g sm" type="button" data-s="nao-atendeu">Não atendeu</button><button class="btn g sm" type="button" data-s="cancelado" style="color:var(--bad)">Cancelar</button>';
     else ac+='<button class="btn g sm" type="button" data-s="aguardando">Voltar para aguardando</button>';
     $('dd-acoes').innerHTML=ac;
+    $('dd-chamada').hidden=!r.linkChamada;
+    if(r.linkChamada){
+      $('dd-link-cli').textContent=r.linkChamada;
+      $('dd-entrar').href=r.salaWhatsMenu&&r.linkChamada===r.salaWhatsMenu.replace('&equipe=1','')?r.salaWhatsMenu:r.linkChamada;
+      $('dd-wa-link').href=wa(r,'Olá, '+String(r.nome||'').split(' ')[0]+'! Aqui é do suporte WhatsMenu. Para o nosso atendimento por vídeo, é só clicar neste link e depois em "Entrar na chamada": '+r.linkChamada);
+    }
     $('dd-cons').value=r.consultor||'';$('dd-video').value=r.linkVideo||'';$('dd-notas').value=r.notas||'';
     $('dd-nome').value=r.nome;$('dd-loja').value=r.loja;$('dd-wa').value=r.whatsapp;$('dd-email').value=r.email||'';$('dd-msg').textContent='';
     $('dd-hist').innerHTML=(r.hist||[]).map(function(x){return '<li><b>'+esc(x.quem)+'</b> · '+esc(x.texto)+' · '+dataHora(x.quando)+'</li>'}).join('')||'<li>Sem registros.</li>';
@@ -623,11 +653,17 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     try{var j=await api('PATCH','status',{id:atual.id,status:s,avisar:avisar});atualiza(j.reserva);abreDet(atual.id);toast('Status: '+ROT[s]+'.');if(window.WMAlertas)WMAlertas.atualizar();}
     catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
   });
+  $('dd-copiar-cli').onclick=function(){copia($('dd-link-cli').textContent,'Link da chamada copiado.');};
   $('dd-salvar').onclick=async function(){
     if(!atual)return;$('dd-msg').textContent='';
     try{var j=await api('PATCH','editar',{id:atual.id,consultor:$('dd-cons').value,linkVideo:$('dd-video').value,notas:$('dd-notas').value,nome:$('dd-nome').value,loja:$('dd-loja').value,whatsapp:$('dd-wa').value,email:$('dd-email').value});
       atualiza(j.reserva);toast('Alterações salvas.');$('d-det').close();}catch(err){if(err.message!=='login')$('dd-msg').textContent=err.message;}
   };
+  $('prox-acts').addEventListener('click',async function(e){
+    var b=e.target.closest('#b-ematend');if(!b||!proxId)return;b.disabled=true;
+    try{var j=await api('POST','em-atendimento',{id:proxId});atualiza(j.reserva);toast('Marcado como em atendimento. O aviso sumiu para toda a equipe.');if(window.WMAlertas)WMAlertas.atualizar();}
+    catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
+  });
   function atualiza(r){var i=lista.findIndex(function(x){return x.id===r.id});if(i>=0)lista[i]=r;else lista.push(r);lista.sort(function(a,b){return (a.data+a.hora).localeCompare(b.data+b.hora)});atual=r;render();}
 
   var agHorarios=[];
@@ -730,10 +766,10 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function montaConfig(){
     cfgEd=clone(config);cfgEd.horarios=cfgEd.horarios||{};sujo=false;$('c-st').textContent='Tudo salvo.';
     pintaDias();
-    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia;$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;
+    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
-    var l=cfgEd.lembretes||{};$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
+    var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
     $('c-email-st').textContent=emailOk?'✅ Envio de e-mail configurado.':'⚠️ O envio de e-mail ainda não está configurado no Vercel (EMAIL_USUARIO e EMAIL_SENHA_APP). Sem isso, os e-mails ficam desligados.';
     $('c-feed').textContent=location.origin+'/api/agendamento?acao=feed&chave='+(cfgEd.icsChave||'');
     $('c-embed').textContent='<iframe src="'+siteAgenda+'" style="width:100%;min-height:1100px;border:0" title="Agende seu atendimento WhatsMenu"></iframe>';
@@ -777,12 +813,12 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(b.dataset.esp)delete cfgEd.especiais[b.dataset.esp];
     if(b.dataset.blq){var p=b.dataset.blq.split('|');cfgEd.bloqueios[p[0]]=cfgEd.bloqueios[p[0]].filter(function(h){return h!==p[1]});if(!cfgEd.bloqueios[p[0]].length)delete cfgEd.bloqueios[p[0]];}
     marcaSujo();pintaChips();});});
-  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-conf-email'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
+  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
   async function salvaConfig(extra){
     leDias();leTipos();
-    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,
+    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,
       local:$('c-local').value,linkVideo:$('c-video').value,textoSucesso:$('c-sucesso').value,
-      lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked},extra||{});
+      lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked},extra||{});
     for(var d=0;d<7;d++){var bad=(body.horarios[d]||[]).some(function(f){return min(f[0])>min(f[1])});if(bad){toast(DSL[d]+': o último horário está antes do primeiro.');return;}}
     $('c-salvar').disabled=true;
     try{var j=await api('PUT','config',body);config=j.config;montaConfig();render();toast('Configurações salvas. O link do cliente já mostra as mudanças.');}

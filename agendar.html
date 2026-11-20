@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agendar atendimento — WhatsMenu</title>
+<title>Agende seu atendimento — WhatsMenu</title>
+<meta property="og:title" content="Agende seu atendimento — WhatsMenu">
+<meta property="og:description" content="Escolha o melhor dia e horário para falar com a equipe WhatsMenu.">
+<meta property="og:image" content="logo.png">
 <meta name="description" content="Escolha o melhor dia e horário para o seu atendimento com a equipe WhatsMenu.">
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,14 +14,17 @@
 <style>
 :root{
   --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --yellow:#ffd23f;
-  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --err:#b42318;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --err:#b42318; --err-soft:#fdecec;
   --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
   color-scheme: light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--green);color:var(--ink);font:16px/1.55 var(--f-body);
   padding:28px max(16px,env(safe-area-inset-left,0px)) 48px max(16px,env(safe-area-inset-right,0px))}
+body.embed{padding-top:12px}
+body.embed header{display:none}
 .wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 header{color:#fff;display:flex;align-items:center;gap:16px}
 header img{width:72px;height:72px;background:#fff;border-radius:50%;padding:7px;box-shadow:0 3px 0 var(--green-deep);flex:none}
@@ -28,6 +34,12 @@ header p{margin:4px 0 0;opacity:.95}
 .card h2{font:800 1.25rem var(--f-display);margin:0 0 4px;display:flex;align-items:center;gap:10px}
 .card h2 .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:.95rem;flex:none}
 .sub{color:var(--muted);margin:0 0 14px;font-size:.95rem}
+.passos{display:flex;flex-direction:column;gap:18px}
+.tipos{display:grid;gap:10px}
+.tipo{border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;font:inherit;color:var(--ink);display:grid;gap:2px}
+.tipo b{font:800 1.05rem var(--f-display)}.tipo small{color:var(--muted)}
+.tipo:hover{border-color:var(--green)}
+.tipo[aria-pressed="true"]{border-color:var(--green);background:var(--green-soft)}
 .dias{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory}
 .dia{flex:none;scroll-snap-align:start;width:78px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)}
 .dia .ds{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
@@ -44,22 +56,23 @@ header p{margin:4px 0 0;opacity:.95}
 .hora:hover{border-color:var(--green)}
 .hora[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
 .hora[aria-pressed="true"] small{color:#fff}
-.hora:disabled{background:#f3f5f4;color:#9aa8a0;cursor:not-allowed;border-style:dashed}
-.hora:disabled small{color:#9aa8a0}
 form.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 form.grid label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-size:.92rem}
 form.grid input{font:16px var(--f-body);border:2px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink)}
 form.grid input:focus{outline:none;border-color:var(--green)}
 .full{grid-column:1/-1}
 .resumo{background:var(--green-soft);border-radius:12px;padding:12px 14px;font-weight:600}
-.btn{background:var(--yellow);color:var(--ink);border:0;border-radius:12px;padding:14px 20px;font:800 1.05rem var(--f-body);cursor:pointer;box-shadow:0 3px 0 #c99a00}
+.btn{background:var(--yellow);color:var(--ink);border:0;border-radius:12px;padding:14px 20px;font:800 1.05rem var(--f-body);cursor:pointer;box-shadow:0 3px 0 #c99a00;text-decoration:none;display:inline-block;text-align:center}
 .btn:hover{filter:brightness(1.05)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.v{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep)}
+.btn.b{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.r{background:#fff;color:var(--err);border:2px solid #f3c1bd;box-shadow:none}
+.btn.sm{padding:10px 14px;font-size:.95rem}
 .msg{margin:0;font-weight:600}
 .msg.err{color:var(--err)}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.ok{text-align:center;padding:36px 20px}
-.ok{position:relative;overflow:hidden}
+.ok{text-align:center;padding:36px 20px;position:relative;overflow:hidden}
 .ok .big{font-size:4rem;line-height:1;display:inline-block}
 .ok .big.festa{animation:festa 2s ease-out both}
 @keyframes festa{0%{transform:scale(0) rotate(-30deg);opacity:0}15%{transform:scale(1.35) rotate(12deg);opacity:1}30%{transform:scale(.95) rotate(-10deg)}45%{transform:scale(1.15) rotate(8deg)}60%{transform:scale(1) rotate(-6deg)}75%{transform:scale(1.08) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
@@ -67,10 +80,17 @@ form.grid input:focus{outline:none;border-color:var(--green)}
 @keyframes confete{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
 @media (prefers-reduced-motion:reduce){.ok .big.festa{animation:none}.confete{display:none}}
 .ok h2{justify-content:center;font-size:1.6rem;margin:10px 0}
-.ok .recado{font-size:1.08rem;font-weight:600;max-width:52ch;margin:0 auto 14px;background:var(--green-soft);border-radius:12px;padding:14px 16px}
-.ok .quando{font:800 1.3rem var(--f-display);color:var(--green-deep);margin:6px 0 12px}
+.recado{font-size:1.08rem;font-weight:600;max-width:52ch;margin:0 auto 14px;background:var(--green-soft);border-radius:12px;padding:14px 16px}
+.quando{font:800 1.3rem var(--f-display);color:var(--green-deep);margin:6px 0 12px}
+.botoes{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0}
+.aviso{background:#fff7d1;border-radius:12px;padding:12px 14px;font-weight:600;margin:0 auto 12px;max-width:52ch}
+.gerenciar dl{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;margin:12px 0}
+.gerenciar dt{color:var(--muted);font-weight:600}.gerenciar dd{margin:0;overflow-wrap:anywhere}
+.estado{display:inline-block;border-radius:999px;padding:3px 12px;font-weight:700;font-size:.85rem;background:var(--green-soft);color:var(--green-deep)}
+.estado.c{background:var(--err-soft);color:var(--err)}
+.confirmar-cancel{background:var(--err-soft);border-radius:12px;padding:14px;margin-top:12px;display:grid;gap:10px}
 .load{color:var(--muted)}
-@media (max-width:560px){form.grid{grid-template-columns:1fr}header img{width:58px;height:58px}}
+@media (max-width:560px){form.grid{grid-template-columns:1fr}header img{width:58px;height:58px}.gerenciar dl{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -78,63 +98,123 @@ form.grid input:focus{outline:none;border-color:var(--green)}
   <header>
     <img src="logo.png" alt="WhatsMenu">
     <div>
-      <h1>Agende seu atendimento</h1>
-      <p>Escolha o melhor dia e horário para falar com a equipe WhatsMenu. Cada atendimento dura em torno de 30 a 60 minutos.</p>
+      <h1 id="titulo">Agende seu atendimento</h1>
+      <p id="subtitulo">Escolha o melhor dia e horário para falar com a equipe WhatsMenu.</p>
     </div>
   </header>
 
-  <div id="passos">
+  <!-- agendar -->
+  <div class="passos" id="passos">
+    <section class="card" id="p-tipo" hidden>
+      <h2><span class="n">1</span>O que você precisa?</h2>
+      <p class="sub">Escolha o tipo de atendimento.</p>
+      <div class="tipos" id="tipos"></div>
+    </section>
     <section class="card">
-      <h2><span class="n">1</span>Escolha o dia</h2>
-      <p class="sub">De segunda a sexta, das 10h às 19h30. Sábado, das 10h às 18h.</p>
+      <h2><span class="n" data-n="dia">1</span>Escolha o dia</h2>
+      <p class="sub" id="dias-sub">Só aparecem os dias com horário livre.</p>
       <div class="dias" id="dias"><span class="load">Carregando datas…</span></div>
     </section>
-
-    <section class="card" style="margin-top:18px">
-      <h2><span class="n">2</span>Escolha o horário</h2>
+    <section class="card">
+      <h2><span class="n" data-n="hora">2</span>Escolha o horário</h2>
       <p class="sub" id="horas-sub">Selecione um dia primeiro.</p>
       <div class="horas" id="horas"></div>
     </section>
-
-    <section class="card" style="margin-top:18px">
-      <h2><span class="n">3</span>Seus dados</h2>
-      <p class="sub">Usamos esses dados só para confirmar e realizar o atendimento.</p>
+    <section class="card" id="p-dados">
+      <h2><span class="n" data-n="dados">3</span><span id="dados-tit">Seus dados</span></h2>
+      <p class="sub" id="dados-sub">Usamos esses dados só para confirmar e realizar o atendimento.</p>
       <form class="grid" id="form" novalidate>
-        <label>Seu nome<input id="nome" autocomplete="name" required maxlength="80"></label>
-        <label>Nome da loja<input id="loja" autocomplete="organization" required maxlength="80"></label>
-        <label>WhatsApp (com DDD)<input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(13) 99999-9999" required maxlength="20"></label>
-        <label>E-mail<input id="email" type="email" autocomplete="email" required maxlength="120"></label>
+        <div id="campos" style="display:contents">
+          <label>Seu nome<input id="nome" autocomplete="name" required maxlength="80"></label>
+          <label>Nome da loja<input id="loja" autocomplete="organization" required maxlength="80"></label>
+          <label>WhatsApp (com DDD)<input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(13) 99999-9999" required maxlength="20"></label>
+          <label>E-mail<input id="email" type="email" autocomplete="email" required maxlength="120"></label>
+        </div>
         <label class="hp" aria-hidden="true">Site<input id="site" tabindex="-1" autocomplete="off"></label>
         <div class="resumo full" id="resumo">Nenhum horário escolhido ainda.</div>
         <p class="msg full" id="msg" role="status"></p>
         <button class="btn full" id="enviar" disabled>Confirmar agendamento</button>
+        <button class="btn b full" type="button" id="voltar-ger" hidden>Voltar sem remarcar</button>
       </form>
     </section>
   </div>
 
+  <!-- sucesso -->
   <section class="card ok" id="ok" hidden>
     <div class="big" id="ok-emoji" aria-hidden="true">🎉</div>
-    <h2>Agendamento confirmado!</h2>
+    <h2 id="ok-tit">Agendamento confirmado!</h2>
     <div class="quando" id="ok-quando"></div>
+    <p class="aviso" id="ok-pendente" hidden>📧 Falta só um passo: abra o e-mail que enviamos e clique em <b>Confirmar meu horário</b> em até 30 minutos. Sem isso, o horário é liberado.</p>
     <p class="recado" id="ok-recado"></p>
-    <p>Vamos chamar você no WhatsApp informado nesse horário. Se precisar remarcar, é só falar com o suporte WhatsMenu.</p>
-    <p class="sub" id="ok-cod"></p>
+    <div class="botoes" id="ok-botoes">
+      <a class="btn v sm" id="ok-google" target="_blank" rel="noopener">📅 Adicionar ao Google Agenda</a>
+      <a class="btn b sm" id="ok-ics">Salvar no Outlook ou iPhone</a>
+    </div>
+    <p id="ok-local" style="margin:0 0 8px"></p>
+    <p id="ok-video" style="margin:0 0 12px" hidden><a class="btn v sm" id="ok-video-a" target="_blank" rel="noopener">📹 Link da chamada de vídeo</a><br><small class="sub">Guarde este link: se combinarmos atendimento por vídeo, é por ele que você entra.</small></p>
+    <p id="ok-email" class="sub" style="margin:0 0 8px"></p>
+    <p style="margin:0">Precisa mudar? <a href="#" id="ok-ger" style="color:var(--green-deep);font-weight:700">Remarcar ou cancelar</a></p>
+    <p class="sub" id="ok-cod" style="margin-top:12px"></p>
   </section>
+
+  <!-- gerenciar -->
+  <section class="card gerenciar" id="ger" hidden>
+    <h2>Seu agendamento</h2>
+    <span class="estado" id="g-estado"></span>
+    <dl id="g-info"></dl>
+    <div class="botoes" style="justify-content:flex-start" id="g-botoes">
+      <button class="btn v sm" type="button" id="g-remarcar">Remarcar</button>
+      <button class="btn r sm" type="button" id="g-cancelar">Cancelar agendamento</button>
+      <a class="btn b sm" id="g-google" target="_blank" rel="noopener">📅 Google Agenda</a>
+    </div>
+    <div class="confirmar-cancel" id="g-conf" hidden>
+      <b>Tem certeza que quer cancelar?</b>
+      <span>O horário fica livre para outro cliente. Você pode agendar de novo quando quiser.</span>
+      <div class="botoes" style="justify-content:flex-start;margin:0"><button class="btn r sm" type="button" id="g-sim">Sim, cancelar</button><button class="btn b sm" type="button" id="g-nao">Não, manter</button></div>
+    </div>
+    <p class="msg err" id="g-msg" role="status"></p>
+    <p style="margin:12px 0 0"><a href="./" id="g-novo" style="color:var(--green-deep);font-weight:700">Fazer um novo agendamento</a></p>
+  </section>
+
+  <section class="card" id="erro" hidden><h2 id="erro-tit">Ops!</h2><p id="erro-tx" style="margin:0 0 14px"></p><a class="btn sm" href="./" id="erro-novo">Escolher um horário</a></section>
+
+  <p style="text-align:center;color:#fff;opacity:.85;font-size:.85rem;margin:8px 0 0">WhatsMenu · Equipe de suporte e implantação</p>
 </main>
 <script>
 (function(){
-  var $=function(i){return document.getElementById(i)}, agenda=[], dia=null, hora=null, enviando=false;
+  var $=function(i){return document.getElementById(i)};
+  var agenda=[], tipos=[], tipo=null, dia=null, hora=null, enviando=false, info={}, modo='novo', gTok='', reserva=null;
   var DS=['dom','seg','ter','qua','qui','sex','sáb'], MS=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  try{if(window.self!==window.top||/[?&]embed=1/.test(location.search))document.body.classList.add('embed');}catch(e){document.body.classList.add('embed');}
+  function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function comArtigo(rot){return (/^(sábado|domingo)/.test(rot)?'no ':'na ')+rot;}
+  function telas(q){$('passos').hidden=q!=='passos';$('ok').hidden=q!=='ok';$('ger').hidden=q!=='ger';$('erro').hidden=q!=='erro';window.scrollTo({top:0,behavior:'smooth'});}
+  function erro(tit,tx){$('erro-tit').textContent=tit;$('erro-tx').textContent=tx;telas('erro');}
 
   async function carregar(){
     try{
-      var r=await fetch('/api/agendamento'); var j=await r.json();
+      var r=await fetch('/api/agendamento',{cache:'no-store'}); var j=await r.json();
       if(!r.ok) throw new Error(j.erro||'erro');
-      agenda=j.agenda; desenhaDias();
+      agenda=j.agenda; tipos=j.tipos||[]; info=j;
+      if(tipos.length>1){$('p-tipo').hidden=false;numera(true);desenhaTipos();}else{tipo=tipos[0]||null;numera(false);}
+      atualizaSub(); desenhaDias();
     }catch(e){ $('dias').innerHTML='<span class="msg err">Não foi possível carregar a agenda. Atualize a página.</span>'; }
+  }
+  function numera(comTipo){document.querySelector('[data-n="dia"]').textContent=comTipo?2:1;document.querySelector('[data-n="hora"]').textContent=comTipo?3:2;document.querySelector('[data-n="dados"]').textContent=comTipo?4:3;}
+  function atualizaSub(){
+    var t=tipo||tipos[0];
+    $('subtitulo').textContent='Escolha o melhor dia e horário para falar com a equipe WhatsMenu.'+(t?' Cada atendimento dura em torno de '+(t.duracao>=60?'30 a '+t.duracao:t.duracao)+' minutos.':'');
+  }
+  function desenhaTipos(){
+    $('tipos').innerHTML='';
+    tipos.forEach(function(t){var b=document.createElement('button');b.type='button';b.className='tipo';b.setAttribute('aria-pressed',!!tipo&&tipo.id===t.id);
+      b.innerHTML='<b>'+esc(t.nome)+'</b><small>'+(t.descricao?esc(t.descricao)+' · ':'')+'cerca de '+t.duracao+' minutos</small>';
+      b.onclick=function(){tipo=t;desenhaTipos();atualizaSub();atualiza();};$('tipos').appendChild(b);});
   }
   function desenhaDias(){
     var c=$('dias'); c.innerHTML='';
+    if(!agenda.length){c.innerHTML='<span class="msg">No momento não há horários disponíveis. Fale com o suporte WhatsMenu.</span>';return;}
     agenda.forEach(function(d){
       var livres=d.horarios.some(function(h){return h.vagas>0});
       var dt=new Date(d.data+'T12:00:00');
@@ -144,12 +224,14 @@ form.grid input:focus{outline:none;border-color:var(--green)}
       b.onclick=function(){dia=d.data;hora=null;desenhaDias();desenhaHoras();atualiza();};
       c.appendChild(b);
     });
-    if(!dia){var p=agenda.find(function(d){return d.horarios.some(function(h){return h.vagas>0})}); if(p){dia=p.data;desenhaDias();desenhaHoras();}}
+    if(!dia||!agenda.some(function(d){return d.data===dia&&d.horarios.some(function(h){return h.vagas>0})})){
+      var p=agenda.find(function(d){return d.horarios.some(function(h){return h.vagas>0})}); dia=p?p.data:null; if(p){desenhaDias();desenhaHoras();}
+    } else desenhaHoras();
   }
   function desenhaHoras(){
     var d=agenda.find(function(x){return x.data===dia}), c=$('horas'); c.innerHTML='';
     if(!d){$('horas-sub').textContent='Selecione um dia primeiro.';return;}
-    $('horas-sub').textContent=d.rotulo.charAt(0).toUpperCase()+d.rotulo.slice(1);
+    $('horas-sub').textContent=cap(d.rotulo);
     var livres=d.horarios.filter(function(h){return h.vagas>0});
     if(!livres.length){c.innerHTML='<p class="sub" style="margin:0">Não há mais horários livres neste dia. Escolha outro dia.</p>';return;}
     livres.forEach(function(h){
@@ -162,40 +244,103 @@ form.grid input:focus{outline:none;border-color:var(--green)}
   }
   function atualiza(){
     var d=agenda.find(function(x){return x.data===dia}), h=d&&d.horarios.find(function(x){return x.hora===hora});
-    $('resumo').textContent=h?('📅 '+d.rotulo+' às '+h.hora):'Escolha um dia e um horário acima.';
-    $('enviar').disabled=!h||enviando;
+    var faltaTipo=modo==='novo'&&tipos.length>1&&!tipo;
+    $('resumo').textContent=faltaTipo?'Escolha o tipo de atendimento acima.':h?('📅 '+cap(d.rotulo)+' às '+h.hora+(tipo&&tipos.length>1?' · '+tipo.nome:'')):'Escolha um dia e um horário acima.';
+    $('enviar').disabled=!h||enviando||faltaTipo;
   }
   $('whatsapp').addEventListener('input',function(){
     var v=this.value.replace(/\D/g,'').slice(0,11);
-    if(v.length>6) this.value='('+v.slice(0,2)+') '+v.slice(2,v.length-4)+'-'+v.slice(-4);
-    else if(v.length>2) this.value='('+v.slice(0,2)+') '+v.slice(2);
-    else this.value=v;
+    this.value=v.length>6?'('+v.slice(0,2)+') '+v.slice(2,v.length-4)+'-'+v.slice(-4):v.length>2?'('+v.slice(0,2)+') '+v.slice(2):v;
   });
+
   $('form').addEventListener('submit',async function(e){
     e.preventDefault(); if(enviando)return;
-    var msg=$('msg'); msg.className='msg full';
-    var dados={data:dia,hora:hora,nome:$('nome').value,loja:$('loja').value,whatsapp:$('whatsapp').value,email:$('email').value,site:$('site').value};
-    if(!dados.nome.trim()||!dados.loja.trim()){msg.textContent='Preencha seu nome e o nome da loja.';msg.classList.add('err');return;}
-    if(dados.whatsapp.replace(/\D/g,'').length<10){msg.textContent='Informe o WhatsApp com DDD.';msg.classList.add('err');$('whatsapp').focus();return;}
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email.trim())){msg.textContent='Informe um e-mail válido.';msg.classList.add('err');$('email').focus();return;}
-    enviando=true; atualiza(); $('enviar').textContent='Confirmando…';
+    var msg=$('msg'); msg.className='msg full'; msg.textContent='';
+    var url='/api/agendamento', dados;
+    if(modo==='remarcar'){url='/api/agendamento?acao=remarcar';dados={t:gTok,data:dia,hora:hora};}
+    else{
+      dados={tipo:tipo?tipo.id:'',data:dia,hora:hora,nome:$('nome').value,loja:$('loja').value,whatsapp:$('whatsapp').value,email:$('email').value,site:$('site').value};
+      if(!dados.nome.trim()||!dados.loja.trim()){msg.textContent='Preencha seu nome e o nome da loja.';msg.classList.add('err');return;}
+      if(dados.whatsapp.replace(/\D/g,'').length<10){msg.textContent='Informe o WhatsApp com DDD.';msg.classList.add('err');$('whatsapp').focus();return;}
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email.trim())){msg.textContent='Informe um e-mail válido.';msg.classList.add('err');$('email').focus();return;}
+    }
+    enviando=true; atualiza(); $('enviar').textContent=modo==='remarcar'?'Remarcando…':'Confirmando…';
     try{
-      var r=await fetch('/api/agendamento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
+      var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(dados)});
       var j=await r.json().catch(function(){return {}});
       if(!r.ok){
         msg.textContent=j.erro||'Não foi possível agendar.'; msg.classList.add('err');
-        if(r.status===409){hora=null;await carregar();desenhaHoras();}
+        if(r.status===409){hora=null;if(modo==='remarcar')await abreGerenciar(gTok,true);else await carregar();}
         return;
       }
-      $('passos').hidden=true; $('ok').hidden=false;
-      $('ok-quando').textContent=j.rotulo.charAt(0).toUpperCase()+j.rotulo.slice(1)+' às '+j.hora;
-      festa();
-      $('ok-recado').textContent='Te espero '+(/^(sábado|domingo)/.test(j.rotulo)?'no ':'na ')+j.rotulo+', às '+j.hora+', para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚';
-      $('ok-cod').textContent='Código do agendamento: '+j.id;
-      window.scrollTo({top:0,behavior:'smooth'});
+      if(modo==='remarcar'){reserva=j.reserva;mostraSucesso(j.reserva,{remarcado:true});}
+      else{gTok=j.token;try{history.replaceState(null,'','#g='+j.token);}catch(e){}mostraSucesso(j,{emailEnviado:j.emailEnviado,pendente:j.pendente,textoSucesso:j.textoSucesso});}
     }catch(e){msg.textContent='Sem conexão. Tente de novo.';msg.classList.add('err');}
-    finally{enviando=false;$('enviar').textContent='Confirmar agendamento';atualiza();}
+    finally{enviando=false;$('enviar').textContent=modo==='remarcar'?'Confirmar novo horário':'Confirmar agendamento';atualiza();}
   });
+
+  function mostraSucesso(r,o){
+    telas('ok');
+    $('ok-tit').textContent=o.pendente?'Quase lá!':o.remarcado?'Horário remarcado!':o.confirmado?'Horário confirmado!':'Agendamento confirmado!';
+    $('ok-quando').textContent=cap(r.rotulo)+' às '+r.hora;
+    $('ok-pendente').hidden=!o.pendente;
+    var txt=(o.textoSucesso||info.textoSucesso||'Te espero {quando}, para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚').replace('{quando}',comArtigo(r.rotulo)+', às '+r.hora);
+    $('ok-recado').textContent=txt;$('ok-recado').hidden=!!o.pendente;
+    $('ok-google').href=r.google;$('ok-ics').href=r.ics;$('ok-botoes').hidden=!!o.pendente;
+    $('ok-local').textContent=r.local||'';
+    $('ok-video').hidden=!r.linkVideo||!!o.pendente;if(r.linkVideo)$('ok-video-a').href=r.linkVideo;
+    $('ok-email').textContent=o.pendente?'':o.emailEnviado?'Enviamos a confirmação para o seu e-mail, com o link para remarcar se precisar.':'';
+    $('ok-cod').textContent='Código do agendamento: '+r.id;
+    if(!o.pendente)festa();
+  }
+  $('ok-ger').onclick=function(e){e.preventDefault();abreGerenciar(gTok);};
+
+  // ----- gerenciar (#g=token) -----
+  async function abreGerenciar(t,manterRemarcar){
+    gTok=t;$('g-msg').textContent='';$('g-conf').hidden=true;
+    try{
+      var r=await fetch('/api/agendamento?acao=reserva&t='+encodeURIComponent(t),{cache:'no-store'});var j=await r.json().catch(function(){return {}});
+      if(!r.ok){erro(r.status===410?'O prazo para confirmar terminou':'Agendamento não encontrado',j.erro||'Confira o link do e-mail.');return;}
+      reserva=j.reserva;agenda=j.agenda;
+      if(manterRemarcar){entraRemarcar();return;}
+      desenhaGerenciar();telas('ger');
+      try{history.replaceState(null,'','#g='+t);}catch(e){}
+    }catch(e){erro('Sem conexão','Não foi possível abrir o agendamento. Tente de novo.');}
+  }
+  function desenhaGerenciar(){
+    var r=reserva,canc=r.status==='cancelado';
+    $('g-estado').textContent={aguardando:'Confirmado',pendente:'Esperando você confirmar pelo e-mail',atendido:'Atendimento realizado','nao-atendeu':'Não conseguimos falar com você',cancelado:'Cancelado'}[r.status]||r.status;
+    $('g-estado').className='estado'+(canc?' c':'');
+    $('g-info').innerHTML='<dt>Quando</dt><dd>'+esc(cap(r.rotulo))+', das '+r.hora+' às '+r.fim+'</dd><dt>Atendimento</dt><dd>'+esc(r.tipoNome||'Atendimento')+'</dd><dt>Nome</dt><dd>'+esc(r.nome)+' · '+esc(r.loja)+'</dd><dt>Onde</dt><dd>'+esc(r.local||'')+(r.linkVideo?'<br><a href="'+esc(r.linkVideo)+'" target="_blank" rel="noopener" style="color:var(--green-deep);font-weight:700">📹 Entrar na chamada de vídeo</a>':'')+'</dd><dt>Código</dt><dd>'+esc(r.id)+'</dd>';
+    $('g-botoes').hidden=!r.podeAlterar;$('g-google').href=r.google;
+  }
+  $('g-cancelar').onclick=function(){$('g-conf').hidden=false;$('g-sim').focus();};
+  $('g-nao').onclick=function(){$('g-conf').hidden=true;};
+  $('g-sim').onclick=async function(){
+    this.disabled=true;
+    try{var r=await fetch('/api/agendamento?acao=cancelar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({t:gTok})});var j=await r.json().catch(function(){return {}});
+      if(!r.ok)throw new Error(j.erro||'Não foi possível cancelar.');reserva=j.reserva;desenhaGerenciar();$('g-conf').hidden=true;
+      $('g-msg').className='msg';$('g-msg').textContent='Agendamento cancelado. Quando quiser, é só escolher um novo horário.';}
+    catch(e){$('g-msg').className='msg err';$('g-msg').textContent=e.message;}finally{this.disabled=false;}
+  };
+  $('g-remarcar').onclick=function(){entraRemarcar();};
+  function entraRemarcar(){
+    modo='remarcar';dia=null;hora=null;
+    $('p-tipo').hidden=true;numera(false);$('campos').hidden=true;
+    $('titulo').textContent='Remarcar atendimento';$('dados-tit').textContent='Confirmar';$('dados-sub').textContent='Seu horário atual: '+cap(reserva.rotulo)+' às '+reserva.hora+'. Ele só muda quando você confirmar.';
+    $('enviar').textContent='Confirmar novo horário';$('voltar-ger').hidden=false;
+    telas('passos');desenhaDias();atualiza();
+  }
+  $('voltar-ger').onclick=function(){location.reload();};
+
+  async function confirmarEmail(t){
+    try{var r=await fetch('/api/agendamento?acao=confirmar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({t:t})});var j=await r.json().catch(function(){return {}});
+      if(!r.ok){erro(r.status===410?'O prazo para confirmar terminou':'Não encontramos o agendamento',j.erro||'Confira o link do e-mail.');return;}
+      gTok=t;try{history.replaceState(null,'','#g='+t);}catch(e){}
+      mostraSucesso(j.reserva,{confirmado:true,emailEnviado:true});
+    }catch(e){erro('Sem conexão','Tente abrir o link de novo.');}
+  }
+
   function festa(){
     var e=$('ok-emoji'); e.classList.remove('festa'); void e.offsetWidth; e.classList.add('festa');
     var box=$('ok'), cores=['#ffd23f','#00a63e','#ff6b6b','#4dabf7','#b197fc','#ff922b'];
@@ -205,7 +350,11 @@ form.grid input:focus{outline:none;border-color:var(--green)}
       c.style.background=cores[i%cores.length];c.style.animationDelay=(Math.random()*0.15)+'s';box.appendChild(c);}
     setTimeout(function(){box.querySelectorAll('.confete').forEach(function(n){n.remove();});},2400);
   }
-  carregar();
+
+  var m=location.hash.match(/^#([gc])=([a-f0-9]{32})$/);
+  if(m&&m[1]==='g'){fetch('/api/agendamento',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){info=j;tipos=j.tipos||[];}).catch(function(){});abreGerenciar(m[2]);}
+  else if(m&&m[1]==='c')confirmarEmail(m[2]);
+  else carregar();
 })();
 </script>
 </body>

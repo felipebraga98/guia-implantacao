@@ -139,6 +139,8 @@
       box.addEventListener('click', function (e) {
         var b = e.target.closest('button[data-parar]');
         if (b) { e.preventDefault(); parar(b.getAttribute('data-parar'), b); return; }
+        var at = e.target.closest('button[data-atend]');
+        if (at) { e.preventDefault(); parar(at.getAttribute('data-atend'), at, 'em-atendimento'); return; }
         if (e.target.closest('.wm-som')) liberaSom();
       });
       if (document.body.dataset.wmPad === undefined) document.body.dataset.wmPad = document.body.style.paddingTop || '';
@@ -148,6 +150,8 @@
       return '<div class="wm-al"><div class="t">⏰ Atendimento ' + esc(quando(a)) + ' — ' + esc(a.hora) + ' · ' + esc(a.nome) + ' (' + esc(a.loja) + ')' +
         '<small>' + esc(a.tipoNome || 'Atendimento') + (a.consultorNome ? ' · consultor: ' + esc(a.consultorNome) : ' · sem consultor definido') + '</small></div>' +
         '<a class="wa" target="_blank" rel="noopener" href="' + esc(wa(a)) + '">Chamar no WhatsApp</a>' +
+        (a.sala ? '<a class="wa" style="background:#fff;color:#14251b" target="_blank" rel="noopener" href="' + esc(a.sala) + '">📹 Chamada</a>' : '') +
+        '<button type="button" class="parar" style="background:#ffd23f;color:#14251b" data-atend="' + esc(a.id) + '">✅ Em atendimento</button>' +
         '<button type="button" class="parar" data-parar="' + esc(a.id) + '">Parar alerta</button></div>';
     }).join('') + (somAtivo ? '' : '<button type="button" class="wm-som">🔇 O navegador bloqueou o som. Clique aqui (ou em qualquer lugar da página) para ouvir o alarme.</button>');
     var h = box.getBoundingClientRect().height;
@@ -170,14 +174,14 @@
     document.title = document.title.indexOf('⏰') === 0 ? tituloOriginal : '⏰ ATENDIMENTO ' + ativos[0].hora + ' — ' + ativos[0].nome;
   }
 
-  async function parar(id, botao) {
+  async function parar(id, botao, acao) {
     parando[id] = true; fechaNotif(id); desenha();
     if (botao) botao.disabled = true;
     try {
-      var r = await fetch(API + '?acao=parar', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() }, body: JSON.stringify({ id: id }) });
+      var r = await fetch(API + '?acao=' + (acao || 'parar'), { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() }, body: JSON.stringify({ id: id }) });
       if (!r.ok) throw new Error();
       ls('wm-parado-' + id, '1');
-      toast('Alerta parado para toda a equipe.');
+      toast(acao ? 'Marcado como em atendimento. O alerta parou para toda a equipe.' : 'Alerta parado para toda a equipe.');
       document.dispatchEvent(new CustomEvent('wm-agenda-mudou'));
     } catch (e) {
       delete parando[id]; desenha(); toast('Não consegui parar o alerta. Verifique a internet e tente de novo.');

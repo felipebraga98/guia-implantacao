@@ -86,7 +86,7 @@ dialog h2{margin:0;font:800 1.25rem var(--f-display)}
   </header>
 
   <section class="card auth" id="auth" hidden>
-    <h2>Entrar como administrador</h2>
+    <h2>Área restrita · entrar como administrador</h2>
     <form id="f-entrar">
       <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
       <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
@@ -95,7 +95,7 @@ dialog h2{margin:0;font:800 1.25rem var(--f-display)}
     <p class="msg" id="auth-msg" role="status"></p>
   </section>
 
-  <section class="card" id="negado" hidden><h2>Só para administradores</h2><p style="margin:0">Sua conta não tem acesso a esta página. Peça para um administrador.</p></section>
+  <section class="card" id="negado" hidden><h2>Só para administradores</h2><p style="margin:0 0 12px">Sua conta não tem permissão para esta área. Só administradores entram aqui.</p><button class="btn g" type="button" id="outra">Entrar com outra conta</button></section>
 
   <div id="app" hidden style="display:contents">
     <div class="resumo" id="resumo"></div>
@@ -248,9 +248,15 @@ dialog h2{margin:0;font:800 1.25rem var(--f-display)}
     e.preventDefault();$('auth-msg').textContent='';
     try{var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
       var j=await r.json().catch(function(){return {}});if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
+      if(!j.admin){
+        // não guarda o login de quem não é administrador nesta página
+        fetch('/api/implantacao?acao=sair',{method:'POST',headers:{'Authorization':'Bearer '+j.token}}).catch(function(){});
+        $('e-pass').value='';throw new Error('Acesso negado: só administradores entram nesta área.');
+      }
       guarda(j.token);$('e-pass').value='';carregar();if(window.WMAlertas)WMAlertas.atualizar();
     }catch(err){$('auth-msg').textContent=err.message;}
   });
+  $('outra').onclick=function(){tela('auth');$('e-user').focus();};
   if(token)carregar();else tela('auth');
 })();
 </script>
