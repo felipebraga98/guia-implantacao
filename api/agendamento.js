@@ -37,7 +37,8 @@ const PADRAO = {
   tipos: [{ id: 'implantacao', nome: 'Configuração do painel', descricao: 'Vamos configurar o seu painel com você.', duracao: 60, ativo: true }],
   local: 'Vamos chamar você no WhatsApp informado.',
   linkVideo: '',
-  chamadaPropria: true,   // cria uma sala de vídeo WhatsMenu diferente para cada agendamento
+  chamadaPropria: true,
+  alarmeMin: 15,          // quantos minutos antes o alarme da equipe começa a tocar   // cria uma sala de vídeo WhatsMenu diferente para cada agendamento
   lembretes: { confirmacao: true, vespera: true, umaHora: true },
   confirmarEmail: false,  // exige que o cliente confirme pelo e-mail em até 30 min
   textoSucesso: 'Te espero {quando}, para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚',
@@ -123,6 +124,7 @@ function normalizaConfig(b, atual) {
   c.lembretes = { confirmacao: !!(b.lembretes && b.lembretes.confirmacao), vespera: !!(b.lembretes && b.lembretes.vespera), umaHora: !!(b.lembretes && b.lembretes.umaHora) };
   c.confirmarEmail = !!b.confirmarEmail;
   c.chamadaPropria = b.chamadaPropria !== false;
+  c.alarmeMin = n(b.alarmeMin, 1, 180, atual.alarmeMin || 15);
   c.textoSucesso = limpa(b.textoSucesso, 400) || PADRAO.textoSucesso;
   c.icsChave = b.novaChave ? crypto.randomBytes(16).toString('hex') : atual.icsChave;
   return c;
@@ -555,7 +557,7 @@ module.exports = async function handler(req, res) {
       const alarmes = reservas.filter((r) => {
         if (r.status !== 'aguardando' || r.alarmeParado || r.emAtendimento) return false;
         const ini = inicioMs(r.data, r.hora);
-        return agora >= ini - 15 * 60e3 && agora <= ini + 120 * 60e3;
+        return agora >= ini - (c.alarmeMin || 15) * 60e3 && agora <= ini + 120 * 60e3;
       }).sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora)).map((r) => ({
         id: r.id, nome: r.nome, loja: r.loja, data: r.data, hora: r.hora, whatsapp: r.whatsapp,
         min: Math.round((inicioMs(r.data, r.hora) - agora) / 60000), consultorNome: r.consultorNome || '', tipoNome: r.tipoNome || '',
