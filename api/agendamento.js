@@ -37,6 +37,7 @@ const PADRAO = {
   tipos: [{ id: 'implantacao', nome: 'Configuração do painel', descricao: 'Vamos configurar o seu painel com você.', duracao: 60, ativo: true }],
   local: 'Vamos chamar você no WhatsApp informado.',
   linkVideo: '',
+  chamadaPropria: true,   // cria uma sala de vídeo WhatsMenu diferente para cada agendamento
   lembretes: { confirmacao: true, vespera: true, umaHora: true },
   confirmarEmail: false,  // exige que o cliente confirme pelo e-mail em até 30 min
   textoSucesso: 'Te espero {quando}, para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚',
@@ -121,6 +122,7 @@ function normalizaConfig(b, atual) {
   c.linkVideo = /^https:\/\/\S+$/.test(limpa(b.linkVideo, 300)) ? limpa(b.linkVideo, 300) : '';
   c.lembretes = { confirmacao: !!(b.lembretes && b.lembretes.confirmacao), vespera: !!(b.lembretes && b.lembretes.vespera), umaHora: !!(b.lembretes && b.lembretes.umaHora) };
   c.confirmarEmail = !!b.confirmarEmail;
+  c.chamadaPropria = b.chamadaPropria !== false;
   c.textoSucesso = limpa(b.textoSucesso, 400) || PADRAO.textoSucesso;
   c.icsChave = b.novaChave ? crypto.randomBytes(16).toString('hex') : atual.icsChave;
   return c;
@@ -211,13 +213,23 @@ const siteAgenda = () => (process.env.AGENDA_URL || 'https://agenda-whatsmenu.ve
 const tipoDe = (c, id) => c.tipos.find((t) => t.id === id) || c.tipos.find((t) => t.ativo) || PADRAO.tipos[0];
 const fimDe = (r) => deMin(paraMin(r.hora) + (r.duracao || 60));
 const linkGerenciar = (r) => siteAgenda() + '/#g=' + r.token;
+const novaSala = () => 'wm-' + Array.from(crypto.randomBytes(10)).map((b) => 'abcdefghjkmnpqrstuvwxyz23456789'[b % 31]).join('');
+async function garantirSala(r) {
+  if (r.sala) return false;
+  r.sala = novaSala();
+  await redis(['SET', 'chamada:sala:' + r.sala, JSON.stringify({ id: r.id, nome: String(r.nome || '').split(' ')[0] })]);
+  return true;
+}
+const linkSala = (r) => (r.sala ? siteAgenda() + '/chamada.html?sala=' + r.sala : '');
+/** Link de vídeo que vale para o atendimento: o link fixo do agendamento, o padrão da config, ou a sala WhatsMenu. */
+const linkDaChamada = (r, c) => r.linkVideo || c.linkVideo || (c.chamadaPropria !== false ? linkSala(r) : '');
 const icsData = (ms) => new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
 function linkGoogle(r, c) {
   const ini = inicioMs(r.data, r.hora), fim = ini + (r.duracao || 60) * 60e3;
-  const det = 'Atendimento com a equipe WhatsMenu (' + (r.tipoNome || 'atendimento') + ').\n' + (r.linkVideo || c.linkVideo ? 'Link: ' + (r.linkVideo || c.linkVideo) + '\n' : '') + 'Gerenciar: ' + linkGerenciar(r);
+  const det = 'Atendimento com a equipe WhatsMenu (' + (r.tipoNome || 'atendimento') + ').\n' + (linkDaChamada(r, c) ? 'Chamada de vídeo: ' + linkDaChamada(r, c) + '\n' : '') + 'Gerenciar: ' + linkGerenciar(r);
   return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('WhatsMenu · ' + (r.tipoNome || 'Atendimento')) +
-    '&dates=' + icsData(ini) + '/' + icsData(fim) + '&details=' + encodeURIComponent(det) + '&location=' + encodeURIComponent(r.linkVideo || c.linkVideo || 'WhatsApp');
+    '&dates=' + icsData(ini) + '/' + icsData(fim) + '&details=' + encodeURIComponent(det) + '&location=' + encodeURIComponent(linkDaChamada(r, c) || 'WhatsApp');
 }
 
 const icsTexto = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, (m) => '\\' + m);
@@ -228,7 +240,7 @@ function eventoIcs(r, c, paraEquipe) {
     ? ((r.tipoNome || '') + '\nWhatsApp: ' + r.whatsapp + '\nE-mail: ' + r.email + (r.notas ? '\nNotas: ' + r.notas : ''))
     : ('Atendimento com a equipe WhatsMenu.\nGerenciar: ' + linkGerenciar(r));
   return ['BEGIN:VEVENT', 'UID:' + r.id + '@whatsmenu-agenda', 'DTSTAMP:' + icsData(Date.now()), 'DTSTART:' + icsData(ini), 'DTEND:' + icsData(fim),
-    'SUMMARY:' + icsTexto(titulo), 'DESCRIPTION:' + icsTexto(desc), 'LOCATION:' + icsTexto(r.linkVideo || c.linkVideo || 'WhatsApp'),
+    'SUMMARY:' + icsTexto(titulo), 'DESCRIPTION:' + icsTexto(desc), 'LOCATION:' + icsTexto(linkDaChamada(r, c) || 'WhatsApp'),
     'STATUS:' + (r.status === 'cancelado' ? 'CANCELLED' : 'CONFIRMED'),
     'BEGIN:VALARM', 'TRIGGER:-PT15M', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsTexto(titulo), 'END:VALARM', 'END:VEVENT'].join('\r\n');
 }
@@ -238,11 +250,11 @@ function calendarioIcs(eventos, nome) {
 }
 
 function blocoDetalhes(r, c) {
-  const link = r.linkVideo || c.linkVideo;
+  const link = linkDaChamada(r, c);
   return '<div style="background:#e6f6ec;border-radius:12px;padding:14px 16px;margin:14px 0">' +
     '<div style="font-size:18px;font-weight:bold;color:#007a2e">' + esc(dataBonita(r.data).replace(/^./, (x) => x.toUpperCase())) + ' às ' + r.hora + '</div>' +
     '<div>' + esc(r.tipoNome || 'Atendimento') + ' · cerca de ' + (r.duracao || 60) + ' minutos</div>' +
-    '<div style="margin-top:6px">' + esc(c.local) + (link ? '<br>Link: <a href="' + esc(link) + '">' + esc(link) + '</a>' : '') + '</div></div>';
+    '<div style="margin-top:6px">' + esc(c.local) + (link ? '<br>Se combinarmos chamada de vídeo, use este link: <a href="' + esc(link) + '">' + esc(link) + '</a>' : '') + '</div></div>';
 }
 
 async function emailCliente(tipo, r, c) {
@@ -322,7 +334,7 @@ async function enviarLembretes(c, reservas) {
 
 // ---------- dados ----------
 function publico(r, c) {
-  const link = r.linkVideo || c.linkVideo;
+  const link = linkDaChamada(r, c);
   return {
     id: r.id, status: r.status, data: r.data, hora: r.hora, fim: fimDe(r), rotulo: dataBonita(r.data),
     nome: r.nome, loja: r.loja, tipoNome: r.tipoNome, duracao: r.duracao || 60, local: c.local, linkVideo: link || '',
@@ -330,9 +342,11 @@ function publico(r, c) {
     podeAlterar: r.status === 'aguardando' || r.status === 'pendente',
   };
 }
-function paraEquipe(r) {
+function paraEquipe(r, c) {
   const o = Object.assign({}, r);
   delete o.token;
+  o.linkChamada = c ? linkDaChamada(r, c) : '';
+  o.salaWhatsMenu = r.sala ? linkSala(r) + '&equipe=1' : '';
   o.fim = fimDe(r); o.rotulo = dataBonita(r.data);
   return o;
 }
@@ -378,6 +392,7 @@ async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, c
       criadoEm: Date.now(), origem, notas: notas || '', consultor: '', consultorNome: '', hist: [],
     }, dados);
     if (r.status === 'pendente') r.expiraEm = Date.now() + 30 * 60e3;
+    await garantirSala(r);
     if (consultor) { r.consultor = consultor.usuario; r.consultorNome = consultor.nome; }
     historico(r, eu ? eu.nome : 'Cliente', eu ? 'Agendado pela equipe' : 'Agendado pelo link');
     await salvar(r);
@@ -394,7 +409,7 @@ async function remarcar(c, r, data, hora, quem, ignorarAntecedencia) {
     historico(r, quem, 'Remarcado de ' + dataBonita(r.data) + ' ' + r.hora + ' para ' + dataBonita(data) + ' ' + hora);
     r.data = data; r.hora = hora;
     if (r.status !== 'pendente') r.status = 'aguardando';
-    delete r.alarmeParado;
+    delete r.alarmeParado; delete r.emAtendimento;
     await salvar(r);
     return r;
   });
@@ -538,16 +553,33 @@ module.exports = async function handler(req, res) {
       const agora = Date.now();
       const desde = Number(param(req, 'desde')) || agora - 5 * 60e3;
       const alarmes = reservas.filter((r) => {
-        if (r.status !== 'aguardando' || r.alarmeParado) return false;
+        if (r.status !== 'aguardando' || r.alarmeParado || r.emAtendimento) return false;
         const ini = inicioMs(r.data, r.hora);
         return agora >= ini - 15 * 60e3 && agora <= ini + 120 * 60e3;
       }).sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora)).map((r) => ({
         id: r.id, nome: r.nome, loja: r.loja, data: r.data, hora: r.hora, whatsapp: r.whatsapp,
         min: Math.round((inicioMs(r.data, r.hora) - agora) / 60000), consultorNome: r.consultorNome || '', tipoNome: r.tipoNome || '',
+        sala: r.sala && c.chamadaPropria !== false && !r.linkVideo && !c.linkVideo ? linkSala(r) + '&equipe=1' : (r.linkVideo || c.linkVideo || ''),
       }));
       const novos = reservas.filter((r) => r.criadoEm > desde && r.origem !== 'equipe' && OCUPA.concat(['pendente']).includes(r.status))
         .slice(-10).map((r) => ({ id: r.id, nome: r.nome, loja: r.loja, rotulo: dataBonita(r.data), hora: r.hora, criadoEm: r.criadoEm }));
       return res.status(200).json({ agora, eu: { usuario: eu.usuario, nome: eu.nome, admin: eu.admin, trocarSenha: eu.trocarSenha }, alarmes, novos });
+    }
+
+    if (acao === 'em-atendimento' && req.method === 'POST') {
+      const b = lerBody(req);
+      const raw = await redis(['HGET', K.reservas, limpa(b.id, 30)]);
+      if (!raw) return res.status(404).json({ erro: 'Agendamento não encontrado.' });
+      const r = JSON.parse(raw);
+      if (b.desfazer) { delete r.emAtendimento; historico(r, eu.nome, 'Desmarcou "em atendimento"'); }
+      else if (!r.emAtendimento) {
+        r.emAtendimento = { por: eu.nome, em: Date.now() };
+        if (!r.alarmeParado) r.alarmeParado = { por: eu.nome, em: Date.now() };
+        if (!r.consultor) { r.consultor = eu.usuario; r.consultorNome = eu.nome; }
+        historico(r, eu.nome, 'Iniciou o atendimento');
+      }
+      await salvar(r);
+      return res.status(200).json({ reserva: paraEquipe(r, c) });
     }
 
     if (acao === 'parar' && req.method === 'POST') {
@@ -560,8 +592,10 @@ module.exports = async function handler(req, res) {
 
     if (acao === 'lista' && req.method === 'GET') {
       const desde = ymd(new Date(agoraBR().getTime() - 120 * 86400e3));
-      const lista = (await todasReservas()).filter((r) => r.data >= desde && !(r.status === 'pendente' && (r.expiraEm || 0) < Date.now()))
-        .map(paraEquipe).sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora) || a.criadoEm - b.criadoEm);
+      const todas = await todasReservas();
+      for (const r of todas) { if (r.data >= hojeBR() && r.status !== 'cancelado' && (await garantirSala(r))) await salvar(r); }
+      const lista = todas.filter((r) => r.data >= desde && !(r.status === 'pendente' && (r.expiraEm || 0) < Date.now()))
+        .map((r) => paraEquipe(r, c)).sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora) || a.criadoEm - b.criadoEm);
       const cfgVisivel = Object.assign({}, c);
       if (!eu.admin) delete cfgVisivel.icsChave;
       return res.status(200).json({
@@ -595,7 +629,7 @@ module.exports = async function handler(req, res) {
       historico(r, eu.nome, 'Status: ' + novo);
       await salvar(r);
       if (novo === 'cancelado' && antes !== 'cancelado' && b.avisar) { try { await emailCliente('cancelado', r, c); } catch (e) {} }
-      return res.status(200).json({ reserva: paraEquipe(r) });
+      return res.status(200).json({ reserva: paraEquipe(r, c) });
     }
 
     if (acao === 'editar' && req.method === 'PATCH') {
@@ -618,7 +652,7 @@ module.exports = async function handler(req, res) {
         }
       });
       if (mud.length) { historico(r, eu.nome, 'Editou ' + mud.join(', ')); await salvar(r); }
-      return res.status(200).json({ reserva: paraEquipe(r) });
+      return res.status(200).json({ reserva: paraEquipe(r, c) });
     }
 
     if (acao === 'remarcar-equipe' && req.method === 'POST') {
@@ -631,7 +665,7 @@ module.exports = async function handler(req, res) {
       try { await remarcar(c, r, data, hora, eu.nome, true); } catch (e) { return res.status(e.codigo || 500).json({ erro: e.message }); }
       let avisou = false;
       if (b.avisar) { try { avisou = await emailCliente('remarcado', r, c); } catch (e) {} }
-      return res.status(200).json({ reserva: paraEquipe(r), emailEnviado: avisou });
+      return res.status(200).json({ reserva: paraEquipe(r, c), emailEnviado: avisou });
     }
 
     if (acao === 'novo' && req.method === 'POST') {
@@ -648,7 +682,7 @@ module.exports = async function handler(req, res) {
       catch (e) { return res.status(e.codigo || 500).json({ erro: e.message }); }
       let avisou = false;
       if (b.avisar && r.email) { try { avisou = await emailCliente('confirmado', r, c); } catch (e) {} }
-      return res.status(200).json({ reserva: paraEquipe(r), emailEnviado: avisou });
+      return res.status(200).json({ reserva: paraEquipe(r, c), emailEnviado: avisou });
     }
 
     if (acao === 'bloqueio' && req.method === 'POST') {
