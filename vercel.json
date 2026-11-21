@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "api/desk.js": { "maxDuration": 20 }
+  }
+}

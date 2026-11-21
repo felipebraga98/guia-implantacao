@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WhatsMenuDesk</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22; --yellow:#ffd23f;
+  --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --bad:#b3261e; --bad-soft:#fdecec;
+  --dark:#0b1510; --dark2:#13241a; --dark3:#1d3427;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--green);color:var(--ink);font:15px/1.5 var(--f-body)}
+.pag{padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
+.back:hover,.back:focus-visible{background:#fff;color:var(--green-deep);outline:none}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.85}
+h1{font:800 clamp(2rem,5vw,2.8rem)/1.05 var(--f-display);margin:.2em 0 .25em}
+.sub{margin:0;max-width:66ch;opacity:.95}
+.me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600}
+.me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .85rem var(--f-body);cursor:pointer}
+.card{background:var(--card);border-radius:14px;padding:22px clamp(16px,3vw,26px);box-shadow:0 2px 0 var(--green-deep);min-width:0}
+.card h2{margin:0 0 10px;font:800 1.2rem/1.2 var(--f-display)}
+label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
+input{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);min-width:0}
+input:focus{outline:none;border-color:var(--green)}
+.btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:700 .95rem var(--f-body);cursor:pointer;white-space:nowrap}
+.btn.y{background:var(--yellow);color:var(--ink)}
+.btn.g{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.55;cursor:wait}
+.msg{margin:8px 0 0;font-weight:600;color:var(--bad)}
+.muted{color:var(--muted)}
+.auth form,.con form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.auth form>*,.con form>*{min-width:0}
+input{width:100%}
+.con .id{font:800 1.5rem var(--f-display);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.con .sen{font:700 1.3rem Consolas,monospace;letter-spacing:.12em}
+.recentes{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.recentes button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer;font:600 .85rem var(--f-body);text-align:left}
+.recentes button small{display:block;color:var(--muted);font-weight:500}
+.passos{margin:0;padding-left:20px;display:grid;gap:6px}
+.dl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.dl code{background:var(--green-soft);border-radius:8px;padding:8px 12px;flex:1;min-width:200px;overflow-wrap:anywhere}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th{text-align:left;background:var(--green-soft);color:var(--green-deep);padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:80;max-width:calc(100vw - 32px);text-align:center}
+
+/* sessão */
+.sessao{position:fixed;inset:0;overscroll-behavior:none;background:var(--dark);color:#eef6f1;display:grid;grid-template-rows:auto 1fr;z-index:50}
+.barra{display:flex;align-items:center;gap:8px;padding:8px max(10px,env(safe-area-inset-right,0px)) 8px max(10px,env(safe-area-inset-left,0px));background:var(--dark2);overflow-x:auto;scrollbar-width:thin}
+.barra .nome{font-weight:800;white-space:nowrap;margin-right:6px}
+.barra .nome small{display:block;font-weight:600;color:#9fb8a8;font-size:.75rem}
+@media (max-width:720px){.barra{flex-wrap:wrap;gap:6px}.barra .nome{flex:1 0 100%;margin:0;overflow:hidden;text-overflow:ellipsis}.barra .tb{padding:7px 10px;font-size:.85rem}}
+.tb{background:var(--dark3);color:#eef6f1;border:0;border-radius:9px;padding:8px 11px;font:700 .82rem var(--f-body);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tb:hover{background:#28473a}
+.tb[aria-pressed="true"]{background:#fff;color:var(--dark)}
+.tb.sair{background:#c62828;margin-left:auto}
+.tb:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+.stat{font-size:.75rem;color:#9fb8a8;white-space:nowrap;font-variant-numeric:tabular-nums}
+.palco{position:relative;overflow:hidden;display:grid;place-items:center;touch-action:none;outline:none}
+.palco.rolar{overflow:auto;place-items:start}
+.palco video{max-width:100%;max-height:100%;background:#000;cursor:default;display:block}
+.palco.rolar video{max-width:none;max-height:none}
+.palco.so-ver video{cursor:not-allowed}
+.espera{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:#cfe2d6}
+.espera b{display:block;font:800 1.3rem var(--f-display);color:#fff;margin-bottom:6px}
+.menu{position:absolute;z-index:60;background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.4);padding:6px;display:grid;min-width:220px}
+.menu button{border:0;background:#fff;text-align:left;padding:9px 12px;border-radius:8px;font:600 .9rem var(--f-body);cursor:pointer}
+.menu button:hover{background:var(--green-soft)}
+.painel{position:absolute;right:12px;top:58px;bottom:12px;width:min(340px,calc(100vw - 24px));background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.4);display:grid;grid-template-rows:auto 1fr auto;z-index:55}
+.painel h3{margin:0;padding:12px 14px;font:800 1rem var(--f-display);display:flex;justify-content:space-between}
+.painel h3 button{border:0;background:none;font-size:1.2rem;cursor:pointer}
+.msgs{overflow:auto;padding:0 14px;display:flex;flex-direction:column;gap:6px}
+.m{background:var(--green-soft);border-radius:10px;padding:6px 10px;align-self:flex-start;max-width:90%;overflow-wrap:anywhere}
+.m.eu{background:#e8efff;align-self:flex-end}.m.sis{background:#fff7d1;align-self:center;font-size:.85rem}
+.m b{display:block;font-size:.72rem;color:var(--muted)}
+.painel form{display:flex;gap:6px;padding:12px}
+.painel input{flex:1}
+.dlg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:70;padding:16px}
+.dlg form{background:#fff;color:var(--ink);border-radius:14px;padding:18px;width:min(460px,100%);display:grid;gap:10px}
+.dlg h3{margin:0;font:800 1.1rem var(--f-display)}
+.dlg textarea{font:15px var(--f-body);border:1.5px solid var(--line);border-radius:10px;padding:10px;min-height:110px;resize:vertical}
+.dlg .row{display:flex;gap:8px;justify-content:flex-end}
+.teclado-cel{position:absolute;left:0;right:0;bottom:0;background:var(--dark2);padding:8px;display:flex;gap:6px;flex-wrap:wrap;z-index:56}
+.teclado-cel input{flex:1;min-width:120px;background:var(--dark3);color:#fff;border-color:#2c4a39}
+@media (max-width:720px){.auth form,.con form{grid-template-columns:1fr}.stat{display:none}}
+</style>
+</head>
+<body>
+<div class="pag" id="pag">
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="./">← Voltar ao Suporte</a>
+      <div class="eyebrow">Suporte · WhatsMenu</div>
+      <h1>WhatsMenuDesk</h1>
+      <p class="sub">Acesso remoto da WhatsMenu. O cliente abre o programa, passa o ID e a senha, autoriza e você vê e controla o computador dele por aqui. Funciona também pelo celular.</p>
+    </div>
+    <div class="me" id="me" hidden><span id="me-nome"></span><button type="button" id="sair">Sair</button></div>
+  </header>
+
+  <section class="card auth" id="auth" hidden>
+    <h2>Entrar</h2>
+    <form id="f-entrar">
+      <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
+      <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+    <p class="muted" style="margin:10px 0 0">Mesmo login das outras páginas do guia.</p>
+    <p class="msg" id="auth-msg" role="status"></p>
+  </section>
+
+  <div id="app" hidden style="display:contents">
+    <section class="card con">
+      <h2>Conectar no computador do cliente</h2>
+      <form id="f-con">
+        <label>ID do cliente<input id="c-id" inputmode="numeric" autocomplete="off" placeholder="123 456 789" maxlength="11" required class="id"></label>
+        <label>Senha<input id="c-senha" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="abc123" maxlength="12" required class="sen"></label>
+        <button class="btn" type="submit" id="b-con">Conectar</button>
+      </form>
+      <p class="msg" id="con-msg" role="status"></p>
+      <div class="recentes" id="recentes"></div>
+    </section>
+
+    <section class="card">
+      <h2>Como o cliente instala</h2>
+      <ol class="passos">
+        <li>Mande o link de download para o cliente (ou a mensagem pronta).</li>
+        <li>Ele abre o arquivo <b>WhatsMenuDesk.exe</b>. Se o Windows avisar, clique em <b>Mais informações › Executar mesmo assim</b>.</li>
+        <li>Ele passa o <b>ID</b> e a <b>senha</b> que aparecem na janela. Você conecta aqui.</li>
+        <li>No computador dele aparece a confirmação: ele clica em <b>Sim</b> e escolhe <b>Tela inteira</b>.</li>
+      </ol>
+      <div class="dl" style="margin-top:12px"><code id="link-dl"></code><button class="btn y" type="button" id="cp-dl">Copiar link</button><button class="btn" type="button" id="cp-msg">Copiar mensagem pronta</button></div>
+    </section>
+
+    <section class="card" id="hist-card" hidden>
+      <h2>Histórico de acessos</h2>
+      <div class="tbl"><table><thead><tr><th>Quando</th><th>Atendente</th><th>Computador</th><th>ID</th><th>Duração</th><th>Resultado</th></tr></thead><tbody id="hist"></tbody></table></div>
+    </section>
+  </div>
+</div>
+</div>
+
+<div class="sessao" id="sessao" hidden>
+  <div class="barra" role="toolbar" aria-label="Controles do acesso remoto">
+    <div class="nome" id="s-nome">Conectando…<small id="s-st">Aguardando o cliente</small></div>
+    <button class="tb" type="button" id="b-ajuste" aria-pressed="true" title="Ajustar à tela ou tamanho real">⤢ Ajustar</button>
+    <button class="tb" type="button" id="b-sover" aria-pressed="false" title="Só olhar, sem mexer">👁 Só ver</button>
+    <button class="tb" type="button" id="b-teclas" title="Atalhos de teclado">⌨ Teclas</button>
+    <button class="tb" type="button" id="b-texto" title="Digitar um texto no computador do cliente">✎ Digitar texto</button>
+    <button class="tb" type="button" id="b-clip" title="Área de transferência">📋 Copiar/colar</button>
+    <button class="tb" type="button" id="b-arq" title="Enviar arquivo">📁 Enviar arquivo</button>
+    <button class="tb" type="button" id="b-chat" aria-pressed="false" title="Conversa">💬 Conversa</button>
+    <button class="tb" type="button" id="b-cel" hidden title="Abrir teclado do celular">📱 Teclado</button>
+    <button class="tb" type="button" id="b-cheia" title="Tela cheia">⛶</button>
+    <button class="tb" type="button" id="b-foto" title="Salvar print da tela do cliente">📷</button>
+    <span class="stat" id="s-stat"></span>
+    <button class="tb sair" type="button" id="b-fim">Encerrar</button>
+  </div>
+  <div class="palco" id="palco" tabindex="0" aria-label="Tela do cliente. Clique para controlar.">
+    <video id="video" autoplay playsinline muted></video>
+    <div class="espera" id="espera"><div><b id="esp-tit">Aguardando o cliente permitir…</b><span id="esp-tx">No computador dele apareceu uma confirmação. Ele precisa clicar em Sim e escolher "Tela inteira".</span></div></div>
+    <div class="menu" id="m-teclas" hidden>
+      <button type="button" data-k="ControlLeft,AltLeft,Delete">Ctrl + Alt + Del (não funciona no Windows)</button>
+      <button type="button" data-k="ControlLeft,ShiftLeft,Escape">Gerenciador de Tarefas (Ctrl+Shift+Esc)</button>
+      <button type="button" data-k="MetaLeft">Tecla Windows</button>
+      <button type="button" data-k="MetaLeft,KeyD">Mostrar área de trabalho (Win+D)</button>
+      <button type="button" data-k="MetaLeft,KeyE">Explorador de arquivos (Win+E)</button>
+      <button type="button" data-k="MetaLeft,KeyR">Executar (Win+R)</button>
+      <button type="button" data-k="AltLeft,Tab">Alternar janela (Alt+Tab)</button>
+      <button type="button" data-k="AltLeft,F4">Fechar janela (Alt+F4)</button>
+      <button type="button" data-k="ControlLeft,KeyC">Copiar (Ctrl+C)</button>
+      <button type="button" data-k="ControlLeft,KeyV">Colar (Ctrl+V)</button>
+      <button type="button" data-k="F5">Atualizar (F5)</button>
+      <button type="button" data-k="PrintScreen">Print Screen</button>
+    </div>
+    <div class="menu" id="m-clip" hidden>
+      <button type="button" id="clip-enviar">Enviar meu texto copiado para o cliente</button>
+      <button type="button" id="clip-pegar">Trazer o texto copiado do cliente</button>
+    </div>
+    <aside class="painel" id="painel" hidden>
+      <h3>Conversa <button type="button" id="p-x" aria-label="Fechar conversa">×</button></h3>
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <form id="f-chat"><input id="chat-tx" maxlength="1000" placeholder="Mensagem para o cliente" autocomplete="off"><button class="btn" type="submit">Enviar</button></form>
+    </aside>
+    <div class="teclado-cel" id="tcel" hidden>
+      <input id="tcel-in" placeholder="Toque aqui e digite" autocomplete="off" autocapitalize="off">
+      <button class="tb" type="button" data-cel="Enter">Enter</button><button class="tb" type="button" data-cel="Backspace">⌫</button><button class="tb" type="button" data-cel="Escape">Esc</button><button class="tb" type="button" data-cel="Tab">Tab</button>
+    </div>
+  </div>
+</div>
+
+<div class="dlg" id="d-texto" hidden><form id="f-texto">
+  <h3>Digitar texto no computador do cliente</h3>
+  <p class="muted" style="margin:0">O texto é digitado onde o cursor estiver piscando no computador do cliente. Bom para senhas de Wi-Fi, e-mails e endereços.</p>
+  <textarea id="t-texto" maxlength="5000"></textarea>
+  <div class="row"><button class="btn g" type="button" id="t-cancel">Cancelar</button><button class="btn" type="submit">Digitar</button></div>
+</form></div>
+<div class="dlg" id="d-clip" hidden><form id="f-clip">
+  <h3 id="dclip-tit">Texto copiado no cliente</h3>
+  <textarea id="t-clip" readonly></textarea>
+  <div class="row"><button class="btn g" type="button" id="clip-x">Fechar</button><button class="btn" type="button" id="clip-cp">Copiar para mim</button></div>
+</form></div>
+<input type="file" id="arq" hidden>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var API='/api/desk', token='', eu=null, sess=null, LINK='https://agenda-whatsmenu.vercel.app/WhatsMenuDesk.exe', PAGINA='https://agenda-whatsmenu.vercel.app/suporte-remoto.html';
+  var ICE=[{urls:['stun:stun.l.google.com:19302']}];
+  try{token=localStorage.getItem('impl-token')||'';}catch(e){}
+  function guarda(t){token=t;try{t?localStorage.setItem('impl-token',t):localStorage.removeItem('impl-token');}catch(e){}}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},4000);}
+  function dorme(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  function copia(t,ok){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast(ok)}).catch(function(){toast('Não consegui copiar automaticamente.')});}
+
+  async function api(acao,corpo,metodo){
+    var r=await fetch(API+'?acao='+acao,{method:metodo||'POST',headers:{'Content-Type':'application/json','Authorization':token?'Bearer '+token:''},body:metodo==='GET'?undefined:JSON.stringify(corpo||{}),cache:'no-store'});
+    var j=await r.json().catch(function(){return {}});
+    if(r.status===401){guarda('');tela('auth');throw new Error('login');}
+    if(!r.ok)throw new Error(j.erro||('Erro '+r.status));
+    return j;
+  }
+  function tela(q){$('auth').hidden=q!=='auth';$('app').hidden=q!=='app';$('me').hidden=q!=='app';}
+
+  async function inicio(){
+    try{
+      var r=await fetch('/api/implantacao?acao=eu',{headers:{Authorization:'Bearer '+token}});
+      if(!r.ok){guarda('');tela('auth');return;}
+      eu=await r.json();$('me-nome').textContent=eu.nome;tela('app');recentes();
+      if(eu.admin){$('hist-card').hidden=false;historico();}
+    }catch(e){tela('auth');}
+  }
+  async function historico(){
+    try{var j=await api('historico',null,'GET');
+      $('hist').innerHTML=j.lista.slice(0,60).map(function(l){var d=new Date(l.pedido||l.fim);var m=Math.floor((l.segundos||0)/60);
+        return '<tr><td>'+d.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</td><td>'+esc(l.tecnico)+'</td><td>'+esc(l.nomePC)+'</td><td>'+esc(l.id)+'</td><td>'+(l.segundos?m+' min '+(l.segundos%60)+' s':'—')+'</td><td>'+esc(l.resultado)+'</td></tr>';}).join('')||'<tr><td colspan="6">Nenhum acesso ainda.</td></tr>';
+    }catch(e){}
+  }
+  function lerRecentes(){try{return JSON.parse(localStorage.getItem('desk-recentes')||'[]');}catch(e){return [];}}
+  function recentes(){
+    var l=lerRecentes();
+    $('recentes').innerHTML=l.length?'<span class="muted" style="align-self:center">Recentes:</span>'+l.map(function(r){return '<button type="button" data-id="'+esc(r.id)+'">'+esc(r.id.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'))+'<small>'+esc(r.nome||'')+'</small></button>'}).join(''):'';
+  }
+  $('recentes').addEventListener('click',function(e){var b=e.target.closest('button[data-id]');if(!b)return;$('c-id').value=b.dataset.id.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3');$('c-senha').focus();});
+  $('c-id').addEventListener('input',function(){var v=this.value.replace(/\D/g,'').slice(0,9);this.value=v.replace(/(\d{3})(?=\d)/g,'$1 ');});
+
+  // ---------- conectar ----------
+  $('f-con').addEventListener('submit',async function(e){
+    e.preventDefault();$('con-msg').textContent='';
+    var id=$('c-id').value.replace(/\D/g,''),senha=$('c-senha').value.trim();
+    if(id.length!==9){$('con-msg').textContent='O ID tem 9 números.';return;}
+    $('b-con').disabled=true;$('b-con').textContent='Conectando…';
+    try{
+      var j=await api('conectar',{id:id,senha:senha});
+      if(j.ice)ICE=j.ice;
+      var l=lerRecentes().filter(function(r){return r.id!==id});l.unshift({id:id,nome:j.nomePC});try{localStorage.setItem('desk-recentes',JSON.stringify(l.slice(0,6)));}catch(x){}
+      recentes();$('c-senha').value='';
+      abreSessao(j.sid,j.nomePC,id);
+    }catch(err){if(err.message!=='login')$('con-msg').textContent=err.message;}
+    finally{$('b-con').disabled=false;$('b-con').textContent='Conectar';}
+  });
+
+  function abreSessao(sid,nomePC,id){
+    sess={sid:sid,nome:nomePC,id:id,pc:null,ctrl:null,arq:null,ativo:true,soVer:false,info:null,bytes:0,tsBytes:Date.now()};
+    $('sessao').hidden=false;$('pag').setAttribute('aria-hidden','true');
+    $('s-nome').firstChild.textContent=nomePC||('ID '+id);$('s-st').textContent='Aguardando o cliente permitir';
+    $('espera').hidden=false;$('esp-tit').textContent='Aguardando o cliente permitir…';$('esp-tx').textContent='No computador dele apareceu uma confirmação. Ele precisa clicar em Sim e escolher "Tela inteira".';
+    $('msgs').innerHTML='';$('b-cel').hidden=!('ontouchstart' in window);
+    sistema('Pedido enviado para '+(nomePC||id)+'.');
+    ciclo(sess);
+  }
+
+  async function ciclo(s){
+    while(s.ativo){
+      try{
+        var j=await api('tecnico-receber',{sid:s.sid});
+        for(var i=0;i<j.msgs.length&&s.ativo;i++)await trata(s,j.msgs[i]);
+      }catch(e){if(e.message==='login'||/não encontrada|outra pessoa/.test(e.message)){fim('Sessão encerrada.');return;}await dorme(2000);}
+    }
+  }
+  function esperaIce(pc){return new Promise(function(ok){if(pc.iceGatheringState==='complete')return ok();var t=setTimeout(ok,2500);pc.addEventListener('icegatheringstatechange',function(){if(pc.iceGatheringState==='complete'){clearTimeout(t);ok();}});});}
+
+  async function trata(s,m){
+    if(m.t==='resposta'){
+      if(!m.ok){fim(m.motivo==='ocupado'?'O cliente já está em outro atendimento remoto.':m.motivo==='tela não compartilhada'?'O cliente não compartilhou a tela.':'O cliente recusou o acesso.');return;}
+      $('esp-tit').textContent='Cliente permitiu! Conectando…';$('esp-tx').textContent='Isso leva só alguns segundos.';$('s-st').textContent='Conectando';
+      sistema('O cliente permitiu o acesso.');
+    }else if(m.t==='offer'){
+      var pc=new RTCPeerConnection({iceServers:ICE});s.pc=pc;
+      pc.ontrack=function(e){$('video').srcObject=e.streams[0]||new MediaStream([e.track]);$('video').play().catch(function(){});};
+      pc.ondatachannel=function(e){
+        if(e.channel.label==='ctrl'){s.ctrl=e.channel;e.channel.onmessage=function(ev){try{recebe(s,JSON.parse(ev.data));}catch(x){}};e.channel.onopen=function(){pingLoop(s);};}
+        if(e.channel.label==='arq'){s.arq=e.channel;e.channel.binaryType='arraybuffer';}
+      };
+      pc.onconnectionstatechange=function(){
+        var st=pc.connectionState;
+        if(st==='connected'){$('espera').hidden=true;$('s-st').textContent='Conectado · clique na tela para controlar';$('palco').focus({preventScroll:true});}
+        if(st==='disconnected'){$('s-st').textContent='Conexão instável…';}
+        if(st==='failed'){$('espera').hidden=false;$('esp-tit').textContent='Não foi possível conectar';$('esp-tx').textContent='A rede do cliente bloqueou a conexão direta. Tente outra rede (por exemplo, o 4G do celular como roteador) ou use o AnyDesk.';}
+      };
+      await pc.setRemoteDescription(m.sdp);
+      await pc.setLocalDescription(await pc.createAnswer());
+      await esperaIce(pc);
+      await api('tecnico-enviar',{sid:s.sid,m:{t:'answer',sdp:pc.localDescription}});
+      statsLoop(s);
+    }else if(m.t==='bye'){
+      fim('O cliente encerrou o acesso.');
+    }
+  }
+
+  function envia(m){if(sess&&sess.ctrl&&sess.ctrl.readyState==='open'){try{sess.ctrl.send(JSON.stringify(m));return true;}catch(e){}}return false;}
+  function recebe(s,m){
+    if(m.t==='info'){s.info=m;$('s-nome').firstChild.textContent=m.nomePC||s.nome;if(!m.monitor){toast('O cliente compartilhou só uma janela: dá para ver, mas não controlar. Peça para compartilhar a Tela inteira.');}sistema('Conectado em '+(m.nomePC||'')+(m.w?' · tela '+m.w+'×'+m.h:'')+'.');}
+    else if(m.t==='pong'){s.lat=Date.now()-m.ts;}
+    else if(m.t==='chat'){chatMsg(m.nome||'Cliente',m.s,false);if($('painel').hidden){toast('💬 Cliente: '+String(m.s).slice(0,80));}}
+    else if(m.t==='aviso'){toast(m.s);sistema(m.s);}
+    else if(m.t==='clip'){$('t-clip').value=m.s||'';$('dclip-tit').textContent=m.s?'Texto copiado no cliente':'O cliente não tem texto copiado';$('d-clip').hidden=false;}
+    else if(m.t==='arq-ok'){toast('Arquivo entregue: '+m.nome);sistema('O cliente recebeu o arquivo '+m.nome+' (pasta Downloads › WhatsMenuDesk).');}
+  }
+  function pingLoop(s){if(!s.ativo)return;envia({t:'ping',ts:Date.now()});setTimeout(function(){pingLoop(s);},3000);}
+  async function statsLoop(s){
+    while(s.ativo&&s.pc){
+      await dorme(2000);
+      try{var st=await s.pc.getStats(),fps=0,bytes=0;st.forEach(function(r){if(r.type==='inbound-rtp'&&r.kind==='video'){fps=r.framesPerSecond||0;bytes=r.bytesReceived||0;}});
+        var kbps=Math.round((bytes-s.bytes)*8/((Date.now()-s.tsBytes)/1000)/1000);s.bytes=bytes;s.tsBytes=Date.now();
+        $('s-stat').textContent=Math.round(fps)+' qps · '+(kbps>999?(kbps/1000).toFixed(1)+' Mb/s':kbps+' kb/s')+(s.lat!=null?' · '+s.lat+' ms':'');
+      }catch(e){}
+    }
+  }
+
+  // ---------- mouse e teclado ----------
+  var video=$('video'),palco=$('palco');
+  function coords(e){
+    var r=video.getBoundingClientRect(),vw=video.videoWidth,vh=video.videoHeight;if(!vw||!vh)return null;
+    var esc2=Math.min(r.width/vw,r.height/vh),w=vw*esc2,h=vh*esc2,ox=r.left+(r.width-w)/2,oy=r.top+(r.height-h)/2;
+    var x=(e.clientX-ox)/w,y=(e.clientY-oy)/h;
+    if(x<0||y<0||x>1||y>1)return null;return {x:Math.round(x*10000)/10000,y:Math.round(y*10000)/10000};
+  }
+  var ultimoMove=0,pendente=null,botoes={};
+  function podeControlar(){return sess&&!sess.soVer&&sess.info&&sess.info.monitor!==false;}
+  video.addEventListener('pointermove',function(e){
+    if(!podeControlar())return;var c=coords(e);if(!c)return;
+    var agora=performance.now();pendente=c;
+    if(agora-ultimoMove>16){ultimoMove=agora;envia({t:'m',x:c.x,y:c.y});pendente=null;}
+    else setTimeout(function(){if(pendente){envia({t:'m',x:pendente.x,y:pendente.y});pendente=null;}},18);
+  });
+  video.addEventListener('pointerdown',function(e){
+    palco.focus({preventScroll:true});fechaMenus();if(!podeControlar())return;var c=coords(e);if(!c)return;e.preventDefault();
+    try{video.setPointerCapture(e.pointerId);}catch(x){}
+    var b=e.pointerType==='touch'?0:e.button;
+    if(e.pointerType==='touch'){toqueLongo=setTimeout(function(){toqueLongo=null;envia({t:'b',b:2,d:true,x:c.x,y:c.y});envia({t:'b',b:2,d:false,x:c.x,y:c.y});toqueCancelado=true;},650);toqueCancelado=false;}
+    if(e.pointerType==='touch'){toqueIni=c;return;}
+    botoes[b]=true;envia({t:'b',b:b,d:true,x:c.x,y:c.y});
+  });
+  var toqueLongo=null,toqueCancelado=false,toqueIni=null;
+  video.addEventListener('pointerup',function(e){
+    if(!podeControlar())return;var c=coords(e)||toqueIni;if(!c)return;e.preventDefault();
+    if(e.pointerType==='touch'){clearTimeout(toqueLongo);if(!toqueCancelado){envia({t:'b',b:0,d:true,x:toqueIni.x,y:toqueIni.y});envia({t:'b',b:0,d:false,x:c.x,y:c.y});}return;}
+    var b=e.button;botoes[b]=false;envia({t:'b',b:b,d:false,x:c.x,y:c.y});
+  });
+  video.addEventListener('contextmenu',function(e){e.preventDefault();});
+  video.addEventListener('wheel',function(e){if(!podeControlar())return;e.preventDefault();var f=e.deltaMode===1?40:e.deltaMode===2?400:1;envia({t:'w',dy:Math.round(e.deltaY*f),dx:Math.round(e.deltaX*f)});},{passive:false});
+  // dois dedos rolam a página no celular
+  var toques={};
+  palco.addEventListener('touchmove',function(e){
+    if(e.touches.length===2&&podeControlar()){e.preventDefault();var y=(e.touches[0].clientY+e.touches[1].clientY)/2;if(toques.y!=null){var d=toques.y-y;if(Math.abs(d)>4){envia({t:'w',dy:Math.round(d*4),dx:0});toques.y=y;}}else toques.y=y;clearTimeout(toqueLongo);toqueCancelado=true;}
+  },{passive:false});
+  palco.addEventListener('touchend',function(e){if(e.touches.length<2)toques.y=null;});
+
+  var teclasDown={};
+  function teclaEvento(e,desce){
+    if(!sess||$('sessao').hidden||document.activeElement!==palco)return;
+    if(!podeControlar())return;
+    e.preventDefault();e.stopPropagation();
+    if(desce&&teclasDown[e.code]&&!e.repeat)return;
+    if(desce)teclasDown[e.code]=true;else delete teclasDown[e.code];
+    envia({t:'k',code:e.code,d:desce});
+  }
+  window.addEventListener('keydown',function(e){teclaEvento(e,true);},true);
+  window.addEventListener('keyup',function(e){teclaEvento(e,false);},true);
+  function soltaTeclas(){Object.keys(teclasDown).forEach(function(c){envia({t:'k',code:c,d:false});});teclasDown={};Object.keys(botoes).forEach(function(b){if(botoes[b])envia({t:'b',b:+b,d:false,x:.5,y:.5});});botoes={};}
+  palco.addEventListener('blur',soltaTeclas);window.addEventListener('blur',soltaTeclas);
+
+  // ---------- barra ----------
+  function fechaMenus(){$('m-teclas').hidden=true;$('m-clip').hidden=true;}
+  function abreMenu(id,btn){var m=$(id),aberto=!m.hidden;fechaMenus();if(aberto)return;var r=btn.getBoundingClientRect(),pr=palco.getBoundingClientRect();m.hidden=false;m.style.top='8px';m.style.left=Math.max(8,Math.min(r.left-pr.left,pr.width-m.offsetWidth-8))+'px';}
+  $('b-teclas').onclick=function(){abreMenu('m-teclas',this);};
+  $('m-teclas').addEventListener('click',function(e){var b=e.target.closest('button[data-k]');if(!b)return;fechaMenus();if(!podeControlar()){toast('Controle desligado.');return;}envia({t:'atalho',keys:b.dataset.k.split(',')});if(b.dataset.k.indexOf('Delete')>0)toast('O Windows não deixa enviar Ctrl+Alt+Del de outro computador. Use o Gerenciador de Tarefas.');palco.focus();});
+  $('b-clip').onclick=function(){abreMenu('m-clip',this);};
+  $('clip-enviar').onclick=async function(){fechaMenus();var t='';try{t=await navigator.clipboard.readText();}catch(e){}
+    if(!t){toast('Não consegui ler sua área de transferência. Use "Digitar texto".');return;}
+    envia({t:'clip',s:t});};
+  $('clip-pegar').onclick=function(){fechaMenus();envia({t:'pegarclip'});};
+  $('clip-x').onclick=function(){$('d-clip').hidden=true;};
+  $('clip-cp').onclick=function(){copia($('t-clip').value,'Copiado!');$('d-clip').hidden=true;};
+  $('b-texto').onclick=function(){$('d-texto').hidden=false;$('t-texto').focus();};
+  $('t-cancel').onclick=function(){$('d-texto').hidden=true;palco.focus();};
+  $('f-texto').addEventListener('submit',function(e){e.preventDefault();var t=$('t-texto').value;if(t){if(!podeControlar()){toast('Controle desligado.');return;}envia({t:'txt',s:t});toast('Texto enviado.');}$('t-texto').value='';$('d-texto').hidden=true;palco.focus();});
+  $('b-ajuste').onclick=function(){var aj=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',String(aj));palco.classList.toggle('rolar',!aj);this.textContent=aj?'⤢ Ajustar':'1:1 Tamanho real';};
+  $('b-sover').onclick=function(){if(!sess)return;sess.soVer=!sess.soVer;this.setAttribute('aria-pressed',String(sess.soVer));palco.classList.toggle('so-ver',sess.soVer);if(sess.soVer)soltaTeclas();toast(sess.soVer?'Modo só ver: seus cliques não vão para o cliente.':'Controle ligado.');};
+  $('b-chat').onclick=function(){var ab=$('painel').hidden;$('painel').hidden=!ab;this.setAttribute('aria-pressed',String(ab));if(ab)$('chat-tx').focus();};
+  $('p-x').onclick=function(){$('painel').hidden=true;$('b-chat').setAttribute('aria-pressed','false');palco.focus();};
+  $('f-chat').addEventListener('submit',function(e){e.preventDefault();var t=$('chat-tx').value.trim();if(!t)return;$('chat-tx').value='';if(envia({t:'chat',s:t,nome:eu.nome}))chatMsg('Você',t,true);else toast('Ainda não conectado.');});
+  function chatMsg(n,t,meu){var d=document.createElement('div');d.className='m'+(meu?' eu':'');d.innerHTML='<b>'+esc(n)+'</b>'+esc(t);$('msgs').appendChild(d);$('msgs').scrollTop=1e9;}
+  function sistema(t){var d=document.createElement('div');d.className='m sis';d.textContent=t;$('msgs').appendChild(d);$('msgs').scrollTop=1e9;}
+  $('b-cheia').onclick=function(){if(document.fullscreenElement)document.exitFullscreen();else $('sessao').requestFullscreen().catch(function(){});};
+  $('b-foto').onclick=function(){
+    if(!video.videoWidth){toast('Ainda sem imagem.');return;}
+    var c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);
+    var a=document.createElement('a');a.download='tela-cliente-'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.png';a.href=c.toDataURL('image/png');a.click();
+  };
+  $('b-cel').onclick=function(){$('tcel').hidden=!$('tcel').hidden;if(!$('tcel').hidden)$('tcel-in').focus();};
+  $('tcel-in').addEventListener('input',function(){if(this.value&&podeControlar()){envia({t:'txt',s:this.value});}this.value='';});
+  $('tcel').addEventListener('click',function(e){var b=e.target.closest('[data-cel]');if(!b||!podeControlar())return;envia({t:'atalho',keys:[b.dataset.cel]});$('tcel-in').focus();});
+
+  // enviar arquivo
+  $('b-arq').onclick=function(){if(!sess||!sess.arq||sess.arq.readyState!=='open'){toast('Ainda não conectado.');return;}$('arq').click();};
+  $('arq').onchange=async function(){
+    var f=this.files[0];this.value='';if(!f)return;
+    if(f.size>200*1024*1024){toast('Arquivo muito grande (máximo 200 MB).');return;}
+    var id=Math.floor(Math.random()*4e9),dc=sess.arq;
+    envia({t:'arq-ini',id:id,nome:f.name,tam:f.size});sistema('Enviando '+f.name+'…');
+    var buf=await f.arrayBuffer(),P=16000,enviados=0;
+    dc.bufferedAmountLowThreshold=1<<20;
+    for(var o=0;o<buf.byteLength;o+=P){
+      while(dc.bufferedAmount>4*(1<<20))await new Promise(function(r){dc.onbufferedamountlow=function(){dc.onbufferedamountlow=null;r();};});
+      var parte=buf.slice(o,o+P),pac=new Uint8Array(4+parte.byteLength);new DataView(pac.buffer).setUint32(0,id);pac.set(new Uint8Array(parte),4);dc.send(pac);
+      enviados+=parte.byteLength;if(o%(P*64)===0)$('s-st').textContent='Enviando arquivo… '+Math.round(enviados/buf.byteLength*100)+'%';
+    }
+    envia({t:'arq-fim',id:id});$('s-st').textContent='Conectado';
+  };
+
+  function fim(motivo){
+    if(!sess)return;var s=sess;s.ativo=false;sess=null;
+    soltaTeclasDe(s);
+    try{if(s.pc)s.pc.close();}catch(e){}
+    $('video').srcObject=null;$('sessao').hidden=true;$('pag').removeAttribute('aria-hidden');
+    if(document.fullscreenElement)document.exitFullscreen().catch(function(){});
+    toast(motivo||'Acesso encerrado.');if(eu&&eu.admin)setTimeout(historico,800);
+  }
+  function soltaTeclasDe(s){var ant=sess;sess=s;soltaTeclas();sess=ant;}
+  $('b-fim').onclick=async function(){var s=sess;if(!s)return;soltaTeclas();try{await api('encerrar',{sid:s.sid});}catch(e){}fim('Você encerrou o acesso.');};
+  window.addEventListener('beforeunload',function(){if(sess){soltaTeclas();try{navigator.sendBeacon&&fetch(API+'?acao=encerrar',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({sid:sess.sid})});}catch(e){}}});
+
+  // ---------- login ----------
+  $('f-entrar').addEventListener('submit',async function(e){
+    e.preventDefault();$('auth-msg').textContent='';
+    try{var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
+      var j=await r.json().catch(function(){return {}});if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
+      guarda(j.token);$('e-pass').value='';inicio();if(window.WMAlertas)WMAlertas.atualizar();
+    }catch(err){$('auth-msg').textContent=err.message;}
+  });
+  $('sair').onclick=function(){guarda('');tela('auth');};
+  $('link-dl').textContent=PAGINA;
+  $('cp-dl').onclick=function(){copia(PAGINA,'Link copiado!');};
+  $('cp-msg').onclick=function(){copia('Olá! Para eu acessar o seu computador e te ajudar, baixe o WhatsMenuDesk neste link: '+PAGINA+' — depois é só abrir o programa e me passar o ID e a senha que aparecem na tela. 😉','Mensagem copiada!');};
+  if(token)inicio();else tela('auth');
+})();
+</script>
+<script src="alertas.js" defer></script>
+</body>
+</html>
