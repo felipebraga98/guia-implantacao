@@ -5,7 +5,8 @@
    - A resposta aparece só por texto, no chat da IA WM.
    Depende de window.IAWM (abre, envia, enviaAudio) criado pelo chat da IA WM no index.html. */
 (function () {
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  // só responde quando a pessoa clica no botão (sem ficar ouvindo o ambiente)
+  var SR = null;
   var PODE_GRAVAR = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
   var CHAVE = 'ia-voz';
   function pref() { try { return localStorage.getItem(CHAVE); } catch (e) { return null; } }
@@ -86,12 +87,12 @@
     raiz.classList.toggle('grava', modo === 'gravando');
     raiz.classList.toggle('pensa', modo === 'pensando');
     raiz.classList.toggle('fala', modo === 'falando');
-    fechar.hidden = !ligado;
+    fechar.hidden = true;
     if (modo === 'gravando') rot('Pode falar…', 'Estou gravando a sua pergunta');
     else if (modo === 'pensando') rot('Pensando…', 'A IA está buscando a resposta');
     else if (modo === 'falando') rot('Respondendo…', 'Clique para parar');
-    else if (ligado) rot(SR ? 'Diga "IA" ou clique aqui' : 'Clique aqui e pergunte', ultimoOuvi ? 'Ouvi: "' + ultimoOuvi + '"' : 'Ex.: "IA, como lanço um pedido?"');
-    else rot('Falar com a IA', 'Clique e faça a sua pergunta');
+    else if (ligado && SR) rot('Diga "IA" ou clique aqui', ultimoOuvi ? 'Ouvi: "' + ultimoOuvi + '"' : 'Ex.: "IA, como lanço um pedido?"');
+    else rot('Falar com a IA', 'Clique e fale a sua dúvida');
   }
 
   // ================= microfone (um só, reaproveitado) =================
@@ -344,7 +345,11 @@
   function paraEscuta() { if (rec && recRodando) { try { rec.abort(); } catch (e) {} } recRodando = false; }
   function volta() {
     if (ligado && SR) { modo = 'ouvindo'; estado(); setTimeout(escuta, 300); }
-    else { modo = 'off'; estado(); }
+    else {
+      modo = 'off'; estado();
+      // libera o microfone (some o ícone de gravação do navegador)
+      if (!SR && stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; }
+    }
   }
 
   function erroMic(e) {
@@ -389,6 +394,7 @@
   // ================= liga sozinha quando já foi permitido =================
   estado();
   (function auto() {
+    if (!SR) return; // sem escuta automática
     if (pref() === '0') return;
     var q = navigator.permissions && navigator.permissions.query ? navigator.permissions.query({ name: 'microphone' }) : Promise.reject();
     q.then(function (p) {
