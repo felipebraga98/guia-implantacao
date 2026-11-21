@@ -6,6 +6,11 @@
 //   KV_REST_API_URL / KV_REST_API_TOKEN -> opcionais; se existirem, limita 60 perguntas por hora por pessoa
 
 const BASE = require('./_base-conhecimento.js');
+const crypto = require('crypto');
+const { cfg, redis, equipeLogada, limpa } = require('./_equipe.js');
+const temBanco = () => { const c = cfg(); return !!(c.url && c.token); };
+async function r(cmd) { try { return await redis(cmd); } catch (e) { return null; } }
+const hoje = (d = 0) => new Date(Date.now() - d * 86400e3 - 3 * 3600e3).toISOString().slice(0, 10);
 
 const MODELO_PADRAO = 'gemini-3.5-flash-lite';
 const MODELO_RESERVA = 'gemini-2.5-flash';
@@ -51,12 +56,12 @@ async function contaUso(ip) {
   } catch (e) { return 0; }
 }
 
-async function chamaGemini(modelo, contents) {
+async function chamaGemini(modelo, contents, extra) {
   const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(modelo) + ':generateContent', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: INSTRUCOES }] },
+      systemInstruction: { parts: [{ text: INSTRUCOES + (extra || '') }] },
       contents,
       generationConfig: { temperature: 0.2, maxOutputTokens: 3000 }
     })
@@ -65,8 +70,79 @@ async function chamaGemini(modelo, contents) {
   return { status: r.status, j };
 }
 
+// Conhecimento ensinado pela equipe na página "Ensinar a IA" (tem prioridade sobre a base)
+async function ensinado() {
+  if (!temBanco()) return '';
+  const h = await r(['HGETALL', 'ia:ensinado']);
+  if (!Array.isArray(h) || !h.length) return '';
+  const itens = [];
+  for (let i = 0; i < h.length; i += 2) { try { itens.push(JSON.parse(h[i + 1])); } catch (e) {} }
+  if (!itens.length) return '';
+  return '\n\n===== CONHECIMENTO ENSINADO PELA EQUIPE (PRIORIDADE MÁXIMA) =====\n' +
+    'Estas respostas foram escritas e conferidas pelos líderes do suporte. Se alguma delas responder a pergunta, use-a e ela vale mais do que a base acima.\n\n' +
+    itens.map((x, n) => (n + 1) + '. PERGUNTA: ' + x.pergunta + '\nRESPOSTA CERTA: ' + x.resposta).join('\n\n');
+}
+
+async function admin(req, res) {
+  const eu = temBanco() && await equipeLogada(req);
+  if (!eu) { res.status(401).json({ erro: 'Entre com seu login da equipe.' }); return null; }
+  if (!eu.admin) { res.status(403).json({ erro: 'Somente administradores.' }); return null; }
+  return eu;
+}
+
+async function lerResps(ids) {
+  if (!ids.length) return [];
+  const v = (await r(['MGET', ...ids.map((i) => 'ia:resp:' + i)])) || [];
+  const av = (await r(['HMGET', 'ia:aval', ...ids])) || [];
+  return ids.map((id, n) => {
+    let o = null; try { o = JSON.parse(v[n]); } catch (e) {}
+    let a = null; try { a = JSON.parse(av[n]); } catch (e) {}
+    return o ? Object.assign({ id }, o, { aval: a }) : null;
+  }).filter(Boolean);
+}
+
 module.exports = async function handler(req, res) {
+  const acao = String((req.query && req.query.acao) || '');
   res.setHeader('Cache-Control', 'no-store');
+
+  // ===== página "Ensinar a IA" (somente administradores) =====
+  if (['revisar', 'descartar', 'ensinados', 'ensinar', 'apagar-ensinado', 'stats'].includes(acao)) {
+    if (!temBanco()) return res.status(500).json({ erro: 'Banco (Upstash) não configurado.' });
+    const eu = await admin(req, res); if (!eu) return;
+    let b = req.body; if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } } b = b || {};
+    if (acao === 'revisar') {
+      const ids = ((await r(['SMEMBERS', 'ia:revisar'])) || []).slice(0, 200);
+      const itens = (await lerResps(ids)).sort((x, y) => y.t - x.t);
+      return res.status(200).json({ itens });
+    }
+    if (acao === 'descartar') { await r(['SREM', 'ia:revisar', limpa(b.id, 24)]); return res.status(200).json({ ok: true }); }
+    if (acao === 'ensinados') {
+      const h = (await r(['HGETALL', 'ia:ensinado'])) || [], itens = [];
+      for (let i = 0; i < h.length; i += 2) { try { itens.push(Object.assign({ id: h[i] }, JSON.parse(h[i + 1]))); } catch (e) {} }
+      itens.sort((x, y) => String(y.quando).localeCompare(String(x.quando)));
+      return res.status(200).json({ itens });
+    }
+    if (acao === 'ensinar') {
+      const pergunta = limpa(b.pergunta, 500), resposta = String(b.resposta || '').trim().slice(0, 4000);
+      if (!pergunta || !resposta) return res.status(400).json({ erro: 'Preencha a pergunta e a resposta certa.' });
+      const total = (await r(['HLEN', 'ia:ensinado'])) || 0;
+      const id = /^[a-f0-9]{12}$/.test(String(b.id || '')) ? b.id : crypto.randomBytes(6).toString('hex');
+      if (!b.id && total >= 400) return res.status(400).json({ erro: 'Limite de 400 respostas ensinadas. Apague ou junte algumas.' });
+      await r(['HSET', 'ia:ensinado', id, JSON.stringify({ pergunta, resposta, autor: eu.nome, quando: new Date().toISOString() })]);
+      if (b.origem) await r(['SREM', 'ia:revisar', limpa(b.origem, 24)]);
+      return res.status(200).json({ ok: true, id });
+    }
+    if (acao === 'apagar-ensinado') { await r(['HDEL', 'ia:ensinado', limpa(b.id, 24)]); return res.status(200).json({ ok: true }); }
+    if (acao === 'stats') {
+      const dias = []; for (let d = 6; d >= 0; d--) dias.push(hoje(d));
+      const tot = (await r(['MGET', ...dias.map((d) => 'ia:total:' + d)])) || [];
+      const [bom, ruim, ens, rev] = [await r(['GET', 'ia:bom']), await r(['GET', 'ia:ruim']), await r(['HLEN', 'ia:ensinado']), await r(['SCARD', 'ia:revisar'])];
+      const ultimos = await lerResps(((await r(['LRANGE', 'ia:log', '0', '59'])) || []));
+      return res.status(200).json({ dias: dias.map((d, i) => ({ dia: d, total: +tot[i] || 0 })), bom: +bom || 0, ruim: +ruim || 0, ensinados: +ens || 0, revisar: +rev || 0,
+        ultimas: ultimos.map((x) => ({ id: x.id, p: x.p, t: x.t, img: x.img, voz: x.voz, semResposta: x.semResposta, aval: x.aval && x.aval.nota })) });
+    }
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ erro: 'Use POST.' });
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({ erro: 'Falta a chave do Gemini. No Vercel, crie a variável GEMINI_API_KEY e faça um novo deploy.' });
@@ -76,12 +152,27 @@ module.exports = async function handler(req, res) {
 
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
+  body = body || {};
+
+  if (acao === 'avaliar') {
+    const id = String(body.id || '');
+    if (!/^[a-f0-9]{16}$/.test(id) || !temBanco()) return res.status(400).json({ erro: 'Resposta não encontrada.' });
+    if (!(await r(['EXISTS', 'ia:resp:' + id]))) return res.status(404).json({ erro: 'Essa resposta é antiga demais para avaliar.' });
+    const nota = Number(body.nota) > 0 ? 1 : -1;
+    const antes = await r(['HGET', 'ia:aval', id]);
+    await r(['HSET', 'ia:aval', id, JSON.stringify({ nota, comentario: limpa(body.comentario, 600), t: Date.now() })]);
+    if (!antes) await r(['INCR', nota > 0 ? 'ia:bom' : 'ia:ruim']);
+    if (nota < 0) await r(['SADD', 'ia:revisar', id]);
+    return res.status(200).json({ ok: true });
+  }
   const pergunta = String((body && body.pergunta) || '').trim().slice(0, 2000);
   // pergunta por voz: áudio em base64 (até ~1,5 MB, cerca de 1 minuto)
   const audio = typeof body.audio === 'string' && /^[A-Za-z0-9+/=]+$/.test(body.audio.slice(0, 200)) ? body.audio : '';
   const mime = /^audio\/(webm|ogg|mp4|mpeg|wav|aac)$/.test(String(body.mime || '')) ? String(body.mime) : 'audio/webm';
   if (audio && audio.length > 2000000) return res.status(413).json({ erro: 'Áudio muito longo. Faça uma pergunta mais curta.' });
-  if (!pergunta && !audio) return res.status(400).json({ erro: 'Escreva uma pergunta.' });
+  const img = body.imagem && typeof body.imagem.data === 'string' && /^image\/(png|jpeg|webp|gif)$/.test(String(body.imagem.mime || '')) ? body.imagem : null;
+  if (img && img.data.length > 3000000) return res.status(413).json({ erro: 'Imagem muito grande. Mande um print menor.' });
+  if (!pergunta && !audio && !img) return res.status(400).json({ erro: 'Escreva uma pergunta.' });
 
   const ip = String(req.headers['x-forwarded-for'] || 'anon').split(',')[0].trim();
   if (await contaUso(ip) > LIMITE_HORA) {
@@ -99,12 +190,18 @@ module.exports = async function handler(req, res) {
       { text: 'O atendente fez a pergunta acima POR ÁUDIO, em português do Brasil.' + (dica ? ' O reconhecimento do navegador entendeu parte assim (pode estar errado): "' + dica + '".' : '') +
         ' Ignore palavras de chamada como "IA", "ei IA" ou "e" no começo. Responda EXATAMENTE neste formato: primeira linha "PERGUNTA: " seguida da pergunta transcrita e corrigida (curta, como o atendente escreveria); depois uma linha em branco; depois a resposta normal seguindo todas as instruções. Se o áudio não tiver uma pergunta compreensível, responda somente "PERGUNTA: -".' }
     ] });
+  } else if (img) {
+    contents.push({ role: 'user', parts: [
+      { inline_data: { mime_type: img.mime, data: img.data } },
+      { text: 'O atendente mandou este print (do painel/PDV WhatsMenu ou de uma conversa com o cliente). Primeiro diga em 1 ou 2 linhas o que aparece no print (tela, erro ou situação). Depois responda à dúvida com o passo a passo para resolver. Não repita nomes, telefones, valores ou outros dados pessoais que aparecerem no print.\n\nDúvida do atendente: ' + (pergunta || 'O que está acontecendo neste print e como resolvo?') }
+    ] });
   } else contents.push({ role: 'user', parts: [{ text: pergunta }] });
 
   try {
     const modelo = process.env.GEMINI_MODEL || MODELO_PADRAO;
-    let { status, j } = await chamaGemini(modelo, contents);
-    if (status === 404 && !process.env.GEMINI_MODEL) ({ status, j } = await chamaGemini(MODELO_RESERVA, contents));
+    const extra = await ensinado();
+    let { status, j } = await chamaGemini(modelo, contents, extra);
+    if (status === 404 && !process.env.GEMINI_MODEL) ({ status, j } = await chamaGemini(MODELO_RESERVA, contents, extra));
     if (status === 429) return res.status(429).json({ erro: 'O limite gratuito do Gemini foi atingido. Espere um minuto e tente de novo.' });
     if (status !== 200) {
       const msg = (j.error && j.error.message) || ('Gemini respondeu ' + status);
@@ -113,14 +210,25 @@ module.exports = async function handler(req, res) {
     const cand = j.candidates && j.candidates[0];
     const texto = cand && cand.content && cand.content.parts ? cand.content.parts.map(p => p.text || '').join('').trim() : '';
     if (!texto) return res.status(502).json({ erro: 'O Gemini não devolveu resposta. Tente reformular a pergunta.' });
+    // guarda a resposta para 👍/👎 e para a página "Ensinar a IA"
+    const registra = async (p, resp) => {
+      if (!temBanco()) return undefined;
+      const id = crypto.randomBytes(8).toString('hex');
+      const semResposta = /não está na minha base/i.test(resp);
+      await r(['SET', 'ia:resp:' + id, JSON.stringify({ p: String(p).slice(0, 600), r: resp.slice(0, 6000), t: Date.now(), img: !!img, voz: !!audio, semResposta }), 'EX', String(60 * 86400)]);
+      await r(['LPUSH', 'ia:log', id]); await r(['LTRIM', 'ia:log', '0', '499']);
+      const k = 'ia:total:' + hoje(); await r(['INCR', k]); await r(['EXPIRE', k, String(40 * 86400)]);
+      if (semResposta) await r(['SADD', 'ia:revisar', id]);
+      return id;
+    };
     if (audio) {
       const m = texto.match(/^\s*\**PERGUNTA:?\**\s*(.*)\n?([\s\S]*)$/i);
       const perg = m ? m[1].replace(/\*+/g, '').trim() : '';
       const resp = m ? m[2].trim() : texto;
       if (!perg || perg === '-' || !resp) return res.status(200).json({ vazio: true });
-      return res.status(200).json({ pergunta: perg, resposta: resp });
+      return res.status(200).json({ pergunta: perg, resposta: resp, id: await registra('🎙️ ' + perg, resp) });
     }
-    return res.status(200).json({ resposta: texto });
+    return res.status(200).json({ resposta: texto, id: await registra((img ? '🖼️ ' : '') + (pergunta || '(print sem texto)'), texto) });
   } catch (e) {
     return res.status(500).json({ erro: 'Falha ao falar com o Gemini: ' + e.message });
   }
