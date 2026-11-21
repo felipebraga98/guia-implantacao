@@ -833,7 +833,19 @@ document.querySelectorAll('.copy').forEach(function(btn){
   $('iawm-q').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('iawm-f').requestSubmit();}});
   $('iawm-q').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
   $('iawm-sn').addEventListener('submit',function(e){e.preventDefault();senha=$('iawm-pw').value;try{sessionStorage.setItem('assist-senha',senha);}catch(_){}$('iawm-sn').hidden=true;ms.hidden=false;$('iawm-f').hidden=false;});
-  window.IAWM={abre:abre,envia:envia,ocupado:function(){return ocupado}};
+  // pergunta por voz: manda o áudio, a IA transcreve e responde
+  async function enviaAudio(b64,mime,dica){if(ocupado)return null;ocupado=true;$('iawm-go').disabled=true;var u=add('u','🎙️ Pergunta por voz…');var w=add('t','Ouvindo o áudio…');w.className='m b t';
+    try{var r=await fetch('/api/assistente',{method:'POST',headers:{'Content-Type':'application/json','x-senha':senha},body:JSON.stringify({audio:b64,mime:mime,dica:dica||'',historico:hist})});
+      var j=await r.json().catch(function(){return {}});w.remove();
+      if(r.status===401){u.remove();$('iawm-sn').hidden=false;ms.hidden=true;$('iawm-f').hidden=true;$('iawm-pw').focus();return null;}
+      if(!r.ok){add('e',j.erro||('Erro '+r.status));return null;}
+      if(j.vazio){u.textContent='🎙️ (não entendi o áudio)';return {vazio:true};}
+      u.textContent='🎙️ '+(j.pergunta||'Pergunta por voz');add('b',j.resposta);
+      hist.push({papel:'user',texto:j.pergunta||'(pergunta por voz)'},{papel:'model',texto:j.resposta});hist=hist.slice(-10);
+      return {pergunta:j.pergunta,resposta:j.resposta};
+    }catch(e){w.remove();add('e','Sem conexão. Tente de novo.');return null;}
+    finally{ocupado=false;$('iawm-go').disabled=false;}}
+  window.IAWM={abre:abre,envia:envia,enviaAudio:enviaAudio,ocupado:function(){return ocupado}};
 })();
 </script>
 <script src="voz-ia.js" defer></script>
