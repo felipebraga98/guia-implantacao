@@ -129,10 +129,22 @@
   var ATIVA = /^(?:(?:ei|hey|oi|ok|ola|e)\s+)?(?:ia|i a|iah|yah|ya|hia|eia|ea)(?:\s+|$)(.*)$/;
   var PARAR = /^(?:(?:ia\s+)?(?:para|pare|parar|chega|silencio|cala a boca|obrigad[oa]|valeu))$/;
 
+  // procura a palavra "IA" em qualquer ponto da frase (o Chrome do computador às vezes junta
+  // a fala anterior na mesma frase) e pega tudo o que vem depois como pergunta
+  var PALAVRAS = { ia: 1, iah: 1, hia: 1, eia: 1, yah: 1 };
+  var VERBO = { eu: 1, ele: 1, ela: 1, voce: 1, gente: 1, que: 1, se: 1, nao: 1, ja: 1, tambem: 1, quem: 1, so: 1, ainda: 1, nunca: 1, sempre: 1, quando: 1 };
   function confereAtivacao(alts) {
     for (var i = 0; i < alts.length; i++) {
-      var m = normaliza(alts[i]).match(ATIVA);
-      if (m) return { ok: true, resto: alts[i].trim().replace(/^\s*(?:(?:ei|hey|oi|ok|olá|ola|e)[\s,]+)?(?:i\.?\s?a\.?|iá|iah|yah|ya|hia|eia|éia|ea)(?=[\s,.!?:]|$)[\s,.!?:]*/i, '').trim() };
+      var ws = String(alts[i]).trim().split(/\s+/), nz = ws.map(normaliza);
+      for (var k = 0; k < ws.length; k++) {
+        var achou = 0;
+        if (PALAVRAS[nz[k]]) achou = 1;
+        else if (nz[k] === 'i a') achou = 1;
+        else if (nz[k] === 'i' && nz[k + 1] === 'a') achou = 2;
+        // "eu ia...", "ele ia..." é o verbo ir, não a IA
+        if (achou && k > 0 && VERBO[nz[k - 1]]) achou = 0;
+        if (achou) return { ok: true, resto: ws.slice(k + achou).join(' ').replace(/^[\s,.!?:;-]+/, '').trim() };
+      }
     }
     return { ok: false };
   }
@@ -257,7 +269,9 @@
       mostra('<b>Respondendo…</b> a resposta completa está no chat.', 0, [['⏹ Parar', calaBoca], ['Desligar voz', function () { desliga(true); esconde(); }, true]]);
       fala(resp);
     } else {
-      mostra('Não consegui responder agora. Veja a mensagem no chat.', 7000);
+      var sn = document.getElementById('iawm-sn');
+      if (sn && !sn.hidden) mostra('Digite a <b>senha da equipe</b> no chat da IA WM (só uma vez). Depois é só perguntar de novo falando.', 10000);
+      else mostra('Não consegui responder agora. Veja a mensagem no chat.', 7000);
     }
   }
 
