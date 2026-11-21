@@ -263,6 +263,7 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
     <a class="hs-tile" href="clientes-implantacao.html"><span class="hs-ic">🗂️</span><span class="hs-t">Clientes Implantação</span><span class="hs-d">Acompanhamento com login de quem alterou</span></a>
     <a class="hs-tile" href="atalhos.html"><span class="hs-ic">⌨️</span><span class="hs-t">Atalhos do Suporte</span><span class="hs-d">Print, gravar tela, Chrome, WhatsApp e mensagens prontas</span></a>
     <a class="hs-tile" href="agendamentos.html"><span class="hs-ic">📅</span><span class="hs-t">Agendamentos</span><span class="hs-d">Agenda da semana, alarme antes do horário e indicadores</span></a>
+    <a class="hs-tile" href="desk.html"><span class="hs-ic">🖥️</span><span class="hs-t">WhatsMenuDesk</span><span class="hs-d">Acesso remoto ao computador do cliente</span></a>
   </div>
   <div style="display:flex;justify-content:flex-end;margin-top:10px"><a href="usuarios.html" title="Área de administradores" style="color:#fff;opacity:.75;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:3px 10px">🔐 Usuários</a></div>
 </section>
@@ -820,8 +821,9 @@ document.querySelectorAll('.copy').forEach(function(btn){
       if(r.status===401){$('iawm-sn').hidden=false;ms.hidden=true;$('iawm-f').hidden=true;$('iawm-pw').focus();return;}
       if(!r.ok){add('e',j.erro||('Erro '+r.status));return;}
       add('b',j.resposta);hist.push({papel:'user',texto:q},{papel:'model',texto:j.resposta});hist=hist.slice(-10);
+      return j.resposta;
     }catch(e){w.remove();add('e','Sem conexão. Tente de novo.');}
-    finally{ocupado=false;$('iawm-go').disabled=false;$('iawm-q').focus();}}
+    finally{ocupado=false;$('iawm-go').disabled=false;if(!box.hidden)$('iawm-q').focus();}}
   function abre(v){box.hidden=!v;btn.setAttribute('aria-expanded',v);btn.setAttribute('aria-label',v?'Fechar IA WM':'Abrir IA WM');if(v){if(!ms.children.length)inicio();$('iawm-q').focus();}}
   btn.onclick=function(){abre(box.hidden)};
   $('iawm-x').onclick=function(){abre(false);btn.focus()};
@@ -831,8 +833,10 @@ document.querySelectorAll('.copy').forEach(function(btn){
   $('iawm-q').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('iawm-f').requestSubmit();}});
   $('iawm-q').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
   $('iawm-sn').addEventListener('submit',function(e){e.preventDefault();senha=$('iawm-pw').value;try{sessionStorage.setItem('assist-senha',senha);}catch(_){}$('iawm-sn').hidden=true;ms.hidden=false;$('iawm-f').hidden=false;});
+  window.IAWM={abre:abre,envia:envia,ocupado:function(){return ocupado}};
 })();
 </script>
+<script src="voz-ia.js" defer></script>
 
 <style>
 #tile-novidades{position:relative}
