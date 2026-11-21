@@ -126,13 +126,13 @@
       .replace(/[.,!?;:]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
   // aceita "IA", "I.A.", "iá", "ei IA", "oi IA", "ok IA" no começo da frase
-  var ATIVA = /^(?:(?:ei|hey|oi|ok|ola)\s+)?(?:ia|i a|iah|yah|ya|hia)(?:\s+|$)(.*)$/;
+  var ATIVA = /^(?:(?:ei|hey|oi|ok|ola|e)\s+)?(?:ia|i a|iah|yah|ya|hia|eia|ea)(?:\s+|$)(.*)$/;
   var PARAR = /^(?:(?:ia\s+)?(?:para|pare|parar|chega|silencio|cala a boca|obrigad[oa]|valeu))$/;
 
   function confereAtivacao(alts) {
     for (var i = 0; i < alts.length; i++) {
       var m = normaliza(alts[i]).match(ATIVA);
-      if (m) return { ok: true, resto: alts[i].trim().replace(/^\s*(?:(?:ei|hey|oi|ok|olá|ola)[\s,]+)?(?:i\.?\s?a\.?|iá|iah|yah|ya|hia)[\s,.!?:]*/i, '').trim() };
+      if (m) return { ok: true, resto: alts[i].trim().replace(/^\s*(?:(?:ei|hey|oi|ok|olá|ola|e)[\s,]+)?(?:i\.?\s?a\.?|iá|iah|yah|ya|hia|eia|éia|ea)(?=[\s,.!?:]|$)[\s,.!?:]*/i, '').trim() };
     }
     return { ok: false };
   }
@@ -148,6 +148,13 @@
     } catch (e) {}
   }
 
+  var tOuvi = null;
+  function ouvi(t) {
+    if (!t || esperandoPergunta || falando) return;
+    var sm = rotulo.querySelector('small'); if (!sm) return;
+    sm.textContent = 'Ouvi: "' + (t.length > 40 ? '…' + t.slice(-40) : t) + '"';
+    clearTimeout(tOuvi); tOuvi = setTimeout(estado, 4000);
+  }
   function aguardaPergunta() {
     esperandoPergunta = true; estado(); bipe(880);
     mostra('<b>Oi!</b> Pode falar a sua dúvida…', 0);
@@ -161,6 +168,7 @@
       var r = ev.results[i], alts = [];
       for (var k = 0; k < r.length; k++) alts.push(r[k].transcript);
       var txt = alts[0].trim();
+      ouvi(txt);
       if (!r.isFinal) {
         if (esperandoPergunta && txt) mostra('<b>Ouvindo:</b> ' + esc(txt) + '…', 0);
         continue;
