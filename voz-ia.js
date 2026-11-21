@@ -131,11 +131,16 @@
 
   // procura a palavra "IA" em qualquer ponto da frase (o Chrome do computador às vezes junta
   // a fala anterior na mesma frase) e pega tudo o que vem depois como pergunta
+  var SOZINHA = /^(?:e|ei|hei|hey|i|ia|iah|hia|eia|ea|e a|ei a|i a|ai|oi ia|ei ia|ok ia)$/;
   var PALAVRAS = { ia: 1, iah: 1, hia: 1, eia: 1, yah: 1 };
   var VERBO = { eu: 1, ele: 1, ela: 1, voce: 1, gente: 1, que: 1, se: 1, nao: 1, ja: 1, tambem: 1, quem: 1, so: 1, ainda: 1, nunca: 1, sempre: 1, quando: 1 };
   function confereAtivacao(alts) {
     for (var i = 0; i < alts.length; i++) {
       var ws = String(alts[i]).trim().split(/\s+/), nz = ws.map(normaliza);
+      // o Chrome do computador costuma entender o "IA" falado sozinho como "e", "é", "ei" ou "i"
+      if (SOZINHA.test(nz.join(' '))) return { ok: true, resto: '' };
+      // "é a como lanço..." / "ei a, como..." no começo da frase
+      if (ws.length > 2 && /^(e|ei|hei|hey)$/.test(nz[0]) && nz[1] === 'a') return { ok: true, resto: ws.slice(2).join(' ').replace(/^[\s,.!?:;-]+/, '').trim() };
       for (var k = 0; k < ws.length; k++) {
         var achou = 0;
         if (PALAVRAS[nz[k]]) achou = 1;
