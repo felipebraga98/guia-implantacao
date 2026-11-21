@@ -77,7 +77,11 @@ module.exports = async function handler(req, res) {
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   const pergunta = String((body && body.pergunta) || '').trim().slice(0, 2000);
-  if (!pergunta) return res.status(400).json({ erro: 'Escreva uma pergunta.' });
+  // pergunta por voz: áudio em base64 (até ~1,5 MB, cerca de 1 minuto)
+  const audio = typeof body.audio === 'string' && /^[A-Za-z0-9+/=]+$/.test(body.audio.slice(0, 200)) ? body.audio : '';
+  const mime = /^audio\/(webm|ogg|mp4|mpeg|wav|aac)$/.test(String(body.mime || '')) ? String(body.mime) : 'audio/webm';
+  if (audio && audio.length > 2000000) return res.status(413).json({ erro: 'Áudio muito longo. Faça uma pergunta mais curta.' });
+  if (!pergunta && !audio) return res.status(400).json({ erro: 'Escreva uma pergunta.' });
 
   const ip = String(req.headers['x-forwarded-for'] || 'anon').split(',')[0].trim();
   if (await contaUso(ip) > LIMITE_HORA) {
@@ -88,7 +92,14 @@ module.exports = async function handler(req, res) {
   const contents = hist
     .filter(m => m && (m.papel === 'user' || m.papel === 'model') && m.texto)
     .map(m => ({ role: m.papel, parts: [{ text: String(m.texto).slice(0, 4000) }] }));
-  contents.push({ role: 'user', parts: [{ text: pergunta }] });
+  if (audio) {
+    const dica = String(body.dica || '').slice(0, 300);
+    contents.push({ role: 'user', parts: [
+      { inline_data: { mime_type: mime, data: audio } },
+      { text: 'O atendente fez a pergunta acima POR ÁUDIO, em português do Brasil.' + (dica ? ' O reconhecimento do navegador entendeu parte assim (pode estar errado): "' + dica + '".' : '') +
+        ' Ignore palavras de chamada como "IA", "ei IA" ou "e" no começo. Responda EXATAMENTE neste formato: primeira linha "PERGUNTA: " seguida da pergunta transcrita e corrigida (curta, como o atendente escreveria); depois uma linha em branco; depois a resposta normal seguindo todas as instruções. Se o áudio não tiver uma pergunta compreensível, responda somente "PERGUNTA: -".' }
+    ] });
+  } else contents.push({ role: 'user', parts: [{ text: pergunta }] });
 
   try {
     const modelo = process.env.GEMINI_MODEL || MODELO_PADRAO;
@@ -102,6 +113,13 @@ module.exports = async function handler(req, res) {
     const cand = j.candidates && j.candidates[0];
     const texto = cand && cand.content && cand.content.parts ? cand.content.parts.map(p => p.text || '').join('').trim() : '';
     if (!texto) return res.status(502).json({ erro: 'O Gemini não devolveu resposta. Tente reformular a pergunta.' });
+    if (audio) {
+      const m = texto.match(/^\s*\**PERGUNTA:?\**\s*(.*)\n?([\s\S]*)$/i);
+      const perg = m ? m[1].replace(/\*+/g, '').trim() : '';
+      const resp = m ? m[2].trim() : texto;
+      if (!perg || perg === '-' || !resp) return res.status(200).json({ vazio: true });
+      return res.status(200).json({ pergunta: perg, resposta: resp });
+    }
     return res.status(200).json({ resposta: texto });
   } catch (e) {
     return res.status(500).json({ erro: 'Falha ao falar com o Gemini: ' + e.message });
