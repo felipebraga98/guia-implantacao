@@ -2,7 +2,7 @@
    - Fica ouvindo a palavra "IA" com o reconhecimento de voz do navegador (Chrome/Edge).
    - Ao ouvir "IA" (ou ao clicar no botão), GRAVA a pergunta e manda o ÁUDIO para a IA (Gemini),
      que entende português muito melhor que o reconhecimento do navegador.
-   - A resposta aparece no chat da IA WM e é lida em voz alta.
+   - A resposta aparece só por texto, no chat da IA WM.
    Depende de window.IAWM (abre, envia, enviaAudio) criado pelo chat da IA WM no index.html. */
 (function () {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -192,8 +192,9 @@
       else r = { resposta: await IAWM.envia(texto) };
     } catch (e) { r = null; }
     if (r && r.resposta) {
-      mostra((r.pergunta ? '<b>Você:</b> ' + esc(r.pergunta) + '<br>' : '') + 'A resposta completa está no chat.', 0, [['⏹ Parar de falar', function () { calaBoca(); esconde(); }]]);
-      fala(r.resposta);
+      // responde só por texto, no chat (sem ler em voz alta)
+      modo = 'off'; volta();
+      mostra('<b>Respondido no chat ✓</b>' + (r.pergunta ? '<br>' + esc(r.pergunta) : ''), 4000);
     } else if (r && r.vazio) {
       modo = 'off'; volta();
       mostra('Não entendi a pergunta no áudio. Tente de novo falando um pouco mais perto do microfone.', 7000);
