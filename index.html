@@ -264,7 +264,7 @@ mark.rr-var{background:#ffe9a8;color:#6b4500;border-radius:4px;padding:0 3px;fon
     <a class="hs-tile" href="atalhos.html"><span class="hs-ic">⌨️</span><span class="hs-t">Atalhos do Suporte</span><span class="hs-d">Print, gravar tela, Chrome, WhatsApp e mensagens prontas</span></a>
     <a class="hs-tile" href="agendamentos.html"><span class="hs-ic">📅</span><span class="hs-t">Agendamentos</span><span class="hs-d">Agenda da semana, alarme antes do horário e indicadores</span></a>
   </div>
-  <div style="display:flex;justify-content:flex-end;margin-top:10px"><a href="usuarios.html" title="Área de administradores" style="color:#fff;opacity:.75;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:3px 10px">🔐 Usuários</a></div>
+  <div style="display:flex;justify-content:flex-end;margin-top:10px"><a href="ensinar.html" title="Área de administradores" style="color:#fff;opacity:.75;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:3px 10px;margin-right:6px">🧠 Ensinar a IA</a><a href="usuarios.html" title="Área de administradores" style="color:#fff;opacity:.75;font-size:12px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:3px 10px">🔐 Usuários</a></div>
 </section>
 
 <section class="card guia-uso" id="como-usar">
@@ -777,6 +777,22 @@ document.querySelectorAll('.copy').forEach(function(btn){
 #iawm .m code{background:var(--green-soft);border-radius:4px;padding:0 4px}
 #iawm .cp{margin-top:6px;font:600 .75rem var(--f-body);background:var(--green-soft);border:0;border-radius:999px;padding:3px 10px;cursor:pointer;color:var(--green-deep)}
 #iawm .ini{color:var(--muted);text-align:center;margin:auto 0;font-size:.9rem}
+#iawm .rod{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+#iawm .rod .cp{margin-top:0}
+#iawm .av-b{font:600 .8rem var(--f-body);background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:2px 9px;cursor:pointer;line-height:1.4}
+#iawm .av-b:hover{border-color:var(--green)}
+#iawm .av-b[aria-pressed="true"]{background:var(--green-soft);border-color:var(--green)}
+#iawm .av-ok{font-size:.75rem;color:var(--green-deep);font-weight:600}
+#iawm .av-f{display:flex;gap:6px;width:100%;margin-top:4px}
+#iawm .av-f input{flex:1;min-width:0;font:13px var(--f-body);border:1.5px solid var(--line);border-radius:8px;padding:5px 8px}
+#iawm .av-f button{font:700 .75rem var(--f-body);background:var(--green);color:#fff;border:0;border-radius:8px;padding:0 10px;cursor:pointer}
+#iawm .m.u img{display:block;max-width:100%;max-height:160px;border-radius:8px;margin-bottom:6px;background:#fff}
+#iawm .clip{background:none;border:1.5px solid var(--line);border-radius:10px;width:40px;flex:none;cursor:pointer;font-size:1.05rem;color:var(--ink)}
+#iawm .clip:hover{border-color:var(--green)}
+#iawm-anx{display:flex;align-items:center;gap:8px;padding:8px 10px 0;font-size:.8rem;color:var(--muted)}
+#iawm-anx img{width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+#iawm-anx button{margin-left:auto;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1rem}
+#iawm.arrasta::after{content:"Solte o print aqui";position:absolute;inset:0;background:rgba(0,166,62,.88);color:#fff;display:grid;place-items:center;font:800 1.2rem var(--f-display);border-radius:16px;z-index:3}
 #iawm .sg{display:flex;flex-direction:column;gap:6px;margin-top:10px}
 #iawm .sg button{font:600 .85rem var(--f-body);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;color:var(--ink);text-align:left}
 #iawm .sg button:hover{border-color:var(--green)}
@@ -795,8 +811,9 @@ document.querySelectorAll('.copy').forEach(function(btn){
   <div class="hd"><img class="lg" src="logo.png" alt="WhatsMenu"><div><b>IA WM</b><small>Tira dúvidas sobre o sistema WhatsMenu</small></div><button class="lim" type="button" id="iawm-lim">Limpar</button><button class="x" type="button" id="iawm-x" aria-label="Fechar">✕</button></div>
   <form class="sn" id="iawm-sn" hidden><label for="iawm-pw"><b>Senha da equipe</b></label><input id="iawm-pw" type="password" autocomplete="current-password"><button style="background:var(--green);color:#fff;border:0;border-radius:10px;padding:9px;font-weight:700">Entrar</button></form>
   <div class="ms" id="iawm-ms"></div>
-  <form id="iawm-f"><textarea id="iawm-q" rows="1" placeholder="Digite sua dúvida…" aria-label="Sua dúvida"></textarea><button id="iawm-go">Enviar</button></form>
-  <div class="av">A IA pode errar. Confira antes de passar ao cliente. Não cole senhas nem dados de clientes.</div>
+  <div id="iawm-anx" hidden><img alt="Print anexado"><span>Print anexado. Escreva a dúvida ou só envie.</span><button type="button" id="iawm-anx-x" aria-label="Tirar o print">✕</button></div>
+  <form id="iawm-f"><button type="button" class="clip" id="iawm-clip" title="Mandar print (ou cole com Ctrl+V)" aria-label="Mandar print">📎</button><input type="file" id="iawm-file" accept="image/*" hidden><textarea id="iawm-q" rows="1" placeholder="Sua dúvida ou cole um print…" aria-label="Sua dúvida"></textarea><button id="iawm-go">Enviar</button></form>
+  <div class="av">A IA pode errar. Confira antes de passar ao cliente. Não cole senhas nem dados de clientes. Use 👍/👎 para ensinar a IA.</div>
 </div>
 <script>
 (function(){
@@ -811,15 +828,35 @@ document.querySelectorAll('.copy').forEach(function(btn){
       if(u||n){var tp=u?'ul':'ol';if(l!==tp){f();o.push('<'+tp+'>');l=tp;}o.push('<li>'+(u||n)[1]+'</li>');}
       else if(!x.trim())f(); else{f();o.push('<p>'+x.replace(/^#{1,4}\s*/,'')+'</p>');}});
     f();return o.join('').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');}
-  function add(tp,tx){var i=ms.querySelector('.ini');if(i)i.remove();var d=document.createElement('div');d.className='m '+tp;
-    if(tp==='b'){d.innerHTML=md(tx);var c=document.createElement('button');c.className='cp';c.type='button';c.textContent='Copiar';c.onclick=function(){navigator.clipboard.writeText(tx).then(function(){c.textContent='Copiado!';setTimeout(function(){c.textContent='Copiar'},1500)})};d.appendChild(c);}
+  function add(tp,tx,rid){var i=ms.querySelector('.ini');if(i)i.remove();var d=document.createElement('div');d.className='m '+tp;
+    if(tp==='b'){d.innerHTML=md(tx);var rod=document.createElement('div');rod.className='rod';var c=document.createElement('button');c.className='cp';c.type='button';c.textContent='Copiar';c.onclick=function(){navigator.clipboard.writeText(tx).then(function(){c.textContent='Copiado!';setTimeout(function(){c.textContent='Copiar'},1500)})};rod.appendChild(c);if(rid)avalia(rod,rid);d.appendChild(rod);}
     else d.textContent=tx;ms.appendChild(d);ms.scrollTop=ms.scrollHeight;return d;}
-  async function envia(q){q=(q||'').trim();if(ocupado||!q)return;ocupado=true;$('iawm-go').disabled=true;add('u',q);var w=add('t','Pensando…');w.className='m b t';
-    try{var r=await fetch('/api/assistente',{method:'POST',headers:{'Content-Type':'application/json','x-senha':senha},body:JSON.stringify({pergunta:q,historico:hist})});
+  // 👍/👎 em cada resposta: vai para a página "Ensinar a IA"
+  function avalia(rod,rid){
+    var bom=document.createElement('button'),ruim=document.createElement('button');
+    [[bom,'👍','Resposta boa'],[ruim,'👎','Resposta errada ou incompleta']].forEach(function(x){x[0].type='button';x[0].className='av-b';x[0].textContent=x[1];x[0].title=x[2];x[0].setAttribute('aria-label',x[2]);x[0].setAttribute('aria-pressed','false');rod.appendChild(x[0]);});
+    function manda(nota,com){return fetch('/api/assistente?acao=avaliar',{method:'POST',headers:{'Content-Type':'application/json','x-senha':senha},body:JSON.stringify({id:rid,nota:nota,comentario:com||''})}).catch(function(){});}
+    function fim(t){bom.remove();ruim.remove();var s=document.createElement('span');s.className='av-ok';s.textContent=t;rod.appendChild(s);}
+    bom.onclick=function(){manda(1);fim('👍 Obrigado!');};
+    ruim.onclick=function(){manda(-1);bom.remove();ruim.setAttribute('aria-pressed','true');ruim.disabled=true;
+      var f=document.createElement('form');f.className='av-f';f.innerHTML='<input placeholder="O que estava errado? (opcional)" aria-label="O que estava errado"><button>Enviar</button>';
+      f.onsubmit=function(e){e.preventDefault();var v=f.querySelector('input').value.trim();if(v)manda(-1,v);f.remove();ruim.remove();fim('Anotado! Um líder vai revisar e ensinar a resposta certa.');};
+      rod.appendChild(f);f.querySelector('input').focus();};
+  }
+  // ----- print (imagem) -----
+  var anexo=null;
+  function reduz(file){return new Promise(function(ok,erro){var im=new Image(),u=URL.createObjectURL(file);im.onload=function(){var M=1600,w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,M/Math.max(w,h));var c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);var g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);var d=c.toDataURL('image/jpeg',0.85);ok({mime:'image/jpeg',data:d.split(',')[1],url:d});};im.onerror=function(){URL.revokeObjectURL(u);erro(new Error('imagem'));};im.src=u;});}
+  async function anexa(file){if(!file||!/^image\//.test(file.type))return;try{anexo=await reduz(file);}catch(e){add('e','Não consegui abrir essa imagem. Tente outro print.');return;}
+    var a=$('iawm-anx');a.querySelector('img').src=anexo.url;a.hidden=false;if(box.hidden)abre(true);$('iawm-q').focus();}
+  function tiraAnexo(){anexo=null;$('iawm-anx').hidden=true;$('iawm-file').value='';}
+  async function envia(q){q=(q||'').trim();var im=anexo;if(ocupado||(!q&&!im))return;ocupado=true;$('iawm-go').disabled=true;
+    var ub=add('u',q||'O que está acontecendo neste print?');if(im){var ig=document.createElement('img');ig.src=im.url;ig.alt='Print enviado';ub.insertBefore(ig,ub.firstChild);tiraAnexo();}
+    var w=add('t',im?'Olhando o print…':'Pensando…');w.className='m b t';
+    try{var r=await fetch('/api/assistente',{method:'POST',headers:{'Content-Type':'application/json','x-senha':senha},body:JSON.stringify({pergunta:q,historico:hist,imagem:im?{mime:im.mime,data:im.data}:undefined})});
       var j=await r.json().catch(function(){return {}});w.remove();
       if(r.status===401){$('iawm-sn').hidden=false;ms.hidden=true;$('iawm-f').hidden=true;$('iawm-pw').focus();return;}
       if(!r.ok){add('e',j.erro||('Erro '+r.status));return;}
-      add('b',j.resposta);hist.push({papel:'user',texto:q},{papel:'model',texto:j.resposta});hist=hist.slice(-10);
+      add('b',j.resposta,j.id);hist.push({papel:'user',texto:(im?'[mandou um print] ':'')+(q||'O que está acontecendo neste print?')},{papel:'model',texto:j.resposta});hist=hist.slice(-10);
       return j.resposta;
     }catch(e){w.remove();add('e','Sem conexão. Tente de novo.');}
     finally{ocupado=false;$('iawm-go').disabled=false;if(!box.hidden)$('iawm-q').focus();}}
@@ -828,7 +865,7 @@ document.querySelectorAll('.copy').forEach(function(btn){
   $('iawm-x').onclick=function(){abre(false);btn.focus()};
   $('iawm-lim').onclick=function(){hist=[];inicio();};
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!box.hidden){abre(false);btn.focus();}});
-  $('iawm-f').addEventListener('submit',function(e){e.preventDefault();var q=$('iawm-q').value;$('iawm-q').value='';$('iawm-q').style.height='auto';envia(q);});
+  $('iawm-f').addEventListener('submit',function(e){e.preventDefault();var q=$('iawm-q').value;if(!q.trim()&&!anexo)return;$('iawm-q').value='';$('iawm-q').style.height='auto';envia(q);});
   $('iawm-q').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('iawm-f').requestSubmit();}});
   $('iawm-q').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
   $('iawm-sn').addEventListener('submit',function(e){e.preventDefault();senha=$('iawm-pw').value;try{sessionStorage.setItem('assist-senha',senha);}catch(_){}$('iawm-sn').hidden=true;ms.hidden=false;$('iawm-f').hidden=false;});
@@ -839,11 +876,18 @@ document.querySelectorAll('.copy').forEach(function(btn){
       if(r.status===401){u.remove();$('iawm-sn').hidden=false;ms.hidden=true;$('iawm-f').hidden=true;$('iawm-pw').focus();return null;}
       if(!r.ok){add('e',j.erro||('Erro '+r.status));return null;}
       if(j.vazio){u.textContent='🎙️ (não entendi o áudio)';return {vazio:true};}
-      u.textContent='🎙️ '+(j.pergunta||'Pergunta por voz');add('b',j.resposta);
+      u.textContent='🎙️ '+(j.pergunta||'Pergunta por voz');add('b',j.resposta,j.id);
       hist.push({papel:'user',texto:j.pergunta||'(pergunta por voz)'},{papel:'model',texto:j.resposta});hist=hist.slice(-10);
       return {pergunta:j.pergunta,resposta:j.resposta};
     }catch(e){w.remove();add('e','Sem conexão. Tente de novo.');return null;}
     finally{ocupado=false;$('iawm-go').disabled=false;}}
+  $('iawm-clip').onclick=function(){$('iawm-file').click();};
+  $('iawm-file').onchange=function(){anexa(this.files[0]);};
+  $('iawm-anx-x').onclick=tiraAnexo;
+  $('iawm-q').addEventListener('paste',function(e){var it=[].slice.call((e.clipboardData||{}).items||[]).filter(function(i){return i.kind==='file'&&/^image\//.test(i.type)})[0];if(it){e.preventDefault();anexa(it.getAsFile());}});
+  box.addEventListener('dragover',function(e){if([].slice.call(e.dataTransfer.types||[]).indexOf('Files')>=0){e.preventDefault();box.classList.add('arrasta');}});
+  box.addEventListener('dragleave',function(e){if(!box.contains(e.relatedTarget))box.classList.remove('arrasta');});
+  box.addEventListener('drop',function(e){e.preventDefault();box.classList.remove('arrasta');anexa(e.dataTransfer.files[0]);});
   window.IAWM={abre:abre,envia:envia,enviaAudio:enviaAudio,ocupado:function(){return ocupado}};
 })();
 </script>
