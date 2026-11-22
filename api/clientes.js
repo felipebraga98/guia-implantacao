@@ -5,6 +5,7 @@
 // Opcional: SENHA_EQUIPE -> se existir, a página pede essa senha para ver e salvar.
 
 // Cada lista fica numa chave separada do banco. A página escolhe com ?lista=...
+const EQUIPE = require('./_equipe.js');
 const LISTAS = { pdvnovo: 'pdvnovo:clientes', finalizados: 'finalizados:clientes' };
 
 function cfg() {
@@ -50,7 +51,9 @@ module.exports = async function handler(req, res) {
         try { lista.push(JSON.parse(arr[i + 1])); } catch (e) {}
       }
       lista.sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
-      return res.status(200).json({ clientes: lista, protegido: !!senha });
+      let admin = false, nome = '';
+      try { const eu = await EQUIPE.equipeLogada(req); if (eu && eu.admin) { admin = true; nome = eu.nome; } } catch (e) {}
+      return res.status(200).json({ clientes: lista, protegido: !!senha, admin, nome });
     }
 
     const body = (req.body && typeof req.body === 'object') ? req.body : (() => { try { return JSON.parse(req.body || '{}'); } catch (e) { return {}; } })();
@@ -79,6 +82,12 @@ module.exports = async function handler(req, res) {
     if (req.method === 'DELETE') {
       const id = limpa(body.id || (req.query && req.query.id), 40);
       if (!id) return res.status(400).json({ erro: 'Cliente não informado.' });
+      // Na lista de finalizados, só administrador logado pode excluir.
+      if (nomeLista === 'finalizados') {
+        const eu = await EQUIPE.equipeLogada(req);
+        if (!eu) return res.status(401).json({ erro: 'Entre com seu login de administrador.', precisaLogin: true });
+        if (!eu.admin) return res.status(403).json({ erro: 'Só administradores podem excluir clientes finalizados.' });
+      }
       await redis(['HDEL', CHAVE, id]);
       return res.status(200).json({ ok: true });
     }
