@@ -337,6 +337,19 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <code class="cp" id="c-embed"></code>
       <div class="row" style="margin-top:8px"><button class="btn g sm" type="button" id="c-embed-cp">Copiar código</button></div>
 
+      <h3 id="imp-t">Importar agendamentos do Google Agenda</h3>
+      <p class="muted" style="margin:0 0 8px;font-size:.88rem">No Google Agenda do computador: <b>⚙️ Configurações › Importar e exportar › Exportar</b>. O Google baixa um arquivo <b>.zip</b>. Escolha esse arquivo aqui (pode ser o .zip ou o .ics de dentro dele). Você confere a lista antes de importar, e nada é enviado para os clientes.</p>
+      <div class="row"><label class="btn g sm" style="cursor:pointer">📥 Escolher arquivo do Google<input type="file" id="imp-arq" accept=".ics,.zip,text/calendar,application/zip" hidden></label><span class="muted" id="imp-st" style="font-size:.88rem"></span></div>
+      <div id="imp-box" hidden style="margin-top:10px">
+        <div class="row" style="margin-bottom:8px;flex-wrap:wrap;gap:8px">
+          <label class="chk"><input type="checkbox" id="imp-passados"> Mostrar também os que já passaram</label>
+          <label style="flex:1;min-width:200px"><input id="imp-busca" type="search" placeholder="Filtrar por título (ex.: Implantação)" aria-label="Filtrar"></label>
+          <button type="button" class="btn g sm" id="imp-todos">Marcar todos</button><button type="button" class="btn g sm" id="imp-nenhum">Desmarcar todos</button>
+        </div>
+        <div class="tbl" style="max-height:420px;overflow:auto"><table><thead><tr><th></th><th>Dia</th><th>Hora</th><th>Nome do cliente</th><th>Loja</th><th>WhatsApp</th><th>E-mail</th></tr></thead><tbody id="imp-tb"></tbody></table></div>
+        <div class="row" style="margin-top:10px;justify-content:flex-end;gap:10px"><span class="grow muted" id="imp-cont" style="font-size:.88rem"></span><button type="button" class="btn y" id="imp-ok">Importar selecionados</button></div>
+      </div>
+
       <div class="salvar"><span class="grow" id="c-st">Tudo salvo.</span><button class="btn y" type="button" id="c-salvar">Salvar configurações</button></div>
     </section>
   </div>
@@ -868,6 +881,76 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   $('copiar-link').onclick=function(){copia(siteAgenda,'Link copiado!');};
   $('copiar-msg').onclick=function(){copia('Olá! Para agendar seu atendimento com a equipe WhatsMenu, escolha o melhor dia e horário neste link: '+siteAgenda+' — você recebe a confirmação por e-mail e pode remarcar por lá se precisar. 😉','Mensagem copiada!');};
   document.addEventListener('wm-agenda-mudou',function(){if(!document.querySelector('dialog[open]'))carregar(true);});
+
+  // ================= importar do Google Agenda (.ics ou .zip exportado) =================
+  (function(){
+    var eventos=[];
+    function u16(b,o){return b[o]|(b[o+1]<<8);} function u32(b,o){return (b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24))>>>0;}
+    async function inflar(dados){var ds=new DecompressionStream('deflate-raw');var w=new Blob([dados]).stream().pipeThrough(ds);return new Uint8Array(await new Response(w).arrayBuffer());}
+    // lê os arquivos .ics de dentro do .zip que o Google exporta
+    async function icsDoZip(buf){var b=new Uint8Array(buf),fim=-1;for(var i=b.length-22;i>=Math.max(0,b.length-70000);i--){if(u32(b,i)===0x06054b50){fim=i;break;}}
+      if(fim<0)throw new Error('Arquivo .zip inválido.');var n=u16(b,fim+10),p=u32(b,fim+16),out=[];
+      for(var k=0;k<n;k++){if(u32(b,p)!==0x02014b50)break;var met=u16(b,p+10),tam=u32(b,p+20),ln=u16(b,p+28),le=u16(b,p+30),lc=u16(b,p+32),off=u32(b,p+42);
+        var nome=new TextDecoder().decode(b.subarray(p+46,p+46+ln));p+=46+ln+le+lc;if(!/\.ics$/i.test(nome))continue;
+        var ini=off+30+u16(b,off+26)+u16(b,off+28),dados=b.subarray(ini,ini+tam);
+        var raw=met===8?await inflar(dados):dados;out.push({nome:nome,texto:new TextDecoder().decode(raw)});}
+      if(!out.length)throw new Error('Não achei agenda (.ics) dentro do .zip.');return out;}
+    function desfaz(v){return String(v||'').replace(/\\n/gi,'\n').replace(/\\([,;\\])/g,'$1');}
+    // converte DTSTART para dia/hora de Brasília
+    function quando(prop){if(!prop)return null;var v=prop.valor,m=v.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);if(!m)return null;
+      if(!m[4])return {dia:m[1]+'-'+m[2]+'-'+m[3],hora:'',inteiro:true};
+      var d;if(m[7])d=new Date(Date.UTC(+m[1],m[2]-1,+m[3],+m[4],+m[5]));
+      else{var tz=prop.params.TZID||'America/Sao_Paulo';var base=Date.UTC(+m[1],m[2]-1,+m[3],+m[4],+m[5]);
+        try{var f=new Intl.DateTimeFormat('en-US',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(base));var g={};f.forEach(function(x){g[x.type]=x.value;});var off=Date.UTC(+g.year,g.month-1,+g.day,+g.hour%24,+g.minute)-base;d=new Date(base-off);}catch(e){d=new Date(base+3*3600e3);}}
+      var br=new Date(d.getTime()-3*3600e3),iso=br.toISOString();return {dia:iso.slice(0,10),hora:iso.slice(11,16),ms:d.getTime()};}
+    function lerIcs(texto,origem){var linhas=texto.replace(/\r\n/g,'\n').replace(/\n[ \t]/g,'').split('\n'),out=[],ev=null,dono='';
+      linhas.forEach(function(l){if(l==='BEGIN:VEVENT'){ev={props:{},attendees:[]};return;}if(l==='END:VEVENT'){if(ev)out.push(ev);ev=null;return;}
+        var i=l.indexOf(':');if(i<0)return;var cab=l.slice(0,i),valor=l.slice(i+1),pp=cab.split(';'),nome=pp[0].toUpperCase(),params={};
+        pp.slice(1).forEach(function(x){var j=x.indexOf('=');if(j>0)params[x.slice(0,j).toUpperCase()]=x.slice(j+1).replace(/^"|"$/g,'');});
+        if(!ev){if(nome==='X-WR-CALNAME')dono=valor;return;}
+        if(nome==='ATTENDEE')ev.attendees.push({email:valor.replace(/^mailto:/i,''),nome:params.CN||'',org:false});
+        else if(!ev.props[nome])ev.props[nome]={valor:valor,params:params};});
+      return out.map(function(e){var P=e.props,ini=quando(P.DTSTART),fim=quando(P.DTEND),tit=desfaz(P.SUMMARY&&P.SUMMARY.valor).trim(),desc=desfaz(P.DESCRIPTION&&P.DESCRIPTION.valor),org=String(P.ORGANIZER&&P.ORGANIZER.valor||'').replace(/^mailto:/i,'').toLowerCase();
+        if(!ini)return null;var tudo=tit+'\n'+desc+'\n'+desfaz(P.LOCATION&&P.LOCATION.valor);
+        var conv=e.attendees.filter(function(a){return a.email&&a.email.toLowerCase()!==org&&!/calendar\.google\.com|resource\.calendar/i.test(a.email);});
+        var em=(conv[0]&&conv[0].email)||((tudo.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g)||[]).filter(function(x){return x.toLowerCase()!==org;})[0])||'';
+        var tel=(tudo.match(/(?:\+?55\s?)?\(?\d{2}\)?[\s.-]?9?\s?\d{4}[\s.-]?\d{4}/)||[''])[0].trim();
+        var link=(tudo.match(/https:\/\/meet\.google\.com\/[a-z0-9-]+/i)||[''])[0]||(P['X-GOOGLE-CONFERENCE']&&P['X-GOOGLE-CONFERENCE'].valor)||'';
+        var dur=ini.ms&&fim&&fim.ms?Math.round((fim.ms-ini.ms)/60000):0;
+        return {uid:(P.UID&&P.UID.valor||'')+'|'+ (P['RECURRENCE-ID']?P['RECURRENCE-ID'].valor:''),titulo:tit||'(sem título)',dia:ini.dia,hora:ini.hora,inteiro:!!ini.inteiro,ms:ini.ms||0,duracao:dur,
+          repete:!!P.RRULE,cancelado:/CANCELLED/i.test(P.STATUS&&P.STATUS.valor||''),descricao:desc.slice(0,3000),
+          nome:(conv[0]&&conv[0].nome)||tit,loja:tit,whatsapp:tel,email:em,link:link,agenda:dono||origem,marcado:true};
+      }).filter(Boolean);}
+    function visiveis(){var agora=Date.now()-2*3600e3,q=$('imp-busca').value.trim().toLowerCase(),pas=$('imp-passados').checked;
+      return eventos.filter(function(e){return !e.inteiro&&!e.cancelado&&(pas||e.ms>=agora)&&(!q||e.titulo.toLowerCase().indexOf(q)>=0);});}
+    function desenha(){var l=visiveis();$('imp-tb').innerHTML=l.map(function(e){var i=eventos.indexOf(e);var d=new Date(e.dia+'T12:00:00');
+        return '<tr data-i="'+i+'"><td><input type="checkbox" data-k="marcado"'+(e.marcado?' checked':'')+' aria-label="Importar"></td><td style="white-space:nowrap">'+esc(d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',year:'2-digit'}))+(e.repete?' <span title="Evento que se repete: só a primeira data é importada">🔁</span>':'')+'</td><td>'+esc(e.hora)+'</td>'+
+          ['nome','loja','whatsapp','email'].map(function(k){return '<td><input data-k="'+k+'" value="'+esc(e[k])+'" style="min-width:'+(k==='whatsapp'?110:150)+'px;font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px"></td>';}).join('')+'</tr>';}).join('')||'<tr><td colspan="7" class="muted" style="padding:14px">Nenhum agendamento futuro encontrado. Marque "Mostrar também os que já passaram" para ver os antigos.</td></tr>';
+      conta();}
+    function conta(){var n=visiveis().filter(function(e){return e.marcado;}).length;$('imp-cont').textContent=n+' agendamento(s) selecionado(s)';$('imp-ok').disabled=!n;}
+    $('imp-tb').addEventListener('input',function(e){var k=e.target.dataset.k,tr=e.target.closest('tr');if(!k||!tr)return;var ev=eventos[+tr.dataset.i];ev[k]=e.target.type==='checkbox'?e.target.checked:e.target.value;conta();});
+    $('imp-tb').addEventListener('change',function(e){if(e.target.type==='checkbox'){var ev=eventos[+e.target.closest('tr').dataset.i];ev.marcado=e.target.checked;conta();}});
+    $('imp-passados').addEventListener('change',desenha);$('imp-busca').addEventListener('input',desenha);
+    $('imp-todos').onclick=function(){visiveis().forEach(function(e){e.marcado=true;});desenha();};
+    $('imp-nenhum').onclick=function(){visiveis().forEach(function(e){e.marcado=false;});desenha();};
+    $('imp-arq').addEventListener('change',async function(){var f=this.files[0];if(!f)return;$('imp-st').textContent='Lendo o arquivo…';
+      try{var arqs=/\.zip$/i.test(f.name)||f.type.indexOf('zip')>=0?await icsDoZip(await f.arrayBuffer()):[{nome:f.name,texto:await f.text()}];
+        eventos=[];arqs.forEach(function(a){eventos=eventos.concat(lerIcs(a.texto,a.nome.replace(/\.ics$/i,'')));});
+        eventos.sort(function(a,b){return a.ms-b.ms;});
+        var fut=eventos.filter(function(e){return !e.inteiro&&!e.cancelado&&e.ms>=Date.now()-2*3600e3;}).length;
+        $('imp-st').textContent=eventos.length+' eventos no arquivo ('+arqs.length+' agenda(s)), '+fut+' daqui para frente.';$('imp-box').hidden=false;desenha();
+      }catch(err){$('imp-st').textContent='Não consegui ler: '+err.message;}
+      this.value='';});
+    $('imp-ok').addEventListener('click',async function(){var sel=visiveis().filter(function(e){return e.marcado;});if(!sel.length)return;
+      var b=this;b.disabled=true;var tot={criados:0,repetidos:0,erros:0};
+      try{for(var i=0;i<sel.length;i+=100){$('imp-cont').textContent='Importando '+Math.min(i+100,sel.length)+' de '+sel.length+'…';
+          var r=await api('POST','importar',{eventos:sel.slice(i,i+100).map(function(e){return {uid:e.uid,data:e.dia,hora:e.hora,duracao:e.duracao,titulo:e.titulo,nome:e.nome,loja:e.loja,whatsapp:e.whatsapp,email:e.email,link:e.link,descricao:e.descricao,agenda:e.agenda};})});
+          tot.criados+=r.criados;tot.repetidos+=r.repetidos;tot.erros+=r.erros;}
+        toast('Importados: '+tot.criados+(tot.repetidos?' · já existiam: '+tot.repetidos:'')+(tot.erros?' · com erro: '+tot.erros:''));
+        $('imp-st').textContent='Importação concluída: '+tot.criados+' novo(s)'+(tot.repetidos?', '+tot.repetidos+' já estavam na agenda':'')+'.';
+        sel.forEach(function(e){e.marcado=false;});desenha();carregar(true);
+      }catch(err){if(err.message!=='login')toast(err.message);}finally{b.disabled=false;conta();}});
+  })();
 
   estadoAvisos();
   var h0=location.hash.replace('#','');
