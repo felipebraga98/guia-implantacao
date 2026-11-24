@@ -38,6 +38,7 @@ const PADRAO = {
   local: 'Vamos chamar você no WhatsApp informado.',
   linkVideo: '',
   chamadaPropria: true,
+  proxQtd: 1,             // quantos próximos clientes aparecem no destaque da página Agendamentos
   alarmeMin: 15,          // quantos minutos antes o alarme da equipe começa a tocar   // cria uma sala de vídeo WhatsMenu diferente para cada agendamento
   lembretes: { confirmacao: true, vespera: true, umaHora: true },
   confirmarEmail: false,  // exige que o cliente confirme pelo e-mail em até 30 min
@@ -125,6 +126,7 @@ function normalizaConfig(b, atual) {
   c.confirmarEmail = !!b.confirmarEmail;
   c.chamadaPropria = b.chamadaPropria !== false;
   c.alarmeMin = n(b.alarmeMin, 1, 180, atual.alarmeMin || 15);
+  c.proxQtd = n(b.proxQtd, 1, 10, atual.proxQtd || 1);
   c.textoSucesso = limpa(b.textoSucesso, 400) || PADRAO.textoSucesso;
   c.icsChave = b.novaChave ? crypto.randomBytes(16).toString('hex') : atual.icsChave;
   return c;
@@ -367,15 +369,19 @@ async function porToken(t) {
   return r;
 }
 
+const DISPOSITIVOS = { computador: '💻 Computador', celular: '📱 Celular' };
 function dadosCliente(b) {
+  // o link do cliente pergunta o dispositivo (computador ou celular) no lugar do nome da loja
+  const disp = DISPOSITIVOS[String(b.dispositivo || '')] || '';
   return {
-    nome: limpa(b.nome, 80), loja: limpa(b.loja, 80),
+    nome: limpa(b.nome, 80), loja: limpa(b.loja, 80) || disp,
     whatsapp: limpa(b.whatsapp, 20).replace(/[^\d()+\- ]/g, ''),
     email: limpa(b.email, 120).toLowerCase(),
   };
 }
 function validaCliente(d) {
-  if (d.nome.length < 2 || d.loja.length < 2) return 'Preencha seu nome e o nome da loja.';
+  if (d.nome.length < 2) return 'Preencha seu nome.';
+  if (d.loja.length < 2) return 'Escolha qual dispositivo você vai usar no atendimento.';
   if (d.whatsapp.replace(/\D/g, '').length < 10) return 'Informe o WhatsApp com DDD.';
   if (!EMAIL_RE.test(d.email)) return 'Informe um e-mail válido.';
   return '';

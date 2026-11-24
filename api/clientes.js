@@ -5,8 +5,16 @@
 // Opcional: SENHA_EQUIPE -> se existir, a página pede essa senha para ver e salvar.
 
 // Cada lista fica numa chave separada do banco. A página escolhe com ?lista=...
-const EQUIPE = require('./_equipe.js');
-const LISTAS = { pdvnovo: 'pdvnovo:clientes', finalizados: 'finalizados:clientes' };
+const LISTAS = { pdvnovo: 'pdvnovo:clientes', finalizados: 'finalizados:clientes', atentos: 'atentos:clientes' };
+// Opções de marcação dos "Clientes atentos" (ex.: "Versão robô"), criadas pela própria equipe
+const OPCOES = 'atentos:opcoes';
+const CORES = ['verde', 'azul', 'amarelo', 'vermelho', 'roxo', 'cinza'];
+async function lerOpcoes() {
+  const arr = (await redis(['HGETALL', OPCOES])) || [];
+  const out = [];
+  for (let i = 0; i < arr.length; i += 2) { try { out.push(JSON.parse(arr[i + 1])); } catch (e) {} }
+  return out.sort((a, b) => String(a.nome).localeCompare(String(b.nome), 'pt-BR'));
+}
 
 function cfg() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -26,6 +34,7 @@ async function redis(cmd) {
   return j.result;
 }
 
+function marcadores(v) { return Array.isArray(v) ? [...new Set(v.map((x) => limpa(x, 30)).filter(Boolean))].slice(0, 20) : []; }
 function limpa(v, max) { return String(v == null ? '' : v).trim().slice(0, max); }
 
 module.exports = async function handler(req, res) {
@@ -44,6 +53,27 @@ module.exports = async function handler(req, res) {
   if (!CHAVE) return res.status(400).json({ erro: 'Lista desconhecida.' });
 
   try {
+    const acao = String((req.query && req.query.acao) || '');
+    if (acao === 'opcao') {
+      const b = (req.body && typeof req.body === 'object') ? req.body : (() => { try { return JSON.parse(req.body || '{}'); } catch (e) { return {}; } })();
+      if (req.method === 'POST') {
+        const nome = limpa(b.nome, 40);
+        if (nome.length < 2) return res.status(400).json({ erro: 'Escreva o nome da opção (ex.: Versão robô).' });
+        const ops = await lerOpcoes();
+        if (ops.some((o) => o.nome.toLowerCase() === nome.toLowerCase())) return res.status(400).json({ erro: 'Já existe uma opção com esse nome.' });
+        if (ops.length >= 40) return res.status(400).json({ erro: 'Limite de 40 opções.' });
+        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        const op = { id, nome, cor: CORES.includes(b.cor) ? b.cor : 'verde', criadoEm: new Date().toISOString() };
+        await redis(['HSET', OPCOES, id, JSON.stringify(op)]);
+        return res.status(201).json({ opcao: op, opcoes: await lerOpcoes() });
+      }
+      if (req.method === 'DELETE') {
+        await redis(['HDEL', OPCOES, limpa(b.id, 30)]);
+        return res.status(200).json({ opcoes: await lerOpcoes() });
+      }
+      return res.status(405).json({ erro: 'Método não permitido.' });
+    }
+
     if (req.method === 'GET') {
       const arr = (await redis(['HGETALL', CHAVE])) || [];
       const lista = [];
@@ -51,9 +81,7 @@ module.exports = async function handler(req, res) {
         try { lista.push(JSON.parse(arr[i + 1])); } catch (e) {}
       }
       lista.sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
-      let admin = false, nome = '';
-      try { const eu = await EQUIPE.equipeLogada(req); if (eu && eu.admin) { admin = true; nome = eu.nome; } } catch (e) {}
-      return res.status(200).json({ clientes: lista, protegido: !!senha, admin, nome });
+      return res.status(200).json({ clientes: lista, protegido: !!senha, opcoes: nomeLista === 'atentos' ? await lerOpcoes() : undefined });
     }
 
     const body = (req.body && typeof req.body === 'object') ? req.body : (() => { try { return JSON.parse(req.body || '{}'); } catch (e) { return {}; } })();
@@ -64,6 +92,7 @@ module.exports = async function handler(req, res) {
       const agora = new Date().toISOString();
       const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
       const item = { id, email, telefone, obs: limpa(body.obs, 4000), por: limpa(body.por, 80), criadoEm: agora, atualizadoEm: agora };
+      if (nomeLista === 'atentos') item.marcadores = marcadores(body.marcadores);
       await redis(['HSET', CHAVE, id, JSON.stringify(item)]);
       return res.status(201).json({ cliente: item });
     }
@@ -74,6 +103,7 @@ module.exports = async function handler(req, res) {
       if (!atual) return res.status(404).json({ erro: 'Cliente não encontrado. Atualize a página.' });
       const item = JSON.parse(atual);
       if ('obs' in body) item.obs = limpa(body.obs, 4000);
+      if ('marcadores' in body) item.marcadores = marcadores(body.marcadores);
       item.atualizadoEm = new Date().toISOString();
       await redis(['HSET', CHAVE, id, JSON.stringify(item)]);
       return res.status(200).json({ cliente: item });
@@ -82,12 +112,6 @@ module.exports = async function handler(req, res) {
     if (req.method === 'DELETE') {
       const id = limpa(body.id || (req.query && req.query.id), 40);
       if (!id) return res.status(400).json({ erro: 'Cliente não informado.' });
-      // Na lista de finalizados, só administrador logado pode excluir.
-      if (nomeLista === 'finalizados') {
-        const eu = await EQUIPE.equipeLogada(req);
-        if (!eu) return res.status(401).json({ erro: 'Entre com seu login de administrador.', precisaLogin: true });
-        if (!eu.admin) return res.status(403).json({ erro: 'Só administradores podem excluir clientes finalizados.' });
-      }
       await redis(['HDEL', CHAVE, id]);
       return res.status(200).json({ ok: true });
     }

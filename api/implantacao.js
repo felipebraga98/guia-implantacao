@@ -14,7 +14,7 @@ const K = {
   usuarios: 'impl:usuarios',
   clientes: 'impl:clientes',
   // trocar a versão (v2 → v3…) recomeça a lista do zero a partir da planilha
-  seed: 'impl:seed:v2',
+  seed: 'impl:seed:v3',
   log: 'impl:log',
   sessao: (t) => 'impl:sessao:' + t,
   tentativas: (u) => 'impl:tent:' + u,
@@ -24,7 +24,7 @@ const K = {
 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const SESSAO_DIAS = 30;
-const ABAS = ['Implantação 1', 'Implantação 3'];
+const ABAS = ['Implantação'];
 const CAMPOS = ['aba', 'dataEntrada', 'email', 'telefone', 'status', 'falta'];
 const NOMES_CAMPOS = { aba: 'Aba', dataEntrada: 'Data entrada', email: 'E-mail', telefone: 'Telefone', status: 'Status', falta: 'O que falta' };
 
@@ -95,19 +95,34 @@ async function enviarEmailRedefinicao(para, nome, link) {
   });
 }
 
-/** Uma única vez por versão: apaga a lista e recomeça com os dados da planilha (as contas de login continuam). */
+/** Uma única vez por versão: troca a lista pelos clientes da planilha (as contas de login continuam).
+ *  Quem já estava na lista (mesmo e-mail) mantém "o que falta" e o histórico; a lista antiga fica guardada numa cópia de segurança. */
 async function importarPlanilha() {
   const primeiraVez = await redis(['SET', K.seed, agora(), 'NX']);
   if (primeiraVez !== 'OK') return;
+  const antigos = (await redis(['HGETALL', K.clientes])) || [];
+  if (antigos.length) await redis(['HSET', 'impl:clientes:copia-v2', ...antigos]);
+  const porEmail = {};
+  for (let i = 0; i < antigos.length; i += 2) {
+    try { const x = JSON.parse(antigos[i + 1]); const k = String(x.email || '').trim().toLowerCase(); if (k && !porEmail[k]) porEmail[k] = x; } catch (e) {}
+  }
   await redis(['DEL', K.clientes]);
   const cmd = ['HSET', K.clientes];
-  const quando = agora();
+  const quando = agora(), origem = 'Planilha · Relatório 23/11';
   DADOS_INICIAIS.forEach((d, i) => {
-    const id = 'p' + String(i + 1).padStart(3, '0');
-    cmd.push(id, JSON.stringify({
-      id, aba: d.aba || ABAS[0], dataEntrada: d.dataEntrada, email: d.email, telefone: d.telefone, status: d.status, falta: d.falta,
-      criadoPor: 'Planilha · ' + (d.aba || 'importado'), criadoEm: quando, atualizadoPor: 'Planilha · ' + (d.aba || 'importado'), atualizadoEm: quando, hist: [],
-    }));
+    const velho = porEmail[String(d.email || '').trim().toLowerCase()];
+    let item;
+    if (velho) {
+      item = Object.assign({}, velho, { aba: ABAS[0], dataEntrada: d.dataEntrada || velho.dataEntrada, telefone: d.telefone || velho.telefone, status: d.status || velho.status });
+      const mud = [];
+      if ((velho.status || '') !== (item.status || '')) mud.push({ campo: 'Status', de: velho.status || '', para: item.status });
+      if ((velho.telefone || '') !== (item.telefone || '')) mud.push({ campo: 'Telefone', de: velho.telefone || '', para: item.telefone });
+      if (mud.length) item.hist = [...mud.map((m) => ({ ...m, quem: origem, quando })), ...(velho.hist || [])].slice(0, 50);
+    } else {
+      item = { id: 'r' + String(i + 1).padStart(3, '0'), aba: ABAS[0], dataEntrada: d.dataEntrada, email: d.email, telefone: d.telefone, status: d.status, falta: d.falta || '',
+        criadoPor: origem, criadoEm: quando, atualizadoPor: origem, atualizadoEm: quando, hist: [] };
+    }
+    cmd.push(item.id, JSON.stringify(item));
   });
   if (cmd.length > 2) await redis(cmd);
 }
@@ -121,10 +136,7 @@ async function registrarLog(texto) {
 
 /** Clientes antigos não tinham o campo "aba": descobre pela origem da importação. */
 function comAba(item) {
-  if (!item.aba) {
-    const m = String(item.criadoPor || '').match(/Implantação \d+/);
-    item.aba = m && ABAS.includes(m[0]) ? m[0] : ABAS[0];
-  }
+  if (!ABAS.includes(item.aba)) item.aba = ABAS[0];
   return item;
 }
 
