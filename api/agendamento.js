@@ -38,6 +38,8 @@ const PADRAO = {
   local: 'Vamos chamar você no WhatsApp informado.',
   linkVideo: '',
   chamadaPropria: true,
+  // aviso pelo WhatsApp (TousChat) antes do atendimento — precisa do TOUSCHAT_TOKEN no Vercel
+  whats: { ativo: false, minutos: 15, templateId: '', templateNome: '', from: '', params: {} },
   proxQtd: 1,             // quantos próximos clientes aparecem no destaque da página Agendamentos
   alarmeMin: 15,          // quantos minutos antes o alarme da equipe começa a tocar   // cria uma sala de vídeo WhatsMenu diferente para cada agendamento
   lembretes: { confirmacao: true, vespera: true, umaHora: true },
@@ -78,6 +80,7 @@ async function lerConfig() {
   try { c = raw ? JSON.parse(raw) : {}; } catch (e) { c = {}; }
   const out = Object.assign({}, PADRAO, c);
   out.lembretes = Object.assign({}, PADRAO.lembretes, c.lembretes || {});
+  out.whats = Object.assign({}, PADRAO.whats, c.whats || {});
   if (!Array.isArray(out.tipos) || !out.tipos.length) out.tipos = PADRAO.tipos;
   if (!out.icsChave) {
     out.icsChave = crypto.randomBytes(16).toString('hex');
@@ -127,6 +130,15 @@ function normalizaConfig(b, atual) {
   c.chamadaPropria = b.chamadaPropria !== false;
   c.alarmeMin = n(b.alarmeMin, 1, 180, atual.alarmeMin || 15);
   c.proxQtd = n(b.proxQtd, 1, 10, atual.proxQtd || 1);
+  const w = b.whats || {}, wa = atual.whats || PADRAO.whats;
+  const campos = ['primeiroNome', 'nome', 'hora', 'data', 'link', 'tipo', 'fixo'];
+  const params = {};
+  Object.keys(w.params || {}).slice(0, 10).forEach((k) => {
+    const v = w.params[k] || {}; const nome = limpa(k, 60); if (!nome) return;
+    params[nome] = { campo: campos.includes(v.campo) ? v.campo : 'fixo', texto: limpa(v.texto, 200) };
+  });
+  c.whats = { ativo: !!w.ativo, minutos: n(w.minutos, 1, 180, wa.minutos || 15), templateId: limpa(w.templateId, 60).replace(/[^a-z0-9-]/gi, ''),
+    templateNome: limpa(w.templateNome, 120), from: limpa(w.from, 20).replace(/\D/g, ''), params };
   c.textoSucesso = limpa(b.textoSucesso, 400) || PADRAO.textoSucesso;
   c.icsChave = b.novaChave ? crypto.randomBytes(16).toString('hex') : atual.icsChave;
   return c;
@@ -333,6 +345,61 @@ async function enviarLembretes(c, reservas) {
       if ((await redis(['SET', marca, '1', 'NX', 'EX', String(8 * 86400)])) !== 'OK') continue;
       try { if (await emailCliente(tipo, r, c)) n++; } catch (e) { await redis(['DEL', marca]); }
     }
+  }
+  return n;
+}
+
+// ---------- aviso pelo WhatsApp (TousChat) ----------
+const TOUSCHAT = 'https://api.app.tous.chat/chat';
+const touschatToken = () => process.env.TOUSCHAT_TOKEN || '';
+function telefoneWhats(t) {
+  let d = String(t || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 10 || d.length === 11) d = '55' + d; // DDD + número
+  return d.length >= 12 && d.length <= 13 ? d : '';
+}
+async function touschat(metodo, caminho, corpo) {
+  const r = await fetch(TOUSCHAT + caminho, { method: metodo, headers: { Authorization: 'Bearer ' + touschatToken(), 'Content-Type': 'application/json', Accept: 'application/json' }, body: corpo ? JSON.stringify(corpo) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error((j && (j.text || j.message || j.title)) || ('TousChat respondeu ' + r.status)); e.status = r.status; throw e; }
+  return j;
+}
+function valorParam(campo, texto, r, c) {
+  const nome = String(r.nome || '').trim();
+  if (campo === 'primeiroNome') return (nome.split(/\s+/)[0] || 'tudo bem').replace(/@.*/, '');
+  if (campo === 'nome') return nome;
+  if (campo === 'hora') return r.hora;
+  if (campo === 'data') return dataBonita(r.data);
+  if (campo === 'link') return linkDaChamada(r, c) || '';
+  if (campo === 'tipo') return r.tipoNome || 'atendimento';
+  return texto || '';
+}
+async function mandaWhats(r, c) {
+  const w = c.whats, to = telefoneWhats(r.whatsapp);
+  if (!to) throw new Error('WhatsApp do cliente inválido');
+  const parameters = {};
+  Object.keys(w.params || {}).forEach((k) => { parameters[k] = valorParam(w.params[k].campo, w.params[k].texto, r, c); });
+  const corpo = { to, body: { templateId: w.templateId }, options: { hiddenSession: false } };
+  if (Object.keys(parameters).length) corpo.body.parameters = parameters;
+  if (w.from) corpo.from = w.from;
+  return touschat('POST', '/v1/message/send', corpo);
+}
+/** Manda o aviso X minutos antes de cada atendimento (uma vez por agendamento). */
+async function enviarWhats(c, reservas) {
+  const w = c.whats || {};
+  if (!w.ativo || !w.templateId || !touschatToken()) return 0;
+  const agora = Date.now(); let n = 0;
+  for (const r of reservas) {
+    if (r.status !== 'aguardando' || !r.whatsapp) continue;
+    const falta = (inicioMs(r.data, r.hora) - agora) / 60000;
+    if (falta > (w.minutos || 15) || falta < 2) continue;
+    const marca = 'agenda:wa:' + r.id + ':' + r.data + r.hora;
+    if ((await redis(['SET', marca, '1', 'NX', 'EX', String(3 * 86400)])) !== 'OK') continue;
+    let texto;
+    try { const j = await mandaWhats(r, c); texto = 'Aviso pelo WhatsApp (TousChat) enviado ' + Math.round(falta) + ' min antes' + (j && j.status ? ' · ' + j.status : ''); n++; }
+    catch (e) { texto = 'Aviso pelo WhatsApp não foi enviado: ' + e.message; }
+    const atual = await redis(['HGET', K.reservas, r.id]);
+    if (atual) { const x = JSON.parse(atual); x.whatsAviso = { quando: Date.now(), ok: !/não foi/.test(texto) }; historico(x, 'Sistema', texto); await salvar(x); }
   }
   return n;
 }
@@ -548,8 +615,10 @@ module.exports = async function handler(req, res) {
 
     // agendador diário do Vercel (vercel.json) — também roda quando a equipe está com o guia aberto
     if (acao === 'lembretes') {
-      const enviados = await enviarLembretes(c, await todasReservas());
-      return res.status(200).json({ ok: true, enviados });
+      const todas = await todasReservas();
+      const enviados = await enviarLembretes(c, todas);
+      const whats = await enviarWhats(c, todas).catch(() => 0);
+      return res.status(200).json({ ok: true, enviados, whats });
     }
 
     // ===== área da equipe =====
@@ -559,6 +628,7 @@ module.exports = async function handler(req, res) {
     if (acao === 'alertas' && req.method === 'GET') {
       const reservas = await todasReservas();
       enviarLembretes(c, reservas).catch(() => {});
+      await enviarWhats(c, reservas).catch(() => {});
       const agora = Date.now();
       const desde = Number(param(req, 'desde')) || agora - 5 * 60e3;
       const alarmes = reservas.filter((r) => {
@@ -609,7 +679,7 @@ module.exports = async function handler(req, res) {
       if (!eu.admin) delete cfgVisivel.icsChave;
       return res.status(200).json({
         lista, hoje: hojeBR(), eu: { usuario: eu.usuario, nome: eu.nome, admin: eu.admin },
-        config: cfgVisivel, equipe: await usuariosEquipe(), emailConfigurado: emailConfigurado(), siteAgenda: siteAgenda(),
+        config: cfgVisivel, equipe: await usuariosEquipe(), emailConfigurado: emailConfigurado(), touschatOk: !!touschatToken(), siteAgenda: siteAgenda(),
       });
     }
 
@@ -747,6 +817,27 @@ module.exports = async function handler(req, res) {
       if (lista.size) atual.bloqueios[data] = Array.from(lista); else delete atual.bloqueios[data];
       await redis(['SET', K.config, JSON.stringify(atual)]);
       return res.status(200).json({ ok: true, bloqueios: atual.bloqueios });
+    }
+
+    // ---------- TousChat (só administradores) ----------
+    if (acao === 'touschat-modelos' || acao === 'touschat-teste') {
+      if (!eu.admin) return res.status(403).json({ erro: 'Só administradores.' });
+      if (!touschatToken()) return res.status(400).json({ erro: 'Falta colocar o TOUSCHAT_TOKEN nas variáveis de ambiente do Vercel (e fazer um novo deploy).', semToken: true });
+      try {
+        if (acao === 'touschat-modelos') {
+          const j = await touschat('GET', '/v1/template?pageSize=100&Archived=false');
+          const itens = (j.items || []).map((t) => ({ id: t.id, nome: t.name || t.internalName || 'Sem nome', texto: t.text || '', status: t.status, ativo: t.active, params: (t.params || []).map((p) => p.name).filter(Boolean) }));
+          return res.status(200).json({ modelos: itens });
+        }
+        const b = lerBody(req);
+        const wteste = Object.assign({}, c.whats, b.whats || {});
+        if (!wteste.templateId) return res.status(400).json({ erro: 'Escolha o modelo de mensagem.' });
+        const falso = { nome: limpa(b.nome, 60) || eu.nome, whatsapp: limpa(b.telefone, 20), hora: '10:00', data: new Date(Date.now() + TZ * 3600e3).toISOString().slice(0, 10), tipoNome: 'Teste', sala: 'wm-teste' };
+        const j = await mandaWhats(falso, Object.assign({}, c, { whats: wteste }));
+        return res.status(200).json({ ok: true, status: j && j.status, id: j && j.id });
+      } catch (e) {
+        return res.status(e.status === 401 || e.status === 403 ? 400 : 502).json({ erro: (e.status === 401 || e.status === 403) ? 'A TousChat recusou o token. Gere um token novo e atualize o TOUSCHAT_TOKEN no Vercel.' : 'TousChat: ' + e.message });
+      }
     }
 
     if (acao === 'config' && (req.method === 'PUT' || req.method === 'POST')) {
