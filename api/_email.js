@@ -1,20 +1,45 @@
-// Envio de e-mail pelo Gmail (EMAIL_USUARIO + EMAIL_SENHA_APP).
-// Sem essas variáveis, os e-mails são simplesmente pulados (o resto continua funcionando).
+// Envio de e-mail pelo Gmail.
+// O e-mail que envia pode ser escolhido pelos administradores na página Agendamentos (fica guardado no banco),
+// ou vir das variáveis EMAIL_USUARIO + EMAIL_SENHA_APP do Vercel. Sem nada disso, os e-mails são pulados.
 
-function emailConfigurado() {
-  return !!(process.env.EMAIL_USUARIO && process.env.EMAIL_SENHA_APP);
+const CHAVE = 'email:remetente';
+let remetente = null, lidoEm = 0;
+
+async function redisCmd(cmd) {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  const r = await fetch(url, { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(cmd) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new Error(j.error || 'banco');
+  return j.result;
 }
+/** Lê o remetente escolhido no painel (guarda por 30 s para não ler o banco toda hora). */
+async function carregar(forcar) {
+  if (!forcar && Date.now() - lidoEm < 30000) return remetente;
+  try { const raw = await redisCmd(['GET', CHAVE]); remetente = raw ? JSON.parse(raw) : null; } catch (e) { /* mantém o que tinha */ }
+  lidoEm = Date.now();
+  return remetente;
+}
+function credenciais() {
+  if (remetente && remetente.usuario && remetente.senha) return { user: remetente.usuario, pass: remetente.senha, nome: remetente.nome || 'WhatsMenu', origem: 'painel' };
+  if (process.env.EMAIL_USUARIO && process.env.EMAIL_SENHA_APP) return { user: process.env.EMAIL_USUARIO, pass: process.env.EMAIL_SENHA_APP, nome: 'WhatsMenu', origem: 'vercel' };
+  return null;
+}
+function emailConfigurado() { return !!credenciais(); }
 
-let transporte = null;
+let transporte = null, chaveTransporte = '';
 async function enviarEmail({ para, assunto, texto, html, anexos }) {
-  if (!emailConfigurado() || !para) return false;
+  const cr = credenciais();
+  if (!cr || !para) return false;
   const nodemailer = require('nodemailer');
-  transporte = transporte || nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USUARIO, pass: process.env.EMAIL_SENHA_APP },
-  });
+  const k = cr.user + '|' + cr.pass;
+  if (!transporte || chaveTransporte !== k) {
+    transporte = nodemailer.createTransport({ service: 'gmail', auth: { user: cr.user, pass: cr.pass } });
+    chaveTransporte = k;
+  }
   await transporte.sendMail({
-    from: '"WhatsMenu" <' + process.env.EMAIL_USUARIO + '>',
+    from: '"' + String(cr.nome).replace(/"/g, '') + '" <' + cr.user + '>',
     to: para,
     subject: assunto,
     text: texto,
@@ -22,6 +47,17 @@ async function enviarEmail({ para, assunto, texto, html, anexos }) {
     attachments: anexos,
   });
   return true;
+}
+
+/** Salva (ou apaga) o remetente escolhido pelos administradores. A senha nunca volta para a tela. */
+async function salvarRemetente(dados) {
+  if (!dados) { await redisCmd(['DEL', CHAVE]); remetente = null; lidoEm = Date.now(); return; }
+  await redisCmd(['SET', CHAVE, JSON.stringify(dados)]);
+  remetente = dados; lidoEm = Date.now(); transporte = null;
+}
+function infoRemetente() {
+  const cr = credenciais();
+  return { usuario: cr ? cr.user : '', nome: cr ? cr.nome : 'WhatsMenu', origem: cr ? cr.origem : 'nenhum', temSenha: !!(remetente && remetente.senha) };
 }
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -40,4 +76,4 @@ function botao(texto, link, cor) {
   return '<a href="' + esc(link) + '" style="display:inline-block;background:' + (cor || '#00a63e') + ';color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:10px;margin:4px 6px 4px 0">' + esc(texto) + '</a>';
 }
 
-module.exports = { emailConfigurado, enviarEmail, moldura, botao, esc };
+module.exports = { emailConfigurado, enviarEmail, moldura, botao, esc, carregar, salvarRemetente, infoRemetente, credenciais };

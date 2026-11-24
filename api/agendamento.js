@@ -11,7 +11,8 @@
 
 const crypto = require('crypto');
 const { cfg, redis, lerBody, limpa, equipeLogada } = require('./_equipe.js');
-const { emailConfigurado, enviarEmail, moldura, botao, esc } = require('./_email.js');
+const MAIL = require('./_email.js');
+const { emailConfigurado, enviarEmail, moldura, botao, esc } = MAIL;
 
 const TZ = -3; // horário de Brasília
 const K = {
@@ -527,6 +528,7 @@ module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const { url, token } = cfg();
   if (!url || !token) return res.status(500).json({ erro: 'Agenda sem banco de dados conectado.' });
+  await MAIL.carregar(); // e-mail que envia, escolhido pelos administradores
 
   try {
     const acao = acaoDe(req);
@@ -846,6 +848,36 @@ module.exports = async function handler(req, res) {
       if (lista.size) atual.bloqueios[data] = Array.from(lista); else delete atual.bloqueios[data];
       await redis(['SET', K.config, JSON.stringify(atual)]);
       return res.status(200).json({ ok: true, bloqueios: atual.bloqueios });
+    }
+
+    // ---------- e-mail que envia (só administradores) ----------
+    if (acao === 'email-remetente' || acao === 'email-teste') {
+      if (!eu.admin) return res.status(403).json({ erro: 'Só administradores.' });
+      if (acao === 'email-remetente' && req.method === 'GET') return res.status(200).json(MAIL.infoRemetente());
+      const b = lerBody(req);
+      if (acao === 'email-remetente') {
+        if (b.remover) { await MAIL.salvarRemetente(null); return res.status(200).json(MAIL.infoRemetente()); }
+        const usuario = limpa(b.usuario, 120).toLowerCase(), nome = limpa(b.nome, 60) || 'WhatsMenu';
+        const senha = String(b.senha || '').replace(/\s+/g, '').slice(0, 64);
+        if (!EMAIL_RE.test(usuario)) return res.status(400).json({ erro: 'Digite o e-mail (Gmail) que vai enviar as mensagens.' });
+        const atual = await MAIL.carregar(true);
+        const senhaFinal = senha || (atual && atual.usuario === usuario ? atual.senha : '');
+        if (!senhaFinal) return res.status(400).json({ erro: 'Digite a senha de app do Gmail desse e-mail.' });
+        await MAIL.salvarRemetente({ usuario, nome, senha: senhaFinal, por: eu.nome, quando: Date.now() });
+        return res.status(200).json(MAIL.infoRemetente());
+      }
+      // teste: manda um e-mail e devolve o erro do Gmail, se houver
+      const para = limpa(b.para, 120);
+      if (!EMAIL_RE.test(para)) return res.status(400).json({ erro: 'Digite um e-mail para receber o teste.' });
+      if (!emailConfigurado()) return res.status(400).json({ erro: 'Nenhum e-mail de envio configurado ainda.' });
+      try {
+        await enviarEmail({ para, assunto: 'Teste de e-mail da agenda WhatsMenu', texto: 'Se você recebeu esta mensagem, os e-mails da agenda estão funcionando.', html: moldura('Teste de e-mail ✅', '<p>Se você recebeu esta mensagem, os e-mails de confirmação e lembrete da agenda estão funcionando.</p>') });
+        return res.status(200).json({ ok: true });
+      } catch (e) {
+        const m = String(e && e.message || '');
+        const dica = /Invalid login|Username and Password not accepted|535|BadCredentials/i.test(m) ? 'O Gmail recusou o login. Confira o e-mail e use uma SENHA DE APP (não a senha normal da conta).' : m;
+        return res.status(502).json({ erro: dica });
+      }
     }
 
     // ---------- TousChat (só administradores) ----------
