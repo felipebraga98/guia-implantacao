@@ -209,6 +209,13 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
 .w-par b{font-family:var(--f-mono,monospace);font-size:.85rem}
 .w-par select,.w-par input{font:inherit;border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff;min-width:0}
 @media (max-width:640px){.w-par{grid-template-columns:1fr}}
+.rem{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:4px 0 14px;background:#fff}
+.rem-top{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-bottom:10px}
+.rem-top span{font-size:.85rem;color:var(--muted)}
+.rem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.rem-grid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.82rem;color:var(--green-deep)}
+.rem-grid input,#rem-teste-para{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+#rem-msg.ok{color:var(--green-deep)}#rem-msg.err{color:#b3261e}
 </style>
 </head>
 <body>
@@ -353,6 +360,23 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <label class="chk" style="margin-top:10px"><input type="checkbox" id="c-chamada"> Criar uma chamada de vídeo WhatsMenu com link diferente para cada agendamento (o cliente recebe o link na confirmação e no e-mail)</label>
       <label style="margin-top:10px">Mensagem depois de agendar ({quando} vira "na segunda, 23/11/2026, às 15:00")<textarea id="c-sucesso" maxlength="400"></textarea></label><h4 class="cfg-sub">E-mails para o cliente</h4>
       <p class="muted" style="margin:0 0 6px;font-size:.88rem" id="c-email-st"></p>
+      <div class="rem" id="rem-box">
+        <div class="rem-top"><b>✉️ E-mail que envia as mensagens</b><span id="rem-atual"></span></div>
+        <div class="rem-grid">
+          <label>E-mail (Gmail)<input id="rem-user" type="email" autocomplete="off" placeholder="suporte@gmail.com"></label>
+          <label>Nome que aparece para o cliente<input id="rem-nome" maxlength="60" placeholder="WhatsMenu"></label>
+          <label>Senha de app do Gmail<input id="rem-senha" type="password" autocomplete="new-password" placeholder="16 letras (não é a senha normal)"></label>
+        </div>
+        <p class="muted" style="margin:6px 0 0;font-size:.82rem">A <b>senha de app</b> é criada na conta Google desse e-mail: <b>Conta do Google › Segurança › Verificação em duas etapas › Senhas de app</b>. A senha fica guardada no banco e nunca aparece de volta na tela.</p>
+        <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap;align-items:center">
+          <button type="button" class="btn sm" id="rem-salvar">Salvar e-mail de envio</button>
+          <button type="button" class="btn g sm" id="rem-remover" hidden>Voltar a usar o do Vercel</button>
+          <span style="flex:1"></span>
+          <input id="rem-teste-para" type="email" placeholder="E-mail para receber o teste" style="max-width:240px">
+          <button type="button" class="btn y sm" id="rem-teste">Enviar e-mail de teste</button>
+        </div>
+        <p class="msg" id="rem-msg" role="status" style="margin:8px 0 0;font-weight:600;font-size:.9rem"></p>
+      </div>
       <div class="row">
         <label class="chk"><input type="checkbox" id="c-l-conf"> Confirmação ao agendar</label>
         <label class="chk"><input type="checkbox" id="c-l-vesp"> Lembrete na véspera</label>
@@ -882,6 +906,29 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   };
   document.querySelector('.cfg-nav').addEventListener('click',function(e){var b=e.target.closest('[data-parte="whats"]');if(b&&touschatOk&&!modelosWa.length)carregaModelos();});
 
+  // ---------- e-mail que envia (só administradores veem Configurações) ----------
+  function remMsg(t,ok){var m=$('rem-msg');m.textContent=t||'';m.className='msg'+(t?(ok?' ok':' err'):'');}
+  function pintaRem(i){
+    $('rem-atual').textContent=i.origem==='painel'?'Enviando por: '+i.usuario+' (escolhido aqui)':i.origem==='vercel'?'Enviando por: '+i.usuario+' (variáveis do Vercel)':'Nenhum e-mail configurado: os e-mails não estão saindo.';
+    $('rem-atual').style.color=i.origem==='nenhum'?'#b3261e':'';
+    if(i.origem==='painel'){$('rem-user').value=i.usuario;$('rem-nome').value=i.nome||'';$('rem-senha').placeholder='Deixe em branco para manter a senha salva';}
+    $('rem-remover').hidden=i.origem!=='painel';
+    emailOk=i.origem!=='nenhum';
+  }
+  async function carregaRem(){try{pintaRem(await api('GET','email-remetente'));}catch(e){}}
+  $('rem-salvar').onclick=async function(){
+    this.disabled=true;remMsg('Salvando…',true);
+    try{var i=await api('POST','email-remetente',{usuario:$('rem-user').value,nome:$('rem-nome').value,senha:$('rem-senha').value});$('rem-senha').value='';pintaRem(i);remMsg('E-mail de envio salvo. Agora clique em "Enviar e-mail de teste" para conferir.',true);$('c-email-st').textContent='✅ Envio de e-mail configurado.';}
+    catch(err){if(err.message!=='login')remMsg(err.message);}finally{this.disabled=false;}
+  };
+  $('rem-remover').onclick=async function(){try{var i=await api('POST','email-remetente',{remover:true});pintaRem(i);$('rem-user').value='';$('rem-nome').value='';remMsg('Voltou a usar o e-mail das variáveis do Vercel (se existir).',true);}catch(err){if(err.message!=='login')remMsg(err.message);}};
+  $('rem-teste').onclick=async function(){
+    var para=$('rem-teste-para').value.trim();if(!para){remMsg('Digite o e-mail que vai receber o teste.');return;}
+    this.disabled=true;remMsg('Enviando teste…',true);
+    try{await api('POST','email-teste',{para:para});remMsg('✅ Teste enviado para '+para+'. Confira a caixa de entrada e o spam.',true);}
+    catch(err){if(err.message!=='login')remMsg('❌ '+err.message);}finally{this.disabled=false;}
+  };
+
   function montaConfig(){
     cfgEd=clone(config);cfgEd.horarios=cfgEd.horarios||{};sujo=false;$('c-st').textContent='Tudo salvo.';
     pintaDias();
@@ -889,7 +936,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
     var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-l-nao').checked=l.naoAtendeu!==false;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
-    pintaWhats();
+    pintaWhats();carregaRem();
     $('c-email-st').textContent=emailOk?'✅ Envio de e-mail configurado.':'⚠️ O envio de e-mail ainda não está configurado no Vercel (EMAIL_USUARIO e EMAIL_SENHA_APP). Sem isso, os e-mails ficam desligados.';
     $('c-feed').textContent=location.origin+'/api/agendamento?acao=feed&chave='+(cfgEd.icsChave||'');
     $('c-embed').textContent='<iframe src="'+siteAgenda+'" style="width:100%;min-height:1100px;border:0" title="Agende seu atendimento WhatsMenu"></iframe>';
