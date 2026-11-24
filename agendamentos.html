@@ -69,6 +69,13 @@ a.btn{text-decoration:none;display:inline-block}
 @media (prefers-reduced-motion:reduce){.prox.alerta{animation:none;background:#8a1c15}}
 .prox .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .prox .btn{box-shadow:none}
+.prox .seg{flex-basis:100%;display:grid;gap:6px;border-top:1px solid rgba(255,255,255,.18);padding-top:10px;margin:0;list-style:none}
+.prox .seg li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:.95rem}
+.prox .seg .h{font:800 1rem var(--f-display);color:var(--yellow);min-width:118px;font-variant-numeric:tabular-nums}
+.prox .seg .n{font-weight:700;flex:1;min-width:160px}
+.prox .seg .em{opacity:.75;font-size:.85rem;white-space:nowrap}
+.prox .seg a{color:#fff;font-weight:700;font-size:.82rem;text-decoration:none;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;padding:3px 9px}
+.prox .seg a:hover{background:#fff;color:var(--forest)}
 .prox .cd{margin-left:auto;font:800 1.5rem var(--f-display);color:var(--yellow);font-variant-numeric:tabular-nums}
 .avisos{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;font-weight:600}
 .avisos.ok{background:var(--green-soft);color:var(--green-deep)}
@@ -182,6 +189,15 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   .info{grid-template-columns:1fr}
   .topo .busca{justify-content:flex-start}
 }
+.cfg-nav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.cfg-nav button{font:700 .88rem var(--f-body);border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer}
+.cfg-nav button:hover{border-color:var(--green)}
+.cfg-nav button[aria-selected="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.cfg-nav button:focus-visible{outline:3px solid var(--green-deep);outline-offset:2px}
+.cfg-parte{border:1px solid var(--line);border-radius:14px;padding:18px clamp(14px,2.5vw,22px);margin-top:12px;background:#fbfdfc}
+.cfg-parte .cfg-tit{margin:0 0 12px;font:800 1.1rem var(--f-display)}
+.cfg-parte .cfg-sub{margin:18px 0 8px;font:800 .98rem var(--f-display);color:var(--green-deep);padding-top:14px;border-top:1px dashed var(--line)}
+.cfg-parte .cfg-tit + .cfg-sub{margin-top:0;padding-top:0;border-top:0}
 </style>
 </head>
 <body>
@@ -218,7 +234,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
 
     <div class="avisos" id="avisos"><span id="avisos-tx"></span><button class="btn sm" type="button" id="ativar">Ativar notificações</button><button class="btn y sm" type="button" id="testar">Testar alarme</button></div>
 
-    <div class="prox" id="prox" hidden><div><div class="lb" id="prox-lb">Próximo atendimento</div><div class="qm" id="prox-qm"></div></div><div class="cd" id="prox-cd"></div><div class="acts" id="prox-acts"></div></div>
+    <div class="prox" id="prox" hidden><div><div class="lb" id="prox-lb">Próximo atendimento</div><div class="qm" id="prox-qm"></div></div><div class="cd" id="prox-cd"></div><div class="acts" id="prox-acts"></div><ul class="seg" id="prox-seg" hidden></ul></div>
 
     <div class="topo">
       <div class="abas" role="tablist">
@@ -277,11 +293,15 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     <section class="card" id="v-config" hidden>
       <h2>Configurações da agenda</h2>
       <p class="muted" style="margin:0">Só administradores mudam estas regras. Elas valem na hora para o link do cliente.</p>
+      <div class="cfg-nav" role="tablist" aria-label="Partes das configurações"><button type="button" role="tab" data-parte="horarios" aria-selected="true">🕘 Horários</button><button type="button" role="tab" data-parte="regras" aria-selected="false">⚙️ Regras</button><button type="button" role="tab" data-parte="tipos" aria-selected="false">🗂️ Tipos de atendimento</button><button type="button" role="tab" data-parte="datas" aria-selected="false">📅 Feriados e datas</button><button type="button" role="tab" data-parte="cliente" aria-selected="false">💬 Página e e-mails</button><button type="button" role="tab" data-parte="google" aria-selected="false">🔗 Google e outros sites</button></div>
 
-      <h3>Horários de atendimento</h3>
+      <div class="cfg-parte" id="parte-horarios" data-parte="horarios">
+        <h3 class="cfg-tit">🕘 Horários</h3>
       <div id="cfg-dias"></div>
+      </div>
 
-      <h3>Regras</h3>
+      <div class="cfg-parte" id="parte-regras" data-parte="regras" hidden>
+        <h3 class="cfg-tit">⚙️ Regras</h3>
       <div class="regras">
         <label>Começar um horário a cada<select id="c-passo"><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">60 minutos</option></select></label>
         <label>Clientes no mesmo horário<input id="c-vagas" type="number" min="1" max="20"></label>
@@ -290,36 +310,37 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <label>Antecedência mínima (min)<input id="c-ant" type="number" min="0" max="10080" step="15"></label>
         <label>Dias disponíveis para agendar<input id="c-dias" type="number" min="1" max="90"></label>
         <label>Avisar a equipe quantos minutos antes<input id="c-alarme" type="number" min="1" max="180"></label>
+        <label>Próximos clientes no destaque<select id="c-prox"><option value="1">Só o próximo</option><option value="2">2 próximos</option><option value="3">3 próximos</option><option value="4">4 próximos</option><option value="5">5 próximos</option><option value="6">6 próximos</option><option value="8">8 próximos</option><option value="10">10 próximos</option></select></label>
+      </div>
       </div>
 
-      <h3>Tipos de atendimento</h3>
+      <div class="cfg-parte" id="parte-tipos" data-parte="tipos" hidden>
+        <h3 class="cfg-tit">🗂️ Tipos de atendimento</h3>
       <p class="muted" style="margin:0 0 6px;font-size:.88rem">Com mais de um tipo ativo, o cliente escolhe o tipo antes do horário.</p>
       <div id="cfg-tipos"></div>
       <button class="btn g sm" type="button" id="c-add-tipo" style="margin-top:8px">+ Tipo de atendimento</button>
+      </div>
 
-      <h3>Feriados e folgas</h3>
+      <div class="cfg-parte" id="parte-datas" data-parte="datas" hidden>
+        <h3 class="cfg-tit">📅 Feriados e datas</h3><h4 class="cfg-sub">Feriados e folgas</h4>
       <div class="row"><input type="date" id="c-fer-data" aria-label="Data do feriado"><button class="btn g sm" type="button" id="c-fer-add">Adicionar</button></div>
-      <div class="chips" id="cfg-fer" style="margin-top:8px"></div>
-
-      <h3>Horário diferente em uma data</h3>
+      <div class="chips" id="cfg-fer" style="margin-top:8px"></div><h4 class="cfg-sub">Horário diferente em uma data</h4>
       <p class="muted" style="margin:0 0 6px;font-size:.88rem">Ex.: véspera de feriado das 10h às 14h.</p>
       <div class="row"><input type="date" id="c-esp-data" aria-label="Data"><input type="time" id="c-esp-ini" step="900" aria-label="Início"><span>até</span><input type="time" id="c-esp-fim" step="900" aria-label="Último horário"><button class="btn g sm" type="button" id="c-esp-add">Adicionar</button><button class="btn g sm" type="button" id="c-esp-fechar">Fechar o dia</button></div>
-      <div class="chips" id="cfg-esp" style="margin-top:8px"></div>
-
-      <h3>Horários bloqueados</h3>
+      <div class="chips" id="cfg-esp" style="margin-top:8px"></div><h4 class="cfg-sub">Horários bloqueados</h4>
       <p class="muted" style="margin:0 0 6px;font-size:.88rem">Também dá para bloquear clicando no horário vazio na aba Semana.</p>
       <div class="row"><input type="date" id="c-blq-data" aria-label="Data"><input type="time" id="c-blq-hora" step="900" aria-label="Hora"><button class="btn g sm" type="button" id="c-blq-add">Bloquear horário</button><button class="btn g sm" type="button" id="c-blq-dia">Bloquear o dia todo</button></div>
       <div class="chips" id="cfg-blq" style="margin-top:8px"></div>
+      </div>
 
-      <h3>Página do cliente</h3>
+      <div class="cfg-parte" id="parte-cliente" data-parte="cliente" hidden>
+        <h3 class="cfg-tit">💬 Página e e-mails</h3><h4 class="cfg-sub">Página do cliente</h4>
       <div class="grid2">
         <label>Onde acontece o atendimento<input id="c-local" maxlength="200"></label>
         <label>Link fixo de vídeo (opcional, substitui a sala WhatsMenu)<input id="c-video" type="url" placeholder="Deixe vazio para usar a chamada WhatsMenu"></label>
       </div>
       <label class="chk" style="margin-top:10px"><input type="checkbox" id="c-chamada"> Criar uma chamada de vídeo WhatsMenu com link diferente para cada agendamento (o cliente recebe o link na confirmação e no e-mail)</label>
-      <label style="margin-top:10px">Mensagem depois de agendar ({quando} vira "na segunda, 23/11/2026, às 15:00")<textarea id="c-sucesso" maxlength="400"></textarea></label>
-
-      <h3>E-mails para o cliente</h3>
+      <label style="margin-top:10px">Mensagem depois de agendar ({quando} vira "na segunda, 23/11/2026, às 15:00")<textarea id="c-sucesso" maxlength="400"></textarea></label><h4 class="cfg-sub">E-mails para o cliente</h4>
       <p class="muted" style="margin:0 0 6px;font-size:.88rem" id="c-email-st"></p>
       <div class="row">
         <label class="chk"><input type="checkbox" id="c-l-conf"> Confirmação ao agendar</label>
@@ -327,17 +348,15 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <label class="chk"><input type="checkbox" id="c-l-hora"> Lembrete 1 hora antes</label>
         <label class="chk"><input type="checkbox" id="c-conf-email"> Exigir que o cliente confirme pelo e-mail em até 30 min (evita agendamento falso)</label>
       </div>
+      </div>
 
-      <h3>Ver a agenda no Google Agenda e no celular</h3>
+      <div class="cfg-parte" id="parte-google" data-parte="google" hidden>
+        <h3 class="cfg-tit">🔗 Google e outros sites</h3><h4 class="cfg-sub">Ver a agenda no Google Agenda e no celular</h4>
       <p class="muted" style="margin:0 0 6px;font-size:.88rem">No Google Agenda do computador: <b>Outras agendas › + › Do URL</b> e cole o link. A agenda aparece no celular de quem adicionar (o Google atualiza a cada algumas horas). Não compartilhe este link fora da equipe.</p>
       <code class="cp" id="c-feed"></code>
-      <div class="row" style="margin-top:8px"><button class="btn g sm" type="button" id="c-feed-cp">Copiar link</button><button class="btn g sm" type="button" id="c-feed-novo">Gerar link novo (o antigo para de funcionar)</button></div>
-
-      <h3>Colocar o agendamento dentro de outro site</h3>
+      <div class="row" style="margin-top:8px"><button class="btn g sm" type="button" id="c-feed-cp">Copiar link</button><button class="btn g sm" type="button" id="c-feed-novo">Gerar link novo (o antigo para de funcionar)</button></div><h4 class="cfg-sub">Colocar o agendamento dentro de outro site</h4>
       <code class="cp" id="c-embed"></code>
-      <div class="row" style="margin-top:8px"><button class="btn g sm" type="button" id="c-embed-cp">Copiar código</button></div>
-
-      <h3 id="imp-t">Importar agendamentos do Google Agenda</h3>
+      <div class="row" style="margin-top:8px"><button class="btn g sm" type="button" id="c-embed-cp">Copiar código</button></div><h4 class="cfg-sub" id="imp-t">Importar agendamentos do Google Agenda</h4>
       <p class="muted" style="margin:0 0 8px;font-size:.88rem">No Google Agenda do computador: <b>⚙️ Configurações › Importar e exportar › Exportar</b>. O Google baixa um arquivo <b>.zip</b>. Escolha esse arquivo aqui (pode ser o .zip ou o .ics de dentro dele). Você confere a lista antes de importar, e nada é enviado para os clientes.</p>
       <div class="row"><label class="btn g sm" style="cursor:pointer">📥 Escolher arquivo do Google<input type="file" id="imp-arq" accept=".ics,.zip,text/calendar,application/zip" hidden></label><span class="muted" id="imp-st" style="font-size:.88rem"></span></div>
       <div id="imp-box" hidden style="margin-top:10px">
@@ -349,7 +368,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <div class="tbl" style="max-height:420px;overflow:auto"><table><thead><tr><th></th><th>Dia</th><th>Hora</th><th>Nome do cliente</th><th>Loja</th><th>WhatsApp</th><th>E-mail</th></tr></thead><tbody id="imp-tb"></tbody></table></div>
         <div class="row" style="margin-top:10px;justify-content:flex-end;gap:10px"><span class="grow muted" id="imp-cont" style="font-size:.88rem"></span><button type="button" class="btn y" id="imp-ok">Importar selecionados</button></div>
       </div>
-
+      </div>
       <div class="salvar"><span class="grow" id="c-st">Tudo salvo.</span><button class="btn y" type="button" id="c-salvar">Salvar configurações</button></div>
     </section>
   </div>
@@ -373,7 +392,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   <label>Anotações da equipe<textarea id="dd-notas" maxlength="4000" placeholder="O que foi combinado, o que falta, observações"></textarea></label>
   <details><summary>Dados do cliente</summary>
     <div class="grid2" style="margin-top:8px">
-      <label>Nome<input id="dd-nome" maxlength="80"></label><label>Loja<input id="dd-loja" maxlength="80"></label>
+      <label>Nome<input id="dd-nome" maxlength="80"></label><label>Loja / dispositivo<input id="dd-loja" maxlength="80"></label>
       <label>WhatsApp<input id="dd-wa" maxlength="20"></label><label>E-mail<input id="dd-email" type="email" maxlength="120"></label>
     </div>
   </details>
@@ -499,12 +518,20 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   var proxId=null;
   function proximo(){
     var agora=Date.now();
-    var p=filtrados().filter(function(r){return r.status==='aguardando'&&!r.emAtendimento&&inicioMs(r)+(r.duracao||60)*60e3>agora;})[0];
+    var fila=filtrados().filter(function(r){return r.status==='aguardando'&&!r.emAtendimento&&inicioMs(r)+(r.duracao||60)*60e3>agora;});
+    var p=fila[0];
     if(!p){$('prox').hidden=true;proxId=null;return;}
+    // os seguintes, conforme "Próximos clientes no destaque" nas Configurações
+    var qtd=Math.max(1,Math.min(10,(config&&config.proxQtd)||1)),seg=fila.slice(1,qtd);
+    $('prox-seg').hidden=!seg.length;
+    $('prox-seg').innerHTML=seg.map(function(r){var df=inicioMs(r)-agora,m=Math.max(0,Math.floor(df/60e3)),hh2=Math.floor(m/60),dd=Math.floor(hh2/24);
+      var em=dd>0?('em '+dd+'d '+(hh2%24)+'h'):hh2>0?('em '+hh2+'h '+(m%60)+'min'):('em '+m+' min');
+      return '<li><span class="h">'+esc(cap(r.rotulo).replace(/\/\d{4}$/,''))+' '+esc(r.hora)+'</span><span class="n">'+esc(r.nome)+' · '+esc(r.loja)+(r.consultorNome?' · '+esc(r.consultorNome):'')+'</span><span class="em">'+em+'</span>'+
+        (r.salaWhatsMenu?'<a target="_blank" rel="noopener" href="'+esc(r.salaWhatsMenu)+'">📹 Chamada</a>':'')+'<a target="_blank" rel="noopener" href="'+wa(r)+'">WhatsApp</a></li>';}).join('');
     var diff=inicioMs(p)-agora;$('prox').hidden=false;
     var alerta=diff<=((config&&config.alarmeMin)||15)*60e3;
     $('prox').classList.toggle('alerta',alerta);
-    $('prox-lb').textContent=diff<=0?'Está na hora! Chame o cliente':alerta?'Atendimento em instantes':'Próximo atendimento';
+    $('prox-lb').textContent=diff<=0?'Está na hora! Chame o cliente':alerta?'Atendimento em instantes':(qtd>1?'Próximos atendimentos':'Próximo atendimento');
     if(proxId!==p.id||$('prox-acts').dataset.al!==String(alerta)){
       proxId=p.id;$('prox-acts').dataset.al=String(alerta);
       $('prox-acts').innerHTML=(p.salaWhatsMenu?'<a class="btn g sm" target="_blank" rel="noopener" href="'+esc(p.salaWhatsMenu)+'">📹 Entrar na chamada</a>':'')+
@@ -780,7 +807,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function montaConfig(){
     cfgEd=clone(config);cfgEd.horarios=cfgEd.horarios||{};sujo=false;$('c-st').textContent='Tudo salvo.';
     pintaDias();
-    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;$('c-alarme').value=cfgEd.alarmeMin||15;
+    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;$('c-alarme').value=cfgEd.alarmeMin||15;$('c-prox').value=String(cfgEd.proxQtd||1);
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
     var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
@@ -830,7 +857,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-alarme','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
   async function salvaConfig(extra){
     leDias();leTipos();
-    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,
+    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,proxQtd:+$('c-prox').value||1,
       local:$('c-local').value,linkVideo:$('c-video').value,textoSucesso:$('c-sucesso').value,
       lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked},extra||{});
     for(var d=0;d<7;d++){var bad=(body.horarios[d]||[]).some(function(f){return min(f[0])>min(f[1])});if(bad){toast(DSL[d]+': o último horário está antes do primeiro.');return;}}
@@ -950,6 +977,17 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         $('imp-st').textContent='Importação concluída: '+tot.criados+' novo(s)'+(tot.repetidos?', '+tot.repetidos+' já estavam na agenda':'')+'.';
         sel.forEach(function(e){e.marcado=false;});desenha();carregar(true);
       }catch(err){if(err.message!=='login')toast(err.message);}finally{b.disabled=false;conta();}});
+  })();
+
+  // ---------- partes das configurações (uma de cada vez) ----------
+  (function(){
+    var nav=document.querySelector('.cfg-nav');if(!nav)return;
+    function mostra(id){nav.querySelectorAll('[data-parte]').forEach(function(b){b.setAttribute('aria-selected',b.dataset.parte===id?'true':'false');});
+      document.querySelectorAll('.cfg-parte').forEach(function(p){p.hidden=p.dataset.parte!==id;});try{localStorage.setItem('wm-cfg-parte',id);}catch(e){}}
+    nav.addEventListener('click',function(e){var b=e.target.closest('[data-parte]');if(b)mostra(b.dataset.parte);});
+    var ult='';try{ult=localStorage.getItem('wm-cfg-parte')||'';}catch(e){}
+    if(ult&&document.getElementById('parte-'+ult))mostra(ult);
+    window.__cfgParte=mostra;
   })();
 
   estadoAvisos();

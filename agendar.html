@@ -61,6 +61,14 @@ form.grid label{display:flex;flex-direction:column;gap:5px;font-weight:700;font-
 form.grid input{font:16px var(--f-body);border:2px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink)}
 form.grid input:focus{outline:none;border-color:var(--green)}
 .full{grid-column:1/-1}
+fieldset.disp{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;min-width:0}
+fieldset.disp legend{font-weight:700;font-size:.92rem;padding:0;margin-bottom:5px}
+.disp .ops{display:flex;gap:8px;flex-wrap:wrap}
+.disp .ops label{flex:1 1 140px;flex-direction:row!important;align-items:center;gap:8px!important;border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:700;font-size:.92rem;background:#fff}
+.disp .ops label small{display:block;font-weight:600;color:var(--muted,#4f6357);font-size:.75rem}
+.disp .ops input{accent-color:var(--green);width:18px;height:18px;margin:0;flex:none}
+.disp .ops label:has(input:checked){border-color:var(--green);background:var(--green-soft,#e6f6ec)}
+.disp .ops label:has(input:focus-visible){outline:3px solid var(--green);outline-offset:2px}
 .resumo{background:var(--green-soft);border-radius:12px;padding:12px 14px;font-weight:600}
 .btn{background:var(--yellow);color:var(--ink);border:0;border-radius:12px;padding:14px 20px;font:800 1.05rem var(--f-body);cursor:pointer;box-shadow:0 3px 0 #c99a00;text-decoration:none;display:inline-block;text-align:center}
 .btn:hover{filter:brightness(1.05)}
@@ -126,7 +134,9 @@ form.grid input:focus{outline:none;border-color:var(--green)}
       <form class="grid" id="form" novalidate>
         <div id="campos" style="display:contents">
           <label>Seu nome<input id="nome" autocomplete="name" required maxlength="80"></label>
-          <label>Nome da loja<input id="loja" autocomplete="organization" required maxlength="80"></label>
+          <fieldset class="disp"><legend>Qual dispositivo você vai usar?</legend>
+            <div class="ops"><label><input type="radio" name="disp" value="computador"><span>💻 Computador<small>de preferência</small></span></label><label><input type="radio" name="disp" value="celular"><span>📱 Celular</span></label></div>
+          </fieldset>
           <label>WhatsApp (com DDD)<input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="(13) 99999-9999" required maxlength="20"></label>
           <label>E-mail<input id="email" type="email" autocomplete="email" required maxlength="120"></label>
         </div>
@@ -259,8 +269,9 @@ form.grid input:focus{outline:none;border-color:var(--green)}
     var url='/api/agendamento', dados;
     if(modo==='remarcar'){url='/api/agendamento?acao=remarcar';dados={t:gTok,data:dia,hora:hora};}
     else{
-      dados={tipo:tipo?tipo.id:'',data:dia,hora:hora,nome:$('nome').value,loja:$('loja').value,whatsapp:$('whatsapp').value,email:$('email').value,site:$('site').value};
-      if(!dados.nome.trim()||!dados.loja.trim()){msg.textContent='Preencha seu nome e o nome da loja.';msg.classList.add('err');return;}
+      dados={tipo:tipo?tipo.id:'',data:dia,hora:hora,nome:$('nome').value,dispositivo:(document.querySelector('input[name=disp]:checked')||{}).value||'',whatsapp:$('whatsapp').value,email:$('email').value,site:$('site').value};
+      if(!dados.nome.trim()){msg.textContent='Preencha seu nome.';msg.classList.add('err');return;}
+      if(!dados.dispositivo){msg.textContent='Escolha qual dispositivo você vai usar no atendimento.';msg.classList.add('err');return;}
       if(dados.whatsapp.replace(/\D/g,'').length<10){msg.textContent='Informe o WhatsApp com DDD.';msg.classList.add('err');$('whatsapp').focus();return;}
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dados.email.trim())){msg.textContent='Informe um e-mail válido.';msg.classList.add('err');$('email').focus();return;}
     }
@@ -311,7 +322,7 @@ form.grid input:focus{outline:none;border-color:var(--green)}
     var r=reserva,canc=r.status==='cancelado';
     $('g-estado').textContent={aguardando:'Confirmado',pendente:'Esperando você confirmar pelo e-mail',atendido:'Atendimento realizado','nao-atendeu':'Não conseguimos falar com você',cancelado:'Cancelado'}[r.status]||r.status;
     $('g-estado').className='estado'+(canc?' c':'');
-    $('g-info').innerHTML='<dt>Quando</dt><dd>'+esc(cap(r.rotulo))+', das '+r.hora+' às '+r.fim+'</dd><dt>Atendimento</dt><dd>'+esc(r.tipoNome||'Atendimento')+'</dd><dt>Nome</dt><dd>'+esc(r.nome)+' · '+esc(r.loja)+'</dd><dt>Onde</dt><dd>'+esc(r.local||'')+(r.linkVideo?'<br><a href="'+esc(r.linkVideo)+'" target="_blank" rel="noopener" style="color:var(--green-deep);font-weight:700">📹 Entrar na chamada de vídeo</a>':'')+'</dd><dt>Código</dt><dd>'+esc(r.id)+'</dd>';
+    $('g-info').innerHTML='<dt>Quando</dt><dd>'+esc(cap(r.rotulo))+', das '+r.hora+' às '+r.fim+'</dd><dt>Atendimento</dt><dd>'+esc(r.tipoNome||'Atendimento')+'</dd><dt>Nome</dt><dd>'+esc(r.nome)+'</dd><dt>Dispositivo</dt><dd>'+esc(r.loja)+'</dd><dt>Onde</dt><dd>'+esc(r.local||'')+(r.linkVideo?'<br><a href="'+esc(r.linkVideo)+'" target="_blank" rel="noopener" style="color:var(--green-deep);font-weight:700">📹 Entrar na chamada de vídeo</a>':'')+'</dd><dt>Código</dt><dd>'+esc(r.id)+'</dd>';
     $('g-botoes').hidden=!r.podeAlterar;$('g-google').href=r.google;
   }
   $('g-cancelar').onclick=function(){$('g-conf').hidden=false;$('g-sim').focus();};

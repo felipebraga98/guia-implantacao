@@ -262,7 +262,33 @@
     } finally { rodando = false; }
   }
 
+  // ---------- botão de login (Usuários) em todas as páginas do guia ----------
+  function botaoLogin() {
+    if (document.getElementById('wm-login') || /usuarios\.html$/.test(location.pathname)) return;
+    var st = document.createElement('style');
+    st.textContent =
+      '#wm-login{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));z-index:2147481000;display:inline-flex;align-items:center;gap:8px;' +
+      'background:#fff;color:#007a2e;font:800 15px/1 "Figtree","Segoe UI",system-ui,sans-serif;text-decoration:none;border-radius:999px;padding:11px 18px 11px 14px;' +
+      'box-shadow:0 3px 0 #007a2e,0 8px 22px rgba(0,0,0,.22);border:2px solid #fff;transition:transform .15s,box-shadow .15s}' +
+      '#wm-login:hover{transform:translateY(-1px);box-shadow:0 4px 0 #007a2e,0 10px 26px rgba(0,0,0,.26)}' +
+      '#wm-login:focus-visible{outline:3px solid #ffd23f;outline-offset:3px}' +
+      '#wm-login .ic{width:28px;height:28px;border-radius:50%;background:#e6f6ec;display:grid;place-items:center;font-size:15px}' +
+      '#wm-login small{display:block;font:600 11px/1.1 "Figtree","Segoe UI",sans-serif;color:#4f6357;margin-top:2px}' +
+      '@media (max-width:640px){#wm-login{padding:8px 12px 8px 9px;font-size:13px}#wm-login small{display:none}#wm-login .ic{width:24px;height:24px;font-size:13px}}' +
+      '#wm-login.no-menu{position:static;padding:5px 15px 5px 6px;font-size:14.5px;box-shadow:0 3px 0 #007a2e;align-self:center;border:0}#wm-login.no-menu .ic{width:26px;height:26px;font-size:14px}' +
+      '#wm-login.no-menu small{display:none}' +
+      '@media print{#wm-login{display:none}}';
+    document.head.appendChild(st);
+    var a = document.createElement('a');
+    a.id = 'wm-login'; a.href = 'usuarios.html'; a.title = 'Login dos administradores (cadastro de usuários)';
+    a.innerHTML = '<span class="ic" aria-hidden="true">🔐</span><span>Login<small>Administradores</small></span>';
+    // páginas com um lugar reservado no menu (ex.: home) recebem o botão ali; nas outras ele fica fixo no canto
+    var slot = document.getElementById('wm-login-slot');
+    if (slot) { a.classList.add('no-menu'); slot.appendChild(a); } else document.body.appendChild(a);
+  }
+
   function inicia() {
+    botaoLogin();
     consulta();
     setInterval(consulta, INTERVALO);
     somTimer = setInterval(cicloSom, 4000);       // sirene a cada 4 segundos

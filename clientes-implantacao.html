@@ -87,6 +87,7 @@ td.c-tel input{min-width:118px;font-family:var(--f-mono);font-size:.82rem}
 td.c-st input{min-width:115px}
 td input.st-fin{background:var(--green-soft);color:var(--green-deep);font-weight:700;border-color:#9fd6b1}
 td input.st-cresc{background:#e3ecff;color:#1f3f9f;font-weight:700;border-color:#b6c8f5}
+td input.st-risco{background:#fdecec;color:#a3231b;font-weight:700;border-color:#efb3ae}
 td.c-alt{font-size:.82rem;color:var(--muted);white-space:nowrap;min-width:150px}
 td.c-alt b{color:var(--ink);font-weight:600}
 .link{background:none;border:0;padding:0;color:var(--green-deep);font:600 .78rem var(--f-body);text-decoration:underline;cursor:pointer}
@@ -109,6 +110,16 @@ td.c-falta{width:42%}
 @media (max-width:900px){.wrap{max-width:100%}}
 td.c-falta textarea{width:100%;min-width:300px;min-height:38px;resize:none;overflow:hidden;line-height:1.45}
 dialog .para{color:var(--green-deep);font-weight:600}
+.pager{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:4px;font-size:.9rem;color:var(--muted)}
+.pager label{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink)}
+.pager select{font:inherit;border:1.5px solid var(--line);border-radius:8px;padding:5px 8px;background:#fff;color:var(--ink)}
+.pager .grow{flex:1}
+.pg-nav{display:flex;gap:4px;align-items:center}
+.pg-nav button{min-width:34px;height:34px;border:1.5px solid var(--line);background:#fff;border-radius:8px;font:700 .88rem var(--f-body);color:var(--ink);cursor:pointer}
+.pg-nav button.on{background:var(--green);border-color:var(--green);color:#fff}
+.pg-nav button:disabled{opacity:.4;cursor:default}
+.pg-nav span{padding:0 4px}
+.filters button[data-f*="risco" i]{border-color:#efb3ae}
 </style>
 </head>
 <body>
@@ -203,12 +214,17 @@ dialog .para{color:var(--green-deep);font-weight:600}
           <tbody id="tb"><tr><td colspan="7" class="empty">Carregando…</td></tr></tbody>
         </table>
       </div>
+      <div class="pager" id="pager">
+        <label>Mostrar <select id="por-pag" aria-label="Clientes por página"><option value="20">20</option><option value="30">30</option><option value="50">50</option></select> por página</label>
+        <span class="grow" id="pg-info"></span>
+        <div class="pg-nav" id="pg-nav"></div>
+      </div>
     </section>
   </div>
 </div>
 
 <datalist id="status-opcoes">
-  <option value="Em implantação"><option value="Em crescimento"><option value="Aguardando cliente"><option value="Finalizado">
+  <option value="Em implantação"><option value="Em crescimento"><option value="Em risco"><option value="Aguardando cliente"><option value="Finalizado">
 </datalist>
 
 <dialog id="hist">
@@ -222,7 +238,7 @@ dialog .para{color:var(--green-deep);font-weight:600}
 (function(){
   var API='/api/implantacao';
   var $=function(id){return document.getElementById(id);};
-  var token='',eu=null,lista=[],filtro='',timers={},ABAS=['Implantação 1','Implantação 3'],aba=ABAS[0];
+  var token='',eu=null,lista=[],filtro='',timers={},ABAS=['Implantação'],aba=ABAS[0];
   try{var a0=localStorage.getItem('impl-aba');if(a0)aba=a0;}catch(e){}
 
   try{token=localStorage.getItem('impl-token')||'';}catch(e){}
@@ -295,7 +311,7 @@ dialog .para{color:var(--green-deep);font-weight:600}
   $('m-depois').addEventListener('click',function(){$('aviso-email').hidden=true;try{sessionStorage.setItem('impl-email-depois','1');}catch(_){}});
 
   function sairLocal(){guardaToken('');eu=null;document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x.dataset.tab==='entrar');});['f-cadastro','f-esqueci','f-redefinir'].forEach(function(i){$(i).hidden=true;});$('f-entrar').hidden=false;$('app').hidden=true;$('me').hidden=true;$('stat').hidden=true;$('auth').hidden=false;$('e-pass').value='';}
-  function entrou(u){eu={usuario:u.usuario,nome:u.nome,admin:u.admin,email:u.email||''};var adiou=false;try{adiou=!!sessionStorage.getItem('impl-email-depois');}catch(_){}$('aviso-email').hidden=!!eu.email||adiou;$('auth').hidden=true;$('app').hidden=false;$('me').hidden=false;$('stat').hidden=false;$('me-nome').textContent='Olá, '+u.nome+(u.admin?' · administrador':'');$('f-data').value=hoje();carregar();}
+  function entrou(u){eu={usuario:u.usuario,nome:u.nome,admin:u.admin,email:u.email||''};var adiou=false;try{adiou=!!sessionStorage.getItem('impl-email-depois');}catch(_){}$('aviso-email').hidden=true;$('auth').hidden=true;$('app').hidden=false;$('me').hidden=false;$('stat').hidden=false;$('me-nome').textContent='Olá, '+u.nome+(u.admin?' · administrador':'');$('f-data').value=hoje();carregar();}
 
   // ---------- lista ----------
   async function carregar(){
@@ -310,11 +326,12 @@ dialog .para{color:var(--green-deep);font-weight:600}
       String(b.criadoEm||'').localeCompare(String(a.criadoEm||''))||
       String(a.id).localeCompare(String(b.id));});}
   function editando(){var a=document.activeElement;return a&&a.closest&&a.closest('#tb')&&/INPUT|TEXTAREA/.test(a.tagName);}
-  function classeStatus(s){s=String(s||'').toLowerCase();return s.indexOf('finaliz')>=0?'st-fin':(s.indexOf('cresc')>=0?'st-cresc':'');}
+  function classeStatus(s){s=String(s||'').toLowerCase();return s.indexOf('finaliz')>=0?'st-fin':(s.indexOf('cresc')>=0?'st-cresc':(s.indexOf('risco')>=0?'st-risco':''));}
 
   function renderAbas(){
+    $('abas').hidden=ABAS.length<2;
     $('abas').innerHTML=ABAS.map(function(a){var n=lista.filter(function(x){return (x.aba||ABAS[0])===a;}).length;return '<button type="button" role="tab" data-aba="'+esc(a)+'" aria-selected="'+(a===aba)+'"'+(a===aba?' class="on"':'')+'>'+esc(a)+'<b>'+n+'</b></button>';}).join('');
-    $('f-aba-l').textContent='em '+aba;$('lista-t').textContent='Clientes · '+aba;
+    $('f-aba-l').textContent=ABAS.length>1?'em '+aba:'';$('f-aba-l').hidden=ABAS.length<2;$('lista-t').textContent=ABAS.length>1?'Clientes · '+aba:'Clientes';
   }
   function daAba(){return lista.filter(function(x){return (x.aba||ABAS[0])===aba;});}
   function renderFiltros(){
@@ -324,6 +341,7 @@ dialog .para{color:var(--green-deep);font-weight:600}
     $('filtros').innerHTML=h;
   }
 
+  var pagina=1,porPag=20;try{porPag=+localStorage.getItem('impl-por-pag')||20;}catch(_){}
   function render(){
     if(editando())return;
     $('total').textContent=lista.length;$('total-l').textContent=lista.length===1?'cliente':'clientes';
@@ -333,8 +351,16 @@ dialog .para{color:var(--green-deep);font-weight:600}
       if(filtro&&(x.status||'Sem status')!==filtro)return false;if(!q)return true;
       return [x.email,x.status,x.falta,x.criadoPor,x.atualizadoPor].join(' ').toLowerCase().indexOf(q)>=0||(qd.length>=3&&String(x.telefone||'').replace(/\D/g,'').indexOf(qd)>=0);
     });
-    if(!rows.length){$('tb').innerHTML='<tr><td colspan="7" class="empty">'+(daAba().length?'Nenhum cliente nesse filtro.':'Nenhum cliente nesta aba ainda.')+'</td></tr>';return;}
-    $('tb').innerHTML=rows.map(function(x){var id=esc(x.id);return '<tr data-id="'+id+'">'+
+    var paginas=Math.max(1,Math.ceil(rows.length/porPag));if(pagina>paginas)pagina=paginas;
+    var ini=(pagina-1)*porPag,vis=rows.slice(ini,ini+porPag);
+    $('por-pag').value=String(porPag);
+    $('pg-info').textContent=rows.length?('Mostrando '+(ini+1)+'–'+(ini+vis.length)+' de '+rows.length+' clientes'):'';
+    var nav='';if(paginas>1){nav+='<button type="button" data-pg="'+(pagina-1)+'"'+(pagina===1?' disabled':'')+' aria-label="Página anterior">‹</button>';
+      for(var pg=1;pg<=paginas;pg++){if(pg===1||pg===paginas||Math.abs(pg-pagina)<=1)nav+='<button type="button" data-pg="'+pg+'"'+(pg===pagina?' class="on" aria-current="page"':'')+'>'+pg+'</button>';else if(Math.abs(pg-pagina)===2)nav+='<span>…</span>';}
+      nav+='<button type="button" data-pg="'+(pagina+1)+'"'+(pagina===paginas?' disabled':'')+' aria-label="Próxima página">›</button>';}
+    $('pg-nav').innerHTML=nav;
+    if(!rows.length){$('tb').innerHTML='<tr><td colspan="7" class="empty">'+(daAba().length?'Nenhum cliente nesse filtro.':'Nenhum cliente ainda.')+'</td></tr>';return;}
+    $('tb').innerHTML=vis.map(function(x){var id=esc(x.id);return '<tr data-id="'+id+'">'+
       '<td><input type="date" data-c="dataEntrada" value="'+esc(x.dataEntrada)+'" aria-label="Data entrada"></td>'+
       '<td class="c-mail"><input data-c="email" value="'+esc(x.email)+'" aria-label="E-mail"></td>'+
       '<td class="c-tel"><input data-c="telefone" value="'+esc(x.telefone)+'" aria-label="Telefone"></td>'+
@@ -348,8 +374,10 @@ dialog .para{color:var(--green-deep);font-weight:600}
   function ajusta(t){t.style.height='auto';t.style.height=(t.scrollHeight+3)+'px';}
 
   $('abas').addEventListener('click',function(e){var b=e.target.closest('[data-aba]');if(!b)return;aba=b.dataset.aba;filtro='';try{localStorage.setItem('impl-aba',aba);}catch(_){}render();});
-  $('filtros').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;filtro=b.dataset.f;render();});
-  $('q').addEventListener('input',render);
+  $('filtros').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;filtro=b.dataset.f;pagina=1;render();});
+  $('q').addEventListener('input',function(){pagina=1;render();});
+  $('por-pag').addEventListener('change',function(){porPag=+this.value||20;pagina=1;try{localStorage.setItem('impl-por-pag',porPag);}catch(_){}render();});
+  $('pg-nav').addEventListener('click',function(e){var b=e.target.closest('[data-pg]');if(!b||b.disabled)return;pagina=+b.dataset.pg;render();var t=$('lista-t');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
 
   // salvar edição de uma célula
   async function salvar(el){

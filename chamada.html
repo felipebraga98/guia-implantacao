@@ -52,6 +52,13 @@ button{font:inherit;color:inherit}
 .palco.n3,.palco.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
 .tile{position:relative;background:#000;border-radius:16px;overflow:hidden;min-height:0;min-width:0}
 .tile video{width:100%;height:100%;object-fit:contain;background:#000}
+.tile audio{display:none}
+#som{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:#ffd23f;color:#14251b;border:0;border-radius:999px;padding:14px 22px;font:800 1.05rem var(--f-body,system-ui);box-shadow:0 6px 24px #000a;cursor:pointer;animation:somPulso 1.2s ease-in-out infinite alternate;max-width:calc(100vw - 32px)}
+@keyframes somPulso{to{transform:translateX(-50%) scale(1.05)}}
+@media (prefers-reduced-motion:reduce){#som{animation:none}}
+.appaviso{background:#ffd23f;color:#14251b;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-weight:600;font-size:.92rem;line-height:1.4}
+.appaviso b{display:block;font-size:1rem;margin-bottom:4px}
+.appaviso button{margin-top:8px;border:0;border-radius:8px;background:#14251b;color:#fff;font:700 .85rem var(--f-body,system-ui);padding:8px 12px;cursor:pointer}
 .tile .nm{position:absolute;left:10px;bottom:10px;background:#000000aa;border-radius:8px;padding:4px 10px;font-weight:700;font-size:.85rem}
 .tile .cx{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-weight:600}
 .espera{display:grid;place-items:center;text-align:center;padding:24px;background:var(--panel);border-radius:16px}
@@ -118,6 +125,7 @@ button{font:inherit;color:inherit}
     <form class="form" id="f-entrar">
       <h1 id="e-tit">Tudo pronto para a chamada?</h1>
       <p id="e-sub">Confira a câmera e o microfone e clique em entrar.</p>
+      <div class="appaviso" id="appaviso" hidden></div>
       <label>Seu nome<input id="e-nome" maxlength="40" autocomplete="name" required></label>
       <button class="entrar" id="b-entrar" type="submit">Entrar na chamada</button>
       <div class="aviso" id="e-aviso" hidden></div>
@@ -125,6 +133,7 @@ button{font:inherit;color:inherit}
   </div>
 </main>
 
+<button type="button" id="som" hidden>🔊 Toque aqui para ouvir o atendente</button>
 <div id="chamada" hidden>
   <div class="palco n1" id="palco">
     <div class="espera" id="espera"><div><div class="pulso">📞</div><h2 id="esp-tit">Aguardando o outro participante…</h2><p id="esp-tx">Assim que a outra pessoa entrar pelo link, a chamada começa sozinha.</p></div></div>
@@ -170,6 +179,18 @@ button{font:inherit;color:inherit}
   function sinal(para,m){ultimoSinal=Date.now();return api('sinal',{para:para,m:m}).catch(function(){});}
 
   // ---------- câmera e microfone ----------
+  // navegador dentro de aplicativo (WhatsApp, Instagram, Facebook, Gmail, Google…): costuma bloquear câmera ou som
+  function avisoApp(){
+    var ua=navigator.userAgent||'',ios=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+    var app=/FBAN|FBAV|FB_IAB|Instagram|Line\/|WhatsApp|Snapchat|TikTok|musical_ly|LinkedInApp|GSA\/|Twitter|MicroMessenger/i.test(ua)||/; wv\)/.test(ua)||(ios&&!/Safari\//.test(ua)&&!/CriOS|FxiOS|EdgiOS/.test(ua));
+    var semMidia=!window.RTCPeerConnection||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia;
+    if(!app&&!semMidia)return;
+    var onde=ios?'no <b style="display:inline">Safari</b>':'no <b style="display:inline">Chrome</b>';
+    $('appaviso').innerHTML='<b>⚠️ Abra este link '+(ios?'no Safari':'no Chrome')+'</b>Você abriu a chamada dentro de um aplicativo, e ele pode não deixar você ouvir ou falar. '+(ios?'Toque em <b style="display:inline">⋯</b> ou no ícone de compartilhar e escolha <b style="display:inline">Abrir no Safari</b>.':'Toque nos <b style="display:inline">⋮</b> e escolha <b style="display:inline">Abrir no Chrome</b> (ou no navegador).')+' Se preferir, copie o link e cole '+onde+'.<br><button type="button" id="app-copiar">Copiar link da chamada</button>';
+    $('appaviso').hidden=false;
+    $('app-copiar').onclick=function(){var u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){$('app-copiar').textContent='Link copiado ✓';}).catch(function(){prompt('Copie o link:',u);});};
+  }
+
   async function pegaMidia(){
     var aviso='';
     try{local=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:{width:{ideal:1280},height:{ideal:720}}});}
@@ -212,10 +233,11 @@ button{font:inherit;color:inherit}
       item.tv=pc.addTransceiver(videoAtual()||'video',{direction:'sendrecv',streams:[local]});
     }
     pc.ontrack=function(e){
-      var t=tile(id);var v=t.querySelector('video');
-      if(!v.srcObject)v.srcObject=new MediaStream();
-      v.srcObject.addTrack(e.track);v.play().catch(function(){});
-      t.querySelector('.cx').hidden=true;
+      // vídeo sempre mudo (o iPhone deixa tocar sozinho) e o som num <audio> separado
+      var t=tile(id),v=t.querySelector('video'),a=t.querySelector('audio');
+      if(e.track.kind==='video'){v.srcObject=new MediaStream([e.track]);v.play().catch(function(){});t.querySelector('.cx').hidden=true;}
+      else{a.srcObject=new MediaStream([e.track]);tocaSom(a);}
+      e.track.onunmute=function(){if(e.track.kind==='video'){v.play().catch(function(){});}else tocaSom(a);};
     };
     pc.onicecandidate=function(e){if(e.candidate&&pc.remoteDescription&&item.enviouSdp)sinal(id,{t:'ice',c:e.candidate});};
     pc.onconnectionstatechange=function(){
@@ -246,10 +268,25 @@ button{font:inherit;color:inherit}
   }
   function tile(id){
     var t=document.getElementById('tile-'+id);
-    if(!t){t=document.createElement('div');t.className='tile';t.id='tile-'+id;t.innerHTML='<video autoplay playsinline></video><div class="cx">Conectando…</div><span class="nm"></span>';$('palco').appendChild(t);}
+    if(!t){t=document.createElement('div');t.className='tile';t.id='tile-'+id;t.innerHTML='<video autoplay playsinline muted></video><audio autoplay playsinline></audio><div class="cx">Conectando…</div><span class="nm"></span>';$('palco').appendChild(t);}
     t.querySelector('.nm').textContent=nomes[id]||'Participante';
     layout();return t;
   }
+  // ---------- som (iPhone/Android às vezes bloqueiam o áudio até um toque na tela) ----------
+  function tocaSom(a){
+    a.muted=false;a.volume=1;
+    var p=a.play();
+    if(p&&p.catch)p.then(function(){checaSom();}).catch(function(){$('som').hidden=false;});
+  }
+  function checaSom(){var parado=[].some.call(document.querySelectorAll('.tile audio'),function(a){return a.srcObject&&a.paused;});$('som').hidden=!parado;}
+  function liberaSom(){
+    [].forEach.call(document.querySelectorAll('.tile audio'),function(a){if(a.srcObject)tocaSom(a);});
+    [].forEach.call(document.querySelectorAll('.tile video'),function(v){if(v.srcObject)v.play().catch(function(){});});
+  }
+  $('som').onclick=function(){liberaSom();setTimeout(checaSom,400);};
+  ['touchend','click','keydown'].forEach(function(ev){document.addEventListener(ev,function(){if(!$('som').hidden||document.querySelector('.tile audio'))liberaSom();},{passive:true});});
+  setInterval(function(){if(entrou)checaSom();},3000);
+
   function layout(){
     var n=$('palco').querySelectorAll('.tile').length;
     $('espera').hidden=n>0;
@@ -320,6 +357,8 @@ button{font:inherit;color:inherit}
   }
 
   async function entrar(){
+    // toque no botão "libera" o áudio no iPhone para a chamada inteira
+    try{var A=window.AudioContext||window.webkitAudioContext;if(A){var cx=new A();var o=cx.createOscillator(),g=cx.createGain();g.gain.value=0;o.connect(g);g.connect(cx.destination);o.start();o.stop(cx.currentTime+0.05);if(cx.resume)cx.resume();}}catch(e){}
     $('b-entrar').disabled=true;$('b-entrar').textContent='Entrando…';
     try{
       try{localStorage.setItem('wm-chamada-nome',$('e-nome').value);}catch(e){}
@@ -392,6 +431,8 @@ button{font:inherit;color:inherit}
     $('esp-tit').textContent=EQUIPE?'Aguardando '+(clienteNome||'o cliente')+' entrar…':'Aguardando a equipe WhatsMenu…';
     $('esp-tx').textContent=EQUIPE?'Mande o link desta sala para o cliente pelo WhatsApp. Quando ele entrar, a chamada começa sozinha.':'Fique nesta tela. Assim que a equipe entrar, a chamada começa sozinha.';
     status('Pronto',null);
+    avisoApp();
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){var bt=$('b-tela');if(bt)bt.hidden=true;}
     if(window.RTCPeerConnection&&navigator.mediaDevices)await pegaMidia();
   })();
 })();
