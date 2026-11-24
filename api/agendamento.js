@@ -42,7 +42,7 @@ const PADRAO = {
   whats: { ativo: false, minutos: 15, templateId: '', templateNome: '', from: '', params: {} },
   proxQtd: 1,             // quantos próximos clientes aparecem no destaque da página Agendamentos
   alarmeMin: 15,          // quantos minutos antes o alarme da equipe começa a tocar   // cria uma sala de vídeo WhatsMenu diferente para cada agendamento
-  lembretes: { confirmacao: true, vespera: true, umaHora: true },
+  lembretes: { confirmacao: true, vespera: true, umaHora: true, naoAtendeu: true },
   confirmarEmail: false,  // exige que o cliente confirme pelo e-mail em até 30 min
   textoSucesso: 'Te espero {quando}, para configurarmos o seu painel e você faturar ainda mais com a WhatsMenu! Desde já, te desejo todo o sucesso! 💚',
   icsChave: '',
@@ -125,7 +125,7 @@ function normalizaConfig(b, atual) {
   if (!c.tipos.some((t) => t.ativo)) c.tipos = atual.tipos;
   c.local = limpa(b.local, 200) || PADRAO.local;
   c.linkVideo = /^https:\/\/\S+$/.test(limpa(b.linkVideo, 300)) ? limpa(b.linkVideo, 300) : '';
-  c.lembretes = { confirmacao: !!(b.lembretes && b.lembretes.confirmacao), vespera: !!(b.lembretes && b.lembretes.vespera), umaHora: !!(b.lembretes && b.lembretes.umaHora) };
+  c.lembretes = { confirmacao: !!(b.lembretes && b.lembretes.confirmacao), vespera: !!(b.lembretes && b.lembretes.vespera), umaHora: !!(b.lembretes && b.lembretes.umaHora), naoAtendeu: !(b.lembretes && b.lembretes.naoAtendeu === false) };
   c.confirmarEmail = !!b.confirmarEmail;
   c.chamadaPropria = b.chamadaPropria !== false;
   c.alarmeMin = n(b.alarmeMin, 1, 180, atual.alarmeMin || 15);
@@ -299,12 +299,19 @@ async function emailCliente(tipo, r, c) {
     assunto = 'Agendamento remarcado: ' + dataBonita(r.data) + ' às ' + r.hora;
     titulo = 'Novo horário confirmado';
     corpo = '<p>Oi, ' + esc(nome) + '! Seu atendimento foi remarcado para ' + esc(quando) + '.</p>' + blocoDetalhes(r, c) + botoes;
+  } else if (tipo === 'naoAtendeu') {
+    assunto = 'Reagendamento do atendimento';
+    titulo = 'Vamos remarcar, ' + nome + '?';
+    corpo = '<p>Tentamos falar com você no horário combinado (' + esc(quando) + '), mas não conseguimos contato.</p>' +
+      '<p>Sem problema! É só escolher um novo dia e horário para a nossa equipe ligar de novo e continuar a configuração do seu painel WhatsMenu.</p>' +
+      botao('Escolher novo horário', linkGerenciar(r)) +
+      '<p style="color:#4f6357;font-size:13px">No link, clique em <b>Remarcar</b> e escolha o horário que for melhor para você.</p>';
   } else if (tipo === 'cancelado') {
     assunto = 'Agendamento cancelado';
     titulo = 'Agendamento cancelado';
     corpo = '<p>Oi, ' + esc(nome) + '. O atendimento ' + esc(quando) + ' foi cancelado.</p><p>Quando quiser, escolha um novo horário:</p>' + botao('Agendar de novo', siteAgenda());
   } else return false;
-  const texto = titulo + '\n\n' + (tipo === 'pendente' ? 'Confirme em até 30 minutos: ' + siteAgenda() + '/#c=' + r.token : 'Quando: ' + quando + '\nRemarcar ou cancelar: ' + linkGerenciar(r)) + extra;
+  const texto = titulo + '\n\n' + (tipo === 'naoAtendeu' ? 'Tentamos falar com você ' + quando + ', mas não conseguimos. Escolha um novo horário: ' + linkGerenciar(r) : tipo === 'pendente' ? 'Confirme em até 30 minutos: ' + siteAgenda() + '/#c=' + r.token : 'Quando: ' + quando + '\nRemarcar ou cancelar: ' + linkGerenciar(r)) + extra;
   const anexos = (tipo === 'confirmado' || tipo === 'remarcado') ? [{ filename: 'atendimento-whatsmenu.ics', content: calendarioIcs([eventoIcs(r, c, false)], 'WhatsMenu'), contentType: 'text/calendar; charset=utf-8; method=PUBLISH' }] : undefined;
   return enviarEmail({ para: r.email, assunto, texto, html: moldura(titulo, corpo), anexos });
 }
@@ -411,7 +418,7 @@ function publico(r, c) {
     id: r.id, status: r.status, data: r.data, hora: r.hora, fim: fimDe(r), rotulo: dataBonita(r.data),
     nome: r.nome, loja: r.loja, tipoNome: r.tipoNome, duracao: r.duracao || 60, local: c.local, linkVideo: link || '',
     google: linkGoogle(r, c), ics: '/api/agendamento?acao=ics&t=' + r.token,
-    podeAlterar: r.status === 'aguardando' || r.status === 'pendente',
+    podeAlterar: r.status === 'aguardando' || r.status === 'pendente' || r.status === 'nao-atendeu',
   };
 }
 function paraEquipe(r, c) {
@@ -594,7 +601,7 @@ module.exports = async function handler(req, res) {
       const b = lerBody(req);
       const r = await porToken(b.t);
       if (!r) return res.status(404).json({ erro: 'Agendamento não encontrado.' });
-      if (r.status !== 'aguardando' && r.status !== 'pendente') return res.status(400).json({ erro: 'Este agendamento não pode mais ser remarcado.' });
+      if (r.status !== 'aguardando' && r.status !== 'pendente' && r.status !== 'nao-atendeu') return res.status(400).json({ erro: 'Este agendamento não pode mais ser remarcado.' });
       const data = limpa(b.data, 10), hora = limpa(b.hora, 5);
       if (!DATA_RE.test(data) || !HORA_RE.test(hora)) return res.status(400).json({ erro: 'Escolha um dia e horário da lista.' });
       try { await remarcar(c, r, data, hora, 'Cliente'); } catch (e) { return res.status(e.codigo || 500).json({ erro: e.message }); }
@@ -708,7 +715,21 @@ module.exports = async function handler(req, res) {
       historico(r, eu.nome, 'Status: ' + novo);
       await salvar(r);
       if (novo === 'cancelado' && antes !== 'cancelado' && b.avisar) { try { await emailCliente('cancelado', r, c); } catch (e) {} }
-      return res.status(200).json({ reserva: paraEquipe(r, c) });
+      // não atendeu a ligação: e-mail para o cliente escolher um novo horário (uma vez por horário)
+      let emailRemarcar = '';
+      if (novo === 'nao-atendeu' && antes !== 'nao-atendeu' && c.lembretes.naoAtendeu !== false) {
+        const marca = 'agenda:naoatendeu:' + r.id + ':' + r.data + r.hora;
+        if (!r.email) emailRemarcar = 'sem-email';
+        else if (!emailConfigurado()) emailRemarcar = 'sem-config';
+        else if ((await redis(['SET', marca, '1', 'NX', 'EX', String(30 * 86400)])) === 'OK') {
+          let ok = false; try { ok = await emailCliente('naoAtendeu', r, c); } catch (e) { ok = false; }
+          if (!ok) await redis(['DEL', marca]);
+          emailRemarcar = ok ? 'enviado' : 'falhou';
+          historico(r, 'Sistema', ok ? 'E-mail para remarcar enviado para ' + r.email : 'Não foi possível enviar o e-mail para remarcar');
+          await salvar(r);
+        } else emailRemarcar = 'ja-enviado';
+      }
+      return res.status(200).json({ reserva: paraEquipe(r, c), emailRemarcar });
     }
 
     if (acao === 'editar' && req.method === 'PATCH') {
