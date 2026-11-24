@@ -15,6 +15,7 @@
     var css = document.createElement('style');
     css.textContent =
       '#auth.wl{max-width:440px;width:100%;margin-left:auto;margin-right:auto}' +
+      'section#auth.wl{margin-top:clamp(24px,7vh,72px)}' +
       '#auth.wl > h2, #auth.wl > p.muted{display:none}' +
       '#auth.wl .wl-tabs{display:flex;background:#e6f6ec;border-radius:10px;padding:4px;gap:4px;margin-bottom:16px}' +
       '#auth.wl .wl-tabs button{flex:1;font:700 .9rem "Figtree","Segoe UI",system-ui,sans-serif;border:0;background:transparent;color:#007a2e;border-radius:8px;padding:8px;cursor:pointer}' +

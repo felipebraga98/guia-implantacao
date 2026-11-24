@@ -264,7 +264,7 @@
 
   // ---------- botão de login (Usuários) em todas as páginas do guia ----------
   function botaoLogin() {
-    if (document.getElementById('wm-login') || /usuarios\.html$/.test(location.pathname)) return;
+    if (document.getElementById('wm-login') || !document.getElementById('wm-login-slot') || /usuarios\.html$/.test(location.pathname)) return;
     var st = document.createElement('style');
     st.textContent =
       '#wm-login{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:max(14px,env(safe-area-inset-right,0px));z-index:2147481000;display:inline-flex;align-items:center;gap:8px;' +

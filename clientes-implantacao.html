@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
+html{scrollbar-gutter:stable}
+
 /* Mesmo visual do Suporte WhatsMenu: fundo verde, título branco, cartões brancos. */
 :root{
   --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22;
@@ -64,7 +66,7 @@ input,textarea,select{font:inherit}
 .me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;font-size:.9rem}
 .me button{font:600 .82rem var(--f-body);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:5px 12px;cursor:pointer}
 .me button:hover{background:#fff;color:var(--green-deep)}
-.auth{max-width:440px;width:100%;margin:0 auto}
+.auth{max-width:440px;width:100%;margin:clamp(24px,7vh,72px) auto 0}
 .tabs{display:flex;background:var(--green-soft);border-radius:10px;padding:4px;gap:4px}
 .tabs button{flex:1;font:700 .9rem var(--f-body);border:0;background:transparent;color:var(--green-deep);border-radius:8px;padding:8px;cursor:pointer}
 .tabs button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}

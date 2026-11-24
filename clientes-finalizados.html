@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
+html{scrollbar-gutter:stable}
+
 /* Mesmo visual do Suporte WhatsMenu: fundo verde, título branco, cartões brancos. */
 :root{
   --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --forest:#0f3b22;
@@ -63,19 +65,6 @@ td textarea{width:100%;min-width:220px;font-size:.88rem;padding:6px 10px}
 tr.dia td{background:var(--forest);color:#fff;font:800 .95rem var(--f-display);padding:9px 12px;border-top:0}
 tr.dia td span{float:right;font:600 .82rem var(--f-body);color:#ffd23f}
 tr.dia+tr td{border-top:0}
-.me{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;font-size:.85rem;flex-wrap:wrap}
-.me button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:4px 12px;font:600 .82rem var(--f-body);cursor:pointer}
-.me button:hover,.me button:focus-visible{background:#fff;color:var(--green-deep);outline:none}
-.side{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-.login-dlg{border:0;border-radius:14px;padding:0;width:min(340px,calc(100vw - 32px));box-shadow:0 18px 50px rgba(0,0,0,.35)}
-.login-dlg::backdrop{background:rgba(6,30,16,.55)}
-.login-dlg form{display:flex;flex-direction:column;gap:12px;padding:20px}
-.login-dlg label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--green-deep)}
-.dlg-top{display:flex;align-items:center;justify-content:space-between}
-.dlg-top b{font:800 1.2rem var(--f-display)}
-.dlg-x{background:var(--green-soft);border:0;border-radius:50%;width:30px;height:30px;cursor:pointer;color:var(--ink)}
-td.acao{width:1%;text-align:right}
-.del[data-c="1"]{background:var(--bad);color:#fff;border-color:var(--bad)}
 </style>
 </head>
 <body>
@@ -87,21 +76,8 @@ td.acao{width:1%;text-align:right}
       <h1>Clientes finalizados</h1>
       <p class="sub">Registro da equipe com os clientes que tiveram a implantação finalizada. Cadastre o e-mail, o telefone e quem finalizou.</p>
     </div>
-    <div class="side">
-      <div class="me"><span id="me-nome" hidden></span><button type="button" id="sair" hidden>Sair</button><button type="button" id="abrir-login" title="Login de administrador">🔐 Admin</button></div>
-      <div class="stat"><b id="total">0</b><span id="total-l">finalizados</span></div>
-    </div>
+    <div class="stat"><b id="total">0</b><span id="total-l">finalizados</span></div>
   </header>
-
-  <dialog id="auth" class="login-dlg" aria-label="Login de administrador">
-    <form id="f-entrar" autocomplete="on">
-      <div class="dlg-top"><b>Login de administrador</b><button type="button" class="dlg-x" id="fechar-login" aria-label="Fechar">✕</button></div>
-      <label>Usuário<input id="e-user" autocomplete="username" autocapitalize="off" required></label>
-      <label>Senha<input id="e-pass" type="password" autocomplete="current-password" required></label>
-      <button class="btn" type="submit">Entrar</button>
-      <p class="msg" id="auth-msg" role="status"></p>
-    </form>
-  </dialog>
 
   <section class="card" id="senha-card" hidden>
     <h2>Senha da equipe</h2>
@@ -132,7 +108,7 @@ td.acao{width:1%;text-align:right}
     </div>
     <div class="tbl">
       <table>
-        <thead><tr><th>E-mail</th><th>Telefone</th><th>Quem finalizou</th><th>Horário</th><th id="th-acao" hidden><span class="sr" style="position:absolute;left:-9999px">Ações</span></th></tr></thead>
+        <thead><tr><th>E-mail</th><th>Telefone</th><th>Quem finalizou</th><th>Horário</th></tr></thead>
         <tbody id="tb"><tr><td colspan="4" class="empty">Carregando a lista…</td></tr></tbody>
       </table>
     </div>
@@ -143,10 +119,8 @@ td.acao{width:1%;text-align:right}
 <script>
 (function(){
   var $=function(id){return document.getElementById(id);};
-  var API='/api/clientes?lista=finalizados', lista=[], senha='', chains={}, timers={}, token='', admin=false;
-  try{senha=sessionStorage.getItem('pdv-senha')||'';localStorage.removeItem('pdv-nome');token=localStorage.getItem('impl-token')||'';}catch(e){}
-  function guardaToken(t){token=t;try{t?localStorage.setItem('impl-token',t):localStorage.removeItem('impl-token');}catch(e){}}
-  function cols(){return admin?5:4;}
+  var API='/api/clientes?lista=finalizados', lista=[], senha='', chains={}, timers={};
+  try{senha=sessionStorage.getItem('pdv-senha')||'';localStorage.removeItem('pdv-nome');}catch(e){}
   function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function chaveDia(v){var d=new Date(v);return isNaN(d)?'sem-data':d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
   function rotuloDia(v){var d=new Date(v);if(isNaN(d))return 'Sem data';
@@ -161,9 +135,8 @@ td.acao{width:1%;text-align:right}
   function notice(t){var n=$('notice');n.textContent=t;n.hidden=!t;}
 
   async function api(method,body){
-    var r=await fetch(API,{method:method,headers:{'Content-Type':'application/json','x-senha':senha,'Authorization':token?'Bearer '+token:''},body:body?JSON.stringify(body):undefined});
+    var r=await fetch(API,{method:method,headers:{'Content-Type':'application/json','x-senha':senha},body:body?JSON.stringify(body):undefined});
     var j={};try{j=await r.json();}catch(e){}
-    if(r.status===401&&j.precisaLogin){guardaToken('');setAdmin(false,null);mostraLogin();throw new Error(j.erro);}
     if(r.status===401){pedirSenha(senha?'Senha incorreta. Tente de novo.':'');throw new Error('senha');}
     if(!r.ok)throw new Error(j.erro||'Não foi possível acessar a lista agora.');
     return j;
@@ -175,12 +148,10 @@ td.acao{width:1%;text-align:right}
     try{
       var j=await api('GET');
       $('senha-card').hidden=true;$('app').hidden=false;
-      var era=admin;admin=!!j.admin;
-      if(admin!==era||!silencioso)mostraEstado(j.nome);
       lista=j.clientes||[];render();if(!silencioso)notice('');
     }catch(e){
       if(e.message==='senha')return;
-      if(!silencioso)$('tb').innerHTML='<tr><td colspan="'+cols()+'" class="empty">'+esc(e.message)+'</td></tr>';
+      if(!silencioso)$('tb').innerHTML='<tr><td colspan="4" class="empty">'+esc(e.message)+'</td></tr>';
     }
   }
   function typing(){var a=document.activeElement;return a&&a.tagName==='TEXTAREA'&&a.closest('#tb');}
@@ -190,19 +161,18 @@ td.acao{width:1%;text-align:right}
     var q=$('q').value.trim().toLowerCase(), qd=q.replace(/\D/g,'');
     var rows=lista.filter(function(x){if(!q)return true;return String(x.email||'').toLowerCase().indexOf(q)>=0||String(x.por||'').toLowerCase().indexOf(q)>=0||(qd&&String(x.telefone||'').replace(/\D/g,'').indexOf(qd)>=0);});
     var tb=$('tb');
-    if(!lista.length){tb.innerHTML='<tr><td colspan="'+cols()+'" class="empty">Nenhum cliente finalizado registrado ainda. Use o formulário acima para registrar o primeiro.</td></tr>';return;}
-    if(!rows.length){tb.innerHTML='<tr><td colspan="'+cols()+'" class="empty">Nenhum cliente encontrado nessa busca.</td></tr>';return;}
+    if(!lista.length){tb.innerHTML='<tr><td colspan="4" class="empty">Nenhum cliente finalizado registrado ainda. Use o formulário acima para registrar o primeiro.</td></tr>';return;}
+    if(!rows.length){tb.innerHTML='<tr><td colspan="4" class="empty">Nenhum cliente encontrado nessa busca.</td></tr>';return;}
     // agrupa por dia de finalização (a lista já vem do mais recente pro mais antigo)
     var html='',dia='',grupos={};
     rows.forEach(function(x){var k=chaveDia(x.criadoEm);grupos[k]=(grupos[k]||0)+1;});
     rows.forEach(function(x){var id=esc(x.id),k=chaveDia(x.criadoEm);
-      if(k!==dia){dia=k;var n=grupos[k];html+='<tr class="dia"><td colspan="'+cols()+'">'+esc(rotuloDia(x.criadoEm))+'<span>'+n+(n===1?' finalizado':' finalizados')+'</span></td></tr>';}
+      if(k!==dia){dia=k;var n=grupos[k];html+='<tr class="dia"><td colspan="4">'+esc(rotuloDia(x.criadoEm))+'<span>'+n+(n===1?' finalizado':' finalizados')+'</span></td></tr>';}
       html+='<tr data-id="'+id+'">'+
       '<td class="mailc">'+esc(x.email||'—')+'</td>'+
       '<td class="mono" style="user-select:all">'+esc(x.telefone||'—')+'</td>'+
       '<td class="whoF">'+esc(x.por||'—')+'</td>'+
-      '<td class="mono">'+esc(hora(x.criadoEm))+'</td>'+
-      (admin?'<td class="acao"><button type="button" class="del" data-del="'+id+'" aria-label="Excluir '+esc(x.email||x.telefone||'')+'">Excluir</button></td>':'')+'</tr>';});
+      '<td class="mono">'+esc(hora(x.criadoEm))+'</td></tr>';});
     tb.innerHTML=html;
   }
   function salvarObs(id,obs){
@@ -237,29 +207,6 @@ td.acao{width:1%;text-align:right}
       ['f-email','f-tel','f-por'].forEach(function(i){$(i).value='';});msg('Cliente finalizado registrado.',true);$('f-email').focus();
     }catch(err){if(err.message!=='senha')msg(err.message);}
     $('f-save').disabled=false;
-  });
-  function mostraLogin(){$('auth-msg').textContent='';try{$('auth').showModal();}catch(e){$('auth').setAttribute('open','');}$('e-user').focus();}
-  function escondeLogin(){try{$('auth').close();}catch(e){$('auth').removeAttribute('open');}}
-  function mostraEstado(nome){$('th-acao').hidden=!admin;$('me-nome').hidden=!admin;$('me-nome').textContent=admin?(nome||'Admin')+' · admin':'';$('sair').hidden=!admin;$('abrir-login').hidden=admin;}
-  function setAdmin(a,nome){admin=a;mostraEstado(nome);render();}
-  $('abrir-login').onclick=mostraLogin;$('fechar-login').onclick=escondeLogin;
-  $('sair').onclick=function(){guardaToken('');setAdmin(false,null);msg('Você saiu do login de administrador.',true);};
-  $('f-entrar').addEventListener('submit',async function(e){
-    e.preventDefault();$('auth-msg').textContent='';
-    try{
-      var r=await fetch('/api/implantacao?acao=entrar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:$('e-user').value,senha:$('e-pass').value})});
-      var j=await r.json().catch(function(){return {};});
-      if(!r.ok)throw new Error(j.erro||'Não foi possível entrar.');
-      if(!j.admin){$('auth-msg').textContent='Esse login não é de administrador.';return;}
-      guardaToken(j.token);$('e-pass').value='';escondeLogin();setAdmin(true,j.nome||$('e-user').value);msg('Login de administrador feito. Agora aparece o botão Excluir.',true);
-    }catch(err){$('auth-msg').textContent=err.message;}
-  });
-  $('tb').addEventListener('click',async function(e){
-    var b=e.target.closest('button[data-del]');if(!b||!admin)return;
-    if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Confirmar?';setTimeout(function(){if(b.isConnected){b.dataset.c='';b.textContent='Excluir';}},4000);return;}
-    var id=b.dataset.del;b.disabled=true;b.textContent='Excluindo…';
-    try{await api('DELETE',{id:id});lista=lista.filter(function(x){return x.id!==id;});render();msg('Cliente excluído da lista de finalizados.',true);}
-    catch(err){b.disabled=false;b.dataset.c='';b.textContent='Excluir';if(err.message!=='senha')msg(err.message);}
   });
   carregar();
   setInterval(function(){if(!document.hidden&&$('senha-card').hidden)carregar(true);},20000);
