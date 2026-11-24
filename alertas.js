@@ -284,7 +284,8 @@
     a.innerHTML = '<span class="ic" aria-hidden="true">🔐</span><span>Login<small>Administradores</small></span>';
     // páginas com um lugar reservado no menu (ex.: home) recebem o botão ali; nas outras ele fica fixo no canto
     var slot = document.getElementById('wm-login-slot');
-    if (slot) { a.classList.add('no-menu'); slot.appendChild(a); } else document.body.appendChild(a);
+    // só aparece onde a página reservou um lugar (menu da home); nas outras páginas fica o login da própria página
+    if (slot) { a.classList.add('no-menu'); slot.appendChild(a); }
   }
 
   function inicia() {

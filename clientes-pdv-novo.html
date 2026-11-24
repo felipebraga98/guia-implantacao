@@ -98,6 +98,10 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
 .btn.sm{padding:8px 14px;font-size:.88rem}
 .f-marcas{display:flex;flex-wrap:wrap;gap:8px}
 .f-marcas label{flex-direction:row!important;align-items:center;gap:6px!important;color:var(--ink)!important;font-weight:600!important;cursor:pointer}
+#d-op{border:0;border-radius:16px;padding:0;width:min(560px,calc(100vw - 32px));box-shadow:0 18px 50px rgba(0,0,0,.35)}
+#d-op::backdrop{background:rgba(6,30,16,.55)}
+#d-op .opcoes{border:0;padding:22px;background:#fff}
+.op-x{border:0;background:var(--green-soft);color:var(--green-deep);width:32px;height:32px;border-radius:50%;font-weight:800;cursor:pointer}
 </style>
 </head>
 <body>
@@ -143,7 +147,10 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
   <section class="card" style="margin-top:20px">
     <div class="bar">
       <h2 id="lista-tit">Clientes</h2>
-      <input id="q" type="search" placeholder="Buscar e-mail, telefone ou nome" aria-label="Buscar cliente">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button type="button" class="btn sm" id="abrir-op" hidden>＋ Cadastrar marcação</button>
+        <input id="q" type="search" placeholder="Buscar e-mail, telefone ou nome" aria-label="Buscar cliente">
+      </div>
     </div>
     <div class="filtros" id="filtros" hidden></div>
     <div class="tbl">
@@ -152,8 +159,12 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
         <tbody id="tb"><tr><td colspan="7" class="empty">Carregando a lista…</td></tr></tbody>
       </table>
     </div>
-    <div class="opcoes" id="opcoes" hidden>
-      <h3>Opções de marcação</h3>
+  </section>
+  </div>
+</div>
+<dialog id="d-op" aria-label="Cadastrar marcação">
+    <div class="opcoes" id="opcoes">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Cadastrar marcação</h3><button type="button" class="op-x" id="fechar-op" aria-label="Fechar">✕</button></div>
       <p style="margin:0;color:var(--muted);font-size:.88rem">Crie as opções que a equipe pode marcar nos clientes atentos, por exemplo "Versão robô", "Pediu retorno" ou "Risco de cancelar". Depois é só marcar em cada cliente e filtrar.</p>
       <div class="lista" id="op-lista"></div>
       <form id="op-form">
@@ -163,9 +174,8 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
       </form>
       <p class="msg" id="op-msg" role="status"></p>
     </div>
-  </section>
-  </div>
-</div>
+</dialog>
+
 <script>
 (function(){
   var $=function(id){return document.getElementById(id);};
@@ -218,10 +228,10 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
     $('sub').textContent=ABAS[aba].sub;$('lista-tit').textContent=ABAS[aba].nome;$('add-tit').textContent='Adicionar cliente '+(at?'atento':'do PDV Novo');
     $('n-pdvnovo').textContent=dados.pdvnovo.length;$('n-atentos').textContent=dados.atentos.length;
     $('total').textContent=lista.length;$('total-l').textContent=lista.length===1?'cliente':'clientes';
-    $('opcoes').hidden=!at;$('f-marcas-box').hidden=!at;$('filtros').hidden=!at||!opcoes.length;
+    $('abrir-op').hidden=!at;$('f-marcas-box').hidden=!at;$('filtros').hidden=!at||!opcoes.length;
     // marcações no formulário
     if(at){var sel=[].map.call(document.querySelectorAll('#f-marcas input:checked'),function(i){return i.value;});
-      $('f-marcas').innerHTML=opcoes.length?opcoes.map(function(o){return '<label><input type="checkbox" value="'+esc(o.id)+'"'+(sel.indexOf(o.id)>=0?' checked':'')+'>'+chip(o)+'</label>';}).join(''):'<span style="color:var(--muted);font-size:.88rem">Crie as opções lá embaixo, em "Opções de marcação".</span>';}
+      $('f-marcas').innerHTML=opcoes.length?opcoes.map(function(o){return '<label><input type="checkbox" value="'+esc(o.id)+'"'+(sel.indexOf(o.id)>=0?' checked':'')+'>'+chip(o)+'</label>';}).join(''):'<span style="color:var(--muted);font-size:.88rem">Crie as opções no botão "＋ Cadastrar marcação", em cima da lista.</span>';}
     // opções e filtros
     $('op-lista').innerHTML=opcoes.length?opcoes.map(function(o){var n=dados.atentos.filter(function(x){return (x.marcadores||[]).indexOf(o.id)>=0;}).length;return chip(o,' · '+n+' <button type="button" data-delop="'+esc(o.id)+'" aria-label="Apagar a opção '+esc(o.nome)+'" title="Apagar opção">×</button>');}).join(''):'<span style="color:var(--muted);font-size:.88rem">Nenhuma opção criada ainda.</span>';
     if(filtro&&!op(filtro))filtro='';
@@ -242,7 +252,7 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
       '<td class="mailc">'+esc(x.email||'—')+'</td>'+
       '<td class="mono" style="user-select:all">'+esc(x.telefone||'—')+'</td>'+
       (at?'<td><div class="marcas">'+ms.map(function(o){return chip(o);}).join('')+
-        '<details class="esc"><summary>'+(ms.length?'Editar':'＋ Marcar')+'</summary><div class="menu">'+(opcoes.length?opcoes.map(function(o){return '<label><input type="checkbox" data-marca="'+esc(o.id)+'"'+((x.marcadores||[]).indexOf(o.id)>=0?' checked':'')+'>'+chip(o)+'</label>';}).join(''):'<div class="vazio">Crie as opções em "Opções de marcação", lá embaixo.</div>')+'</div></details></div></td>':'')+
+        '<details class="esc"><summary>'+(ms.length?'Editar':'＋ Marcar')+'</summary><div class="menu">'+(opcoes.length?opcoes.map(function(o){return '<label><input type="checkbox" data-marca="'+esc(o.id)+'"'+((x.marcadores||[]).indexOf(o.id)>=0?' checked':'')+'>'+chip(o)+'</label>';}).join(''):'<div class="vazio">Crie as opções no botão "＋ Cadastrar marcação".</div>')+'</div></details></div></td>':'')+
       '<td><textarea id="o-'+id+'" rows="1" aria-label="Observações">'+esc(x.obs||'')+'</textarea><span class="saved" id="v-'+id+'"></span></td>'+
       '<td class="who">'+esc(x.por||'—')+'</td>'+
       '<td class="mono">'+esc(dt(x.criadoEm))+'</td>'+
@@ -299,6 +309,9 @@ details.esc .menu .vazio{color:var(--muted);font-size:.85rem;padding:6px 8px}
     catch(err){if(err.message!=='senha'){$('op-msg').textContent=err.message;$('op-msg').className='msg err';}}
   });
   $('q').addEventListener('input',function(){render(true);});
+  $('abrir-op').addEventListener('click',function(){$('op-msg').textContent='';$('d-op').showModal();$('op-nome').focus();});
+  $('fechar-op').addEventListener('click',function(){$('d-op').close();});
+  $('d-op').addEventListener('click',function(e){if(e.target===this)this.close();});
   $('add').addEventListener('submit',async function(e){
     e.preventDefault();
     var email=$('f-email').value.trim(),tel=$('f-tel').value.trim(),por=$('f-por').value.trim(),dig=tel.replace(/\D/g,'');
