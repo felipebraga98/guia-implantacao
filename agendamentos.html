@@ -201,6 +201,14 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
 .cfg-parte .cfg-tit{margin:0 0 12px;font:800 1.1rem var(--f-display)}
 .cfg-parte .cfg-sub{margin:18px 0 8px;font:800 .98rem var(--f-display);color:var(--green-deep);padding-top:14px;border-top:1px dashed var(--line)}
 .cfg-parte .cfg-tit + .cfg-sub{margin-top:0;padding-top:0;border-top:0}
+.w-st{margin:0 0 12px;padding:10px 12px;border-radius:10px;font-weight:600;font-size:.9rem}
+.w-st.ok{background:var(--green-soft);color:var(--green-deep)}
+.w-st.no{background:#fff7e0;color:#7a5600}
+.w-prev{white-space:pre-wrap;background:#e7f7dd;border-radius:12px 12px 12px 2px;padding:12px 14px;margin:10px 0;font-size:.92rem;max-width:520px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.w-par{display:grid;grid-template-columns:minmax(120px,auto) 1fr 1fr;gap:8px;align-items:center;margin:6px 0}
+.w-par b{font-family:var(--f-mono,monospace);font-size:.85rem}
+.w-par select,.w-par input{font:inherit;border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;background:#fff;min-width:0}
+@media (max-width:640px){.w-par{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -296,7 +304,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     <section class="card" id="v-config" hidden>
       <h2>Configurações da agenda</h2>
       <p class="muted" style="margin:0">Só administradores mudam estas regras. Elas valem na hora para o link do cliente.</p>
-      <div class="cfg-nav" role="tablist" aria-label="Partes das configurações"><button type="button" role="tab" data-parte="horarios" aria-selected="true">🕘 Horários</button><button type="button" role="tab" data-parte="regras" aria-selected="false">⚙️ Regras</button><button type="button" role="tab" data-parte="tipos" aria-selected="false">🗂️ Tipos de atendimento</button><button type="button" role="tab" data-parte="datas" aria-selected="false">📅 Feriados e datas</button><button type="button" role="tab" data-parte="cliente" aria-selected="false">💬 Página e e-mails</button><button type="button" role="tab" data-parte="google" aria-selected="false">🔗 Google e outros sites</button></div>
+      <div class="cfg-nav" role="tablist" aria-label="Partes das configurações"><button type="button" role="tab" data-parte="horarios" aria-selected="true">🕘 Horários</button><button type="button" role="tab" data-parte="regras" aria-selected="false">⚙️ Regras</button><button type="button" role="tab" data-parte="tipos" aria-selected="false">🗂️ Tipos de atendimento</button><button type="button" role="tab" data-parte="datas" aria-selected="false">📅 Feriados e datas</button><button type="button" role="tab" data-parte="cliente" aria-selected="false">💬 Página e e-mails</button><button type="button" role="tab" data-parte="whats" aria-selected="false">📲 WhatsApp (TousChat)</button><button type="button" role="tab" data-parte="google" aria-selected="false">🔗 Google e outros sites</button></div>
 
       <div class="cfg-parte" id="parte-horarios" data-parte="horarios">
         <h3 class="cfg-tit">🕘 Horários</h3>
@@ -351,6 +359,24 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <label class="chk"><input type="checkbox" id="c-l-hora"> Lembrete 1 hora antes</label>
         <label class="chk"><input type="checkbox" id="c-conf-email"> Exigir que o cliente confirme pelo e-mail em até 30 min (evita agendamento falso)</label>
       </div>
+      </div>
+
+      <div class="cfg-parte" id="parte-whats" data-parte="whats" hidden>
+        <h3 class="cfg-tit">📲 Aviso pelo WhatsApp (TousChat)</h3>
+        <p class="muted" style="margin:0 0 10px;font-size:.9rem">A TousChat manda uma mensagem do número do suporte para o cliente alguns minutos antes do atendimento, usando um <b>modelo de mensagem aprovado</b>. Cada agendamento recebe o aviso uma vez só, e isso fica no histórico do agendamento.</p>
+        <p id="w-st" class="w-st"></p>
+        <label class="chk" style="display:flex;align-items:center;gap:8px;font-weight:700;margin:0 0 12px;cursor:pointer"><input type="checkbox" id="w-ativo" style="width:18px;height:18px;accent-color:var(--green)"> Ligar o aviso pelo WhatsApp</label>
+        <div class="regras">
+          <label>Mandar quantos minutos antes<input id="w-min" type="number" min="1" max="180"></label>
+          <label>Número do canal (opcional)<input id="w-from" inputmode="tel" placeholder="Só se tiver mais de um número"></label>
+        </div>
+        <h4 class="cfg-sub">Modelo de mensagem</h4>
+        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><select id="w-modelo" aria-label="Modelo de mensagem" style="flex:1;min-width:240px"><option value="">Clique em "Carregar modelos"</option></select><button type="button" class="btn g sm" id="w-carregar">↻ Carregar modelos da TousChat</button></div>
+        <div id="w-prev" class="w-prev" hidden></div>
+        <div id="w-params"></div>
+        <h4 class="cfg-sub">Testar</h4>
+        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><input id="w-tel" inputmode="tel" placeholder="Seu WhatsApp com DDD" style="max-width:220px"><button type="button" class="btn y sm" id="w-teste">Enviar teste</button><span class="muted" id="w-teste-st" style="font-size:.88rem"></span></div>
+        <p class="muted" style="font-size:.82rem;margin:10px 0 0">Depois de mudar alguma coisa aqui, clique em <b>Salvar configurações</b>.</p>
       </div>
 
       <div class="cfg-parte" id="parte-google" data-parte="google" hidden>
@@ -485,7 +511,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   async function carregar(silencioso){
     try{
       var j=await api('GET','lista');
-      lista=j.lista; eu=j.eu; equipe=j.equipe; emailOk=j.emailConfigurado; siteAgenda=j.siteAgenda||siteAgenda;
+      lista=j.lista; eu=j.eu; equipe=j.equipe; emailOk=j.emailConfigurado;touschatOk=!!j.touschatOk; siteAgenda=j.siteAgenda||siteAgenda;
       config=j.config;
       $('me-nome').textContent=eu.nome;$('me').hidden=false;$('auth').hidden=true;$('app').hidden=false;
       $('aba-config').hidden=!eu.admin;
@@ -807,6 +833,53 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       cfgEd.horarios[d]=on?fs:[];
     });
   }
+  // ---------- WhatsApp (TousChat) ----------
+  var touschatOk=false,modelosWa=[];
+  var CAMPOS_WA=[['primeiroNome','Primeiro nome do cliente'],['nome','Nome completo'],['hora','Horário'],['data','Data'],['link','Link da chamada'],['tipo','Tipo de atendimento'],['fixo','Texto fixo']];
+  function pintaWhats(){
+    var w=cfgEd.whats||{};
+    $('w-st').className='w-st '+(touschatOk?'ok':'no');
+    $('w-st').innerHTML=touschatOk?'✅ TousChat conectada (token configurado no Vercel).':'⚠️ Falta o token da TousChat. Gere em <b>TousChat › Ajustes › Integrações › Integração via API › Configurar</b> e coloque no Vercel como <b>TOUSCHAT_TOKEN</b> (depois faça um novo deploy).';
+    $('w-ativo').checked=!!w.ativo;$('w-min').value=w.minutos||15;$('w-from').value=w.from||'';
+    var sel=$('w-modelo');
+    if(!modelosWa.length&&w.templateId)sel.innerHTML='<option value="'+esc(w.templateId)+'">'+esc(w.templateNome||'Modelo salvo')+'</option>';
+    sel.value=w.templateId||'';pintaParams();
+  }
+  function modeloAtual(){var id=$('w-modelo').value;return modelosWa.filter(function(m){return m.id===id;})[0]||null;}
+  function pintaParams(){
+    var m=modeloAtual(),w=cfgEd.whats||{},ps=w.params||{};
+    $('w-prev').hidden=!m;if(m)$('w-prev').textContent=m.texto||'(sem texto)';
+    var nomes=m?m.params:Object.keys(ps);
+    $('w-params').innerHTML=nomes.length?'<p class="muted" style="margin:8px 0 4px;font-size:.88rem">O que entra em cada campo do modelo:</p>'+nomes.map(function(n){var v=ps[n]||{campo:/nome/i.test(n)?'primeiroNome':/hora/i.test(n)?'hora':/data/i.test(n)?'data':/link/i.test(n)?'link':'fixo',texto:''};
+      return '<div class="w-par" data-p="'+esc(n)+'"><b>{{'+esc(n)+'}}</b><select>'+CAMPOS_WA.map(function(c){return '<option value="'+c[0]+'"'+(v.campo===c[0]?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select><input placeholder="Texto fixo" value="'+esc(v.texto||'')+'"'+(v.campo==='fixo'?'':' hidden')+'></div>';}).join(''):(m?'<p class="muted" style="font-size:.88rem">Esse modelo não tem campos variáveis.</p>':'');
+  }
+  function leWhats(){
+    var m=modeloAtual(),params={};
+    document.querySelectorAll('#w-params .w-par').forEach(function(d){params[d.dataset.p]={campo:d.querySelector('select').value,texto:d.querySelector('input').value};});
+    return {ativo:$('w-ativo').checked,minutos:+$('w-min').value||15,from:$('w-from').value,templateId:$('w-modelo').value,templateNome:m?m.nome:((cfgEd.whats||{}).templateNome||''),params:params};
+  }
+  async function carregaModelos(){
+    $('w-carregar').disabled=true;$('w-carregar').textContent='Carregando…';
+    try{var j=await api('GET','touschat-modelos');modelosWa=j.modelos||[];var w=cfgEd.whats||{};
+      $('w-modelo').innerHTML='<option value="">Escolha o modelo…</option>'+modelosWa.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(m.nome)+(m.status&&!/APPROV/i.test(m.status)?' ('+esc(m.status)+')':'')+'</option>';}).join('');
+      $('w-modelo').value=w.templateId||'';pintaParams();if(!modelosWa.length)toast('Nenhum modelo encontrado na TousChat.');}
+    catch(err){if(err.message!=='login')toast(err.message);}
+    finally{$('w-carregar').disabled=false;$('w-carregar').textContent='↻ Carregar modelos da TousChat';}
+  }
+  $('w-carregar').onclick=carregaModelos;
+  $('w-modelo').addEventListener('change',function(){marcaSujo();pintaParams();});
+  $('w-params').addEventListener('change',function(e){var d=e.target.closest('.w-par');if(d&&e.target.tagName==='SELECT')d.querySelector('input').hidden=e.target.value!=='fixo';marcaSujo();});
+  $('w-params').addEventListener('input',marcaSujo);
+  ['w-ativo','w-min','w-from'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
+  $('w-teste').onclick=async function(){
+    var tel=$('w-tel').value.trim();if(tel.replace(/\D/g,'').length<10){$('w-teste-st').textContent='Digite um WhatsApp com DDD.';return;}
+    this.disabled=true;$('w-teste-st').textContent='Enviando…';
+    try{var j=await api('POST','touschat-teste',{telefone:tel,whats:leWhats()});$('w-teste-st').textContent='✅ Enviado para a TousChat'+(j.status?' ('+j.status+')':'')+'. Confira o WhatsApp.';}
+    catch(err){if(err.message!=='login')$('w-teste-st').textContent='❌ '+err.message;}
+    finally{this.disabled=false;}
+  };
+  document.querySelector('.cfg-nav').addEventListener('click',function(e){var b=e.target.closest('[data-parte="whats"]');if(b&&touschatOk&&!modelosWa.length)carregaModelos();});
+
   function montaConfig(){
     cfgEd=clone(config);cfgEd.horarios=cfgEd.horarios||{};sujo=false;$('c-st').textContent='Tudo salvo.';
     pintaDias();
@@ -814,6 +887,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
     var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
+    pintaWhats();
     $('c-email-st').textContent=emailOk?'✅ Envio de e-mail configurado.':'⚠️ O envio de e-mail ainda não está configurado no Vercel (EMAIL_USUARIO e EMAIL_SENHA_APP). Sem isso, os e-mails ficam desligados.';
     $('c-feed').textContent=location.origin+'/api/agendamento?acao=feed&chave='+(cfgEd.icsChave||'');
     $('c-embed').textContent='<iframe src="'+siteAgenda+'" style="width:100%;min-height:1100px;border:0" title="Agende seu atendimento WhatsMenu"></iframe>';
@@ -862,7 +936,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     leDias();leTipos();
     var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,proxQtd:+$('c-prox').value||1,
       local:$('c-local').value,linkVideo:$('c-video').value,textoSucesso:$('c-sucesso').value,
-      lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked},extra||{});
+      lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked,whats:leWhats()},extra||{});
     for(var d=0;d<7;d++){var bad=(body.horarios[d]||[]).some(function(f){return min(f[0])>min(f[1])});if(bad){toast(DSL[d]+': o último horário está antes do primeiro.');return;}}
     $('c-salvar').disabled=true;
     try{var j=await api('PUT','config',body);config=j.config;montaConfig();render();toast('Configurações salvas. O link do cliente já mostra as mudanças.');}
