@@ -852,8 +852,8 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     var m=modeloAtual(),w=cfgEd.whats||{},ps=w.params||{};
     $('w-prev').hidden=!m;if(m)$('w-prev').textContent=m.texto||'(sem texto)';
     var nomes=m?m.params:Object.keys(ps);
-    $('w-params').innerHTML=nomes.length?'<p class="muted" style="margin:8px 0 4px;font-size:.88rem">O que entra em cada campo do modelo:</p>'+nomes.map(function(n){var v=ps[n]||{campo:/nome/i.test(n)?'primeiroNome':/hora/i.test(n)?'hora':/data/i.test(n)?'data':/link/i.test(n)?'link':'fixo',texto:''};
-      return '<div class="w-par" data-p="'+esc(n)+'"><b>{{'+esc(n)+'}}</b><select>'+CAMPOS_WA.map(function(c){return '<option value="'+c[0]+'"'+(v.campo===c[0]?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select><input placeholder="Texto fixo" value="'+esc(v.texto||'')+'"'+(v.campo==='fixo'?'':' hidden')+'></div>';}).join(''):(m?'<p class="muted" style="font-size:.88rem">Esse modelo não tem campos variáveis.</p>':'');
+    $('w-params').innerHTML=nomes.length?'<p class="muted" style="margin:8px 0 4px;font-size:.88rem">O que entra em cada campo do modelo:</p>'+nomes.map(function(n){var antes=m?String(m.texto||'').split(new RegExp('\\['+n+'\\]|\\{\\{\\s*'+n+'\\s*\\}\\}','i'))[0].slice(-60):'';var v=ps[n]||{campo:/link|chamada/i.test(antes)?'link':/nome|^p1$/i.test(n)?'primeiroNome':/hora/i.test(n)?'hora':/data/i.test(n)?'data':/link/i.test(n)?'link':'fixo',texto:''};
+      return '<div class="w-par" data-p="'+esc(n)+'"><b>'+(/^p\d+$/i.test(n)?'['+esc(n)+']':'{{'+esc(n)+'}}')+'</b><select>'+CAMPOS_WA.map(function(c){return '<option value="'+c[0]+'"'+(v.campo===c[0]?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select><input placeholder="Texto fixo" value="'+esc(v.texto||'')+'"'+(v.campo==='fixo'?'':' hidden')+'></div>';}).join(''):(m?'<p class="muted" style="font-size:.88rem">Esse modelo não tem campos variáveis.</p>':'');
   }
   function leWhats(){
     var m=modeloAtual(),params={};
