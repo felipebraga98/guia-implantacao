@@ -371,6 +371,14 @@ async function touschat(metodo, caminho, corpo) {
   if (!r.ok) { const e = new Error((j && (j.text || j.message || j.title)) || ('TousChat respondeu ' + r.status)); e.status = r.status; throw e; }
   return j;
 }
+// campos do modelo: a TousChat devolve em "params" ou só no texto, como [p1] ou {{nome}}
+function camposModelo(t) {
+  const nomes = (t.params || []).map((p) => p.name).filter(Boolean);
+  const txt = String(t.text || '');
+  let m; const re = /\[([a-z0-9_]+)\]|\{\{\s*([a-z0-9_]+)\s*\}\}/gi;
+  while ((m = re.exec(txt))) { const n = m[1] || m[2]; if (!nomes.includes(n)) nomes.push(n); }
+  return nomes;
+}
 function valorParam(campo, texto, r, c) {
   const nome = String(r.nome || '').trim();
   if (campo === 'primeiroNome') return (nome.split(/\s+/)[0] || 'tudo bem').replace(/@.*/, '');
@@ -847,7 +855,7 @@ module.exports = async function handler(req, res) {
       try {
         if (acao === 'touschat-modelos') {
           const j = await touschat('GET', '/v1/template?pageSize=100&Archived=false');
-          const itens = (j.items || []).map((t) => ({ id: t.id, nome: t.name || t.internalName || 'Sem nome', texto: t.text || '', status: t.status, ativo: t.active, params: (t.params || []).map((p) => p.name).filter(Boolean) }));
+          const itens = (j.items || []).map((t) => ({ id: t.id, nome: t.name || t.internalName || 'Sem nome', texto: t.text || '', status: t.status, ativo: t.active, params: camposModelo(t) }));
           return res.status(200).json({ modelos: itens });
         }
         const b = lerBody(req);
