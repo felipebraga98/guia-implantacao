@@ -397,6 +397,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         </div>
         <h4 class="cfg-sub">Modelo de mensagem</h4>
         <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><select id="w-modelo" aria-label="Modelo de mensagem" style="flex:1;min-width:240px"><option value="">Clique em "Carregar modelos"</option></select><button type="button" class="btn g sm" id="w-carregar">↻ Carregar modelos da TousChat</button></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px"><input id="w-busca" type="search" placeholder="🔎 Buscar modelo pelo nome (ex.: notificando)" style="flex:1;min-width:240px" hidden><span class="muted" id="w-qtd" style="font-size:.85rem"></span></div>
         <div id="w-prev" class="w-prev" hidden></div>
         <div id="w-params"></div>
         <h4 class="cfg-sub">Testar</h4>
@@ -886,12 +887,22 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   }
   async function carregaModelos(){
     $('w-carregar').disabled=true;$('w-carregar').textContent='Carregando…';
-    try{var j=await api('GET','touschat-modelos');modelosWa=j.modelos||[];var w=cfgEd.whats||{};
-      $('w-modelo').innerHTML='<option value="">Escolha o modelo…</option>'+modelosWa.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(m.nome)+(m.status&&!/APPROV/i.test(m.status)?' ('+esc(m.status)+')':'')+'</option>';}).join('');
-      $('w-modelo').value=w.templateId||'';pintaParams();if(!modelosWa.length)toast('Nenhum modelo encontrado na TousChat.');}
+    try{var j=await api('GET','touschat-modelos');modelosWa=j.modelos||[];
+      $('w-busca').hidden=!modelosWa.length;$('w-busca').value='';opcoesModelos('');pintaParams();
+      $('w-qtd').textContent=modelosWa.length?modelosWa.length+' modelos carregados (em ordem alfabética)':'';
+      if(!modelosWa.length)toast('Nenhum modelo encontrado na TousChat.');else toast(modelosWa.length+' modelos carregados.');}
     catch(err){if(err.message!=='login')toast(err.message);}
     finally{$('w-carregar').disabled=false;$('w-carregar').textContent='↻ Carregar modelos da TousChat';}
   }
+  function opcoesModelos(filtro){
+    var sem=function(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();};
+    var f=sem(filtro),atual=$('w-modelo').value||(cfgEd.whats||{}).templateId||'';
+    var lista=modelosWa.filter(function(m){return !f||sem(m.nome).indexOf(f)>=0||m.id===atual;});
+    $('w-modelo').innerHTML='<option value="">'+(f&&!lista.length?'Nenhum modelo com esse nome':'Escolha o modelo…')+'</option>'+lista.map(function(m){return '<option value="'+esc(m.id)+'">'+esc(m.nome)+(m.status&&!/APPROV/i.test(m.status)?' ('+esc(m.status)+')':'')+'</option>';}).join('');
+    $('w-modelo').value=atual;
+    if(f&&lista.length===1&&!atual){$('w-modelo').value=lista[0].id;marcaSujo();pintaParams();}
+  }
+  $('w-busca').addEventListener('input',function(){opcoesModelos(this.value);});
   $('w-carregar').onclick=carregaModelos;
   $('w-modelo').addEventListener('change',function(){marcaSujo();pintaParams();});
   $('w-params').addEventListener('change',function(e){var d=e.target.closest('.w-par');if(d&&e.target.tagName==='SELECT')d.querySelector('input').hidden=e.target.value!=='fixo';marcaSujo();});
