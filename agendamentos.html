@@ -357,6 +357,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <label class="chk"><input type="checkbox" id="c-l-conf"> Confirmação ao agendar</label>
         <label class="chk"><input type="checkbox" id="c-l-vesp"> Lembrete na véspera</label>
         <label class="chk"><input type="checkbox" id="c-l-hora"> Lembrete 1 hora antes</label>
+        <label class="chk"><input type="checkbox" id="c-l-nao"> Quando marcar "Não atendeu", mandar e-mail para o cliente remarcar</label>
         <label class="chk"><input type="checkbox" id="c-conf-email"> Exigir que o cliente confirme pelo e-mail em até 30 min (evita agendamento falso)</label>
       </div>
       </div>
@@ -477,6 +478,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
   function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function avisoRemarcar(j){return {enviado:' ✉️ E-mail enviado para o cliente remarcar.','sem-email':' (O cliente não tem e-mail cadastrado, então não foi enviado e-mail.)','sem-config':' (O envio de e-mail não está configurado no Vercel.)',falhou:' Não foi possível enviar o e-mail para remarcar.','ja-enviado':' (O e-mail para remarcar já tinha sido enviado.)'}[j&&j.emailRemarcar]||'';}
   function toast(t){var el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},4500);}
   function copia(t,ok){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast(ok)}).catch(function(){toast('Selecione e copie com Ctrl+C.')});}
 
@@ -678,7 +680,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   $('lista').addEventListener('click',async function(e){
     var d=e.target.closest('[data-det]');if(d){abreDet(d.dataset.det);return;}
     var b=e.target.closest('[data-st]');if(!b)return;b.disabled=true;
-    try{var j=await api('PATCH','status',{id:b.dataset.id,status:b.dataset.st});atualiza(j.reserva);toast('Status atualizado.');}catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
+    try{var j=await api('PATCH','status',{id:b.dataset.id,status:b.dataset.st});atualiza(j.reserva);toast('Status atualizado.'+avisoRemarcar(j));}catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
   });
   document.querySelector('.filtros').addEventListener('click',function(e){var b=e.target.closest('button[data-f]');if(!b)return;filtro=b.dataset.f;marcaFiltro();renderLista();});
   function marcaFiltro(){document.querySelectorAll('.filtros button').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.f===filtro)});}
@@ -720,7 +722,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     var s=b.dataset.s,avisar=false;
     if(s==='cancelado'){var c=await confirma('Cancelar o atendimento de '+atual.nome+'?','O horário volta a ficar livre para outros clientes.','Cancelar atendimento',!!atual.email&&emailOk);if(!c)return;avisar=c.avisar;}
     b.disabled=true;
-    try{var j=await api('PATCH','status',{id:atual.id,status:s,avisar:avisar});atualiza(j.reserva);abreDet(atual.id);toast('Status: '+ROT[s]+'.');if(window.WMAlertas)WMAlertas.atualizar();}
+    try{var j=await api('PATCH','status',{id:atual.id,status:s,avisar:avisar});atualiza(j.reserva);abreDet(atual.id);toast('Status: '+ROT[s]+'.'+avisoRemarcar(j));if(window.WMAlertas)WMAlertas.atualizar();}
     catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
   });
   $('dd-copiar-cli').onclick=function(){copia($('dd-link-cli').textContent,'Link da chamada copiado.');};
@@ -886,7 +888,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;$('c-alarme').value=cfgEd.alarmeMin||15;$('c-prox').value=String(cfgEd.proxQtd||1);
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
-    var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
+    var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-l-nao').checked=l.naoAtendeu!==false;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
     pintaWhats();
     $('c-email-st').textContent=emailOk?'✅ Envio de e-mail configurado.':'⚠️ O envio de e-mail ainda não está configurado no Vercel (EMAIL_USUARIO e EMAIL_SENHA_APP). Sem isso, os e-mails ficam desligados.';
     $('c-feed').textContent=location.origin+'/api/agendamento?acao=feed&chave='+(cfgEd.icsChave||'');
@@ -931,12 +933,12 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(b.dataset.esp)delete cfgEd.especiais[b.dataset.esp];
     if(b.dataset.blq){var p=b.dataset.blq.split('|');cfgEd.bloqueios[p[0]]=cfgEd.bloqueios[p[0]].filter(function(h){return h!==p[1]});if(!cfgEd.bloqueios[p[0]].length)delete cfgEd.bloqueios[p[0]];}
     marcaSujo();pintaChips();});});
-  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-alarme','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
+  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-alarme','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-l-nao','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
   async function salvaConfig(extra){
     leDias();leTipos();
     var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,proxQtd:+$('c-prox').value||1,
       local:$('c-local').value,linkVideo:$('c-video').value,textoSucesso:$('c-sucesso').value,
-      lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked,whats:leWhats()},extra||{});
+      lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked,naoAtendeu:$('c-l-nao').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked,whats:leWhats()},extra||{});
     for(var d=0;d<7;d++){var bad=(body.horarios[d]||[]).some(function(f){return min(f[0])>min(f[1])});if(bad){toast(DSL[d]+': o último horário está antes do primeiro.');return;}}
     $('c-salvar').disabled=true;
     try{var j=await api('PUT','config',body);config=j.config;montaConfig();render();toast('Configurações salvas. O link do cliente já mostra as mudanças.');}
