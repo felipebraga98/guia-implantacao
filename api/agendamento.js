@@ -886,8 +886,20 @@ module.exports = async function handler(req, res) {
       if (!touschatToken()) return res.status(400).json({ erro: 'Falta colocar o TOUSCHAT_TOKEN nas variáveis de ambiente do Vercel (e fazer um novo deploy).', semToken: true });
       try {
         if (acao === 'touschat-modelos') {
-          const j = await touschat('GET', '/v1/template?pageSize=100&Archived=false');
-          const itens = (j.items || []).map((t) => ({ id: t.id, nome: t.name || t.internalName || 'Sem nome', texto: t.text || '', status: t.status, ativo: t.active, params: camposModelo(t) }));
+          // a TousChat devolve no máximo 100 modelos por página: busca todas as páginas
+          let todos = [], pagina = 1;
+          while (pagina <= 30) {
+            const j = await touschat('GET', '/v1/template?pageNumber=' + pagina + '&pageSize=100&Archived=false');
+            const lote = j.items || [];
+            todos = todos.concat(lote);
+            const mais = j.hasMorePages != null ? j.hasMorePages : (j.totalPages ? pagina < j.totalPages : lote.length >= 100);
+            if (!mais || !lote.length) break;
+            pagina++;
+          }
+          const vistos = {};
+          todos = todos.filter((t) => t && t.id && !vistos[t.id] && (vistos[t.id] = 1));
+          const itens = todos.map((t) => ({ id: t.id, nome: t.name || t.internalName || 'Sem nome', texto: t.text || '', status: t.status, ativo: t.active, params: camposModelo(t) }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }));
           return res.status(200).json({ modelos: itens });
         }
         const b = lerBody(req);
