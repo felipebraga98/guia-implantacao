@@ -215,6 +215,8 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
 .rem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 .rem-grid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.82rem;color:var(--green-deep)}
 .rem-grid input,#rem-teste-para{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+.rem-serv{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 10px;font-weight:700;font-size:.88rem}.rem-serv label{display:inline-flex!important;flex-direction:row!important;gap:6px;align-items:center;cursor:pointer;width:auto!important;color:var(--ink,#14251b);margin:0}.rem-serv input{width:auto!important;margin:0;accent-color:#00a63e}.rem-serv .muted{font-weight:400;font-size:.8rem}
+.ia-api{display:grid;gap:10px}.ia-api>div{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}.ia-api code.cp{flex:1 1 100%;word-break:break-all}
 #rem-msg.ok{color:var(--green-deep)}#rem-msg.err{color:#b3261e}
 </style>
 </head>
@@ -362,12 +364,15 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <p class="muted" style="margin:0 0 6px;font-size:.88rem" id="c-email-st"></p>
       <div class="rem" id="rem-box">
         <div class="rem-top"><b>✉️ E-mail que envia as mensagens</b><span id="rem-atual"></span></div>
+        <div class="rem-serv" role="radiogroup" aria-label="Serviço de envio"><label><input type="radio" name="rem-serv" value="gmail" checked> Gmail <span class="muted">(precisa de senha de app)</span></label><label><input type="radio" name="rem-serv" value="brevo"> Brevo <span class="muted">(grátis, sem senha de app)</span></label></div>
         <div class="rem-grid">
-          <label>E-mail (Gmail)<input id="rem-user" type="email" autocomplete="off" placeholder="suporte@gmail.com"></label>
+          <label><span id="rem-user-lb">E-mail (Gmail)</span><input id="rem-user" type="email" autocomplete="off" placeholder="suporte@gmail.com"></label>
           <label>Nome que aparece para o cliente<input id="rem-nome" maxlength="60" placeholder="WhatsMenu"></label>
-          <label>Senha de app do Gmail<input id="rem-senha" type="password" autocomplete="new-password" placeholder="16 letras (não é a senha normal)"></label>
+          <label id="rem-login-wrap" hidden>Login SMTP do Brevo<input id="rem-login" type="email" autocomplete="off" placeholder="ex.: 9a1b2c001@smtp-brevo.com"></label>
+          <label><span id="rem-senha-lb">Senha de app do Gmail</span><input id="rem-senha" type="password" autocomplete="new-password" placeholder="16 letras (não é a senha normal)"></label>
         </div>
-        <p class="muted" style="margin:6px 0 0;font-size:.82rem">A <b>senha de app</b> é criada na conta Google desse e-mail: <b>Conta do Google › Segurança › Verificação em duas etapas › Senhas de app</b>. A senha fica guardada no banco e nunca aparece de volta na tela.</p>
+        <p class="muted" id="rem-ajuda-gmail" style="margin:6px 0 0;font-size:.82rem">A <b>senha de app</b> é criada na conta Google desse e-mail: <b>Conta do Google › Segurança › Verificação em duas etapas › Senhas de app</b>. A senha fica guardada no banco e nunca aparece de volta na tela.</p>
+        <p class="muted" id="rem-ajuda-brevo" style="margin:6px 0 0;font-size:.82rem" hidden>No <b>Brevo</b>: 1) em <b>Remetentes</b>, adicione o e-mail acima e clique no link de confirmação que chega nele; 2) em <b>SMTP e API › SMTP</b>, copie o <b>Login SMTP</b> e gere uma <b>chave SMTP</b>. A chave fica guardada no banco e nunca aparece de volta na tela.</p>
         <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap;align-items:center">
           <button type="button" class="btn sm" id="rem-salvar">Salvar e-mail de envio</button>
           <button type="button" class="btn g sm" id="rem-remover" hidden>Voltar a usar o do Vercel</button>
@@ -403,6 +408,13 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <h4 class="cfg-sub">Testar</h4>
         <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><input id="w-tel" inputmode="tel" placeholder="Seu WhatsApp com DDD" style="max-width:220px"><button type="button" class="btn y sm" id="w-teste">Enviar teste</button><span class="muted" id="w-teste-st" style="font-size:.88rem"></span></div>
         <p class="muted" style="font-size:.82rem;margin:10px 0 0">Depois de mudar alguma coisa aqui, clique em <b>Salvar configurações</b>.</p>
+        <h4 class="cfg-sub">🤖 IA da TousChat agenda pelo WhatsApp</h4>
+        <p class="muted" style="margin:0 0 8px;font-size:.88rem">Na IA da TousChat, crie duas habilidades <b>Acionar API</b>: uma para <b>consultar os horários livres</b> e outra para <b>agendar</b>. Use os endereços e a chave abaixo. O agendamento feito pela IA aparece aqui como "agendado pela IA (WhatsApp)" e o cliente recebe a confirmação por e-mail.</p>
+        <div class="ia-api">
+          <div><b>1. Consultar horários</b> <span class="muted">(GET)</span><code class="cp" id="ia-url-h"></code><button type="button" class="btn g sm" data-cp="ia-url-h">Copiar</button></div>
+          <div><b>2. Agendar</b> <span class="muted">(POST)</span><code class="cp" id="ia-url-a"></code><button type="button" class="btn g sm" data-cp="ia-url-a">Copiar</button></div>
+          <div><b>Chave</b> <span class="muted">(cabeçalho <code>Authorization: Bearer …</code>)</span><code class="cp" id="ia-chave">Carregando…</code><button type="button" class="btn g sm" data-cp="ia-chave">Copiar</button> <button type="button" class="btn g sm" id="ia-nova">Gerar chave nova (a antiga para de funcionar)</button></div>
+        </div>
       </div>
 
       <div class="cfg-parte" id="parte-google" data-parte="google" hidden>
@@ -694,7 +706,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         g.map(function(r){
           return '<div class="item '+r.status+'"><div class="h">'+r.hora+'<small>até '+r.fim+'</small></div>'+
             '<div><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+(r.emAtendimento&&r.status==='aguardando'?'<span class="tag t-atendido">Em atendimento com '+esc(r.emAtendimento.por)+'</span>':'')+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+
-            '<div class="ct">'+esc(r.tipoNome||'Atendimento')+' · '+esc(r.whatsapp)+(r.email?' · '+esc(r.email):'')+' · cód. '+esc(r.id)+(r.origem==='equipe'?' · agendado pela equipe':'')+'</div>'+
+            '<div class="ct">'+esc(r.tipoNome||'Atendimento')+' · '+esc(r.whatsapp)+(r.email?' · '+esc(r.email):'')+' · cód. '+esc(r.id)+(r.origem==='equipe'?' · agendado pela equipe':r.origem==='touschat'?' · agendado pela IA (WhatsApp)':'')+'</div>'+
             (r.notas?'<div class="nt">'+esc(r.notas)+'</div>':'')+'</div>'+
             '<div class="acoes"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(r)+'">WhatsApp</a>'+(r.salaWhatsMenu&&r.status==='aguardando'?'<a class="btn g sm" target="_blank" rel="noopener" href="'+esc(r.salaWhatsMenu)+'">📹 Chamada</a>':'')+
             (r.status==='aguardando'?'<button class="btn g sm" type="button" data-st="atendido" data-id="'+r.id+'">✓ Atendido</button><button class="btn g sm" type="button" data-st="nao-atendeu" data-id="'+r.id+'">Não atendeu</button>':'')+
@@ -723,7 +735,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     $('dd-tit').textContent=r.nome+' · '+r.loja;
     $('dd-tags').innerHTML='<span class="tag t-'+r.status+'" style="margin:0">'+ROT[r.status]+'</span>'+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+(r.alarmeParado?'<span class="tag t-cons">Alarme parado por '+esc(r.alarmeParado.por)+'</span>':'');
     $('dd-info').innerHTML='<dt>Quando</dt><dd>'+esc(cap(r.rotulo))+', das '+r.hora+' às '+r.fim+'</dd><dt>Tipo</dt><dd>'+esc(r.tipoNome||'Atendimento')+'</dd>'+
-      '<dt>WhatsApp</dt><dd>'+esc(r.whatsapp)+'</dd><dt>E-mail</dt><dd>'+esc(r.email||'—')+'</dd><dt>Código</dt><dd>'+esc(r.id)+' · '+(r.origem==='equipe'?'agendado pela equipe':'agendado pelo link')+'</dd>'+
+      '<dt>WhatsApp</dt><dd>'+esc(r.whatsapp)+'</dd><dt>E-mail</dt><dd>'+esc(r.email||'—')+'</dd><dt>Código</dt><dd>'+esc(r.id)+' · '+(r.origem==='equipe'?'agendado pela equipe':r.origem==='touschat'?'agendado pela IA (WhatsApp)':r.origem==='google'?'importado do Google':'agendado pelo link')+'</dd>'+
       (r.statusPor?'<dt>Status</dt><dd>'+ROT[r.status]+' por '+esc(r.statusPor)+' em '+dataHora(r.statusEm)+'</dd>':'');
     var ac='<a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(r)+'">Chamar no WhatsApp</a>';
     if(r.status==='aguardando'||r.status==='pendente')ac+='<button class="btn g sm" type="button" data-s="atendido">✓ Atendido</button><button class="btn g sm" type="button" data-s="nao-atendeu">Não atendeu</button><button class="btn g sm" type="button" data-s="cancelado" style="color:var(--bad)">Cancelar</button>';
@@ -903,6 +915,12 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(f&&lista.length===1&&!atual){$('w-modelo').value=lista[0].id;marcaSujo();pintaParams();}
   }
   $('w-busca').addEventListener('input',function(){opcoesModelos(this.value);});
+  async function carregaIA(nova){
+    var base=location.origin+'/api/agendamento?acao=';$('ia-url-h').textContent=base+'ia-horarios';$('ia-url-a').textContent=base+'ia-agendar';
+    try{var j=await api(nova?'POST':'GET','ia-chave',nova?{gerar:true}:undefined);$('ia-chave').textContent=j.chave;if(nova)toast('Chave nova gerada. Atualize nas duas habilidades da TousChat.');}catch(err){if(err.message!=='login')$('ia-chave').textContent=err.message;}
+  }
+  $('ia-nova').onclick=function(){if(confirm('Gerar uma chave nova? A IA da TousChat para de agendar até você colar a chave nova nas habilidades.'))carregaIA(true);};
+  document.querySelectorAll('.ia-api [data-cp]').forEach(function(bt){bt.onclick=function(){var t=$(bt.dataset.cp).textContent;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('Copiado!');}).catch(function(){toast('Selecione e copie manualmente.');});};});
   $('w-carregar').onclick=carregaModelos;
   $('w-modelo').addEventListener('change',function(){marcaSujo();pintaParams();});
   $('w-params').addEventListener('change',function(e){var d=e.target.closest('.w-par');if(d&&e.target.tagName==='SELECT')d.querySelector('input').hidden=e.target.value!=='fixo';marcaSujo();});
@@ -919,17 +937,27 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
 
   // ---------- e-mail que envia (só administradores veem Configurações) ----------
   function remMsg(t,ok){var m=$('rem-msg');m.textContent=t||'';m.className='msg'+(t?(ok?' ok':' err'):'');}
+  var remSalvo='';
+  function servRem(){var r=document.querySelector('input[name=rem-serv]:checked');return r?r.value:'gmail';}
+  function modoRem(){var br=servRem()==='brevo';
+    $('rem-user-lb').textContent=br?'E-mail do remetente':'E-mail (Gmail)';
+    $('rem-senha-lb').textContent=br?'Chave SMTP do Brevo':'Senha de app do Gmail';
+    $('rem-senha').placeholder=remSalvo===servRem()?'Deixe em branco para manter a senha salva':(br?'Cole a chave SMTP (começa com xsmtpsib-)':'16 letras (não é a senha normal)');
+    $('rem-login-wrap').hidden=!br;$('rem-ajuda-brevo').hidden=!br;$('rem-ajuda-gmail').hidden=br;}
+  document.querySelectorAll('input[name=rem-serv]').forEach(function(r){r.addEventListener('change',modoRem);});
   function pintaRem(i){
-    $('rem-atual').textContent=i.origem==='painel'?'Enviando por: '+i.usuario+' (escolhido aqui)':i.origem==='vercel'?'Enviando por: '+i.usuario+' (variáveis do Vercel)':'Nenhum e-mail configurado: os e-mails não estão saindo.';
+    remSalvo=i.origem==='painel'?(i.servico||'gmail'):'';
+    if(i.origem==='painel'){var rr=document.querySelector('input[name=rem-serv][value="'+(i.servico==='brevo'?'brevo':'gmail')+'"]');if(rr)rr.checked=true;$('rem-login').value=i.login||'';}
+    $('rem-atual').textContent=i.origem==='painel'?'Enviando por: '+i.usuario+(i.servico==='brevo'?' pelo Brevo':'')+' (escolhido aqui)':i.origem==='vercel'?'Enviando por: '+i.usuario+' (variáveis do Vercel)':'Nenhum e-mail configurado: os e-mails não estão saindo.';
     $('rem-atual').style.color=i.origem==='nenhum'?'#b3261e':'';
-    if(i.origem==='painel'){$('rem-user').value=i.usuario;$('rem-nome').value=i.nome||'';$('rem-senha').placeholder='Deixe em branco para manter a senha salva';}
-    $('rem-remover').hidden=i.origem!=='painel';
+    if(i.origem==='painel'){$('rem-user').value=i.usuario;$('rem-nome').value=i.nome||'';}
+    $('rem-remover').hidden=i.origem!=='painel';modoRem();
     emailOk=i.origem!=='nenhum';
   }
   async function carregaRem(){try{pintaRem(await api('GET','email-remetente'));}catch(e){}}
   $('rem-salvar').onclick=async function(){
     this.disabled=true;remMsg('Salvando…',true);
-    try{var i=await api('POST','email-remetente',{usuario:$('rem-user').value,nome:$('rem-nome').value,senha:$('rem-senha').value});$('rem-senha').value='';pintaRem(i);remMsg('E-mail de envio salvo. Agora clique em "Enviar e-mail de teste" para conferir.',true);$('c-email-st').textContent='✅ Envio de e-mail configurado.';}
+    try{var i=await api('POST','email-remetente',{servico:servRem(),usuario:$('rem-user').value,login:$('rem-login').value,nome:$('rem-nome').value,senha:$('rem-senha').value});$('rem-senha').value='';pintaRem(i);remMsg('E-mail de envio salvo. Agora clique em "Enviar e-mail de teste" para conferir.',true);$('c-email-st').textContent='✅ Envio de e-mail configurado.';}
     catch(err){if(err.message!=='login')remMsg(err.message);}finally{this.disabled=false;}
   };
   $('rem-remover').onclick=async function(){try{var i=await api('POST','email-remetente',{remover:true});pintaRem(i);$('rem-user').value='';$('rem-nome').value='';remMsg('Voltou a usar o e-mail das variáveis do Vercel (se existir).',true);}catch(err){if(err.message!=='login')remMsg(err.message);}};
@@ -947,7 +975,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
     var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-l-nao').checked=l.naoAtendeu!==false;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
-    pintaWhats();carregaRem();
+    pintaWhats();carregaRem();if(!$('ia-chave').dataset.ok){$('ia-chave').dataset.ok=1;carregaIA(false);}
     $('c-email-st').textContent=emailOk?'✅ Envio de e-mail configurado.':'⚠️ O envio de e-mail ainda não está configurado no Vercel (EMAIL_USUARIO e EMAIL_SENHA_APP). Sem isso, os e-mails ficam desligados.';
     $('c-feed').textContent=location.origin+'/api/agendamento?acao=feed&chave='+(cfgEd.icsChave||'');
     $('c-embed').textContent='<iframe src="'+siteAgenda+'" style="width:100%;min-height:1100px;border:0" title="Agende seu atendimento WhatsMenu"></iframe>';
