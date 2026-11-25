@@ -817,9 +817,13 @@ module.exports = async function handler(req, res) {
       const raw = await redis(['HGET', K.reservas, limpa(b.id, 30)]);
       if (!raw) return res.status(404).json({ erro: 'Agendamento não encontrado.' });
       const r = JSON.parse(raw);
-      if (b.desfazer) { delete r.emAtendimento; historico(r, eu.nome, 'Desmarcou "em atendimento"'); }
+      if (b.desfazer) { if (r.emAtendimento) { delete r.emAtendimento; historico(r, eu.nome, 'Soltou o cliente (saiu de "em atendimento")'); } }
+      else if (r.emAtendimento && r.emAtendimento.usuario && r.emAtendimento.usuario !== eu.usuario) {
+        return res.status(409).json({ erro: 'Esse cliente já foi puxado por ' + r.emAtendimento.por + '.', reserva: paraEquipe(r, c) });
+      }
       else if (!r.emAtendimento) {
-        r.emAtendimento = { por: eu.nome, em: Date.now() };
+        if ((r.status || 'aguardando') !== 'aguardando') return res.status(400).json({ erro: 'Só dá para puxar clientes que estão aguardando.' });
+        r.emAtendimento = { por: eu.nome, usuario: eu.usuario, em: Date.now() };
         if (!r.alarmeParado) r.alarmeParado = { por: eu.nome, em: Date.now() };
         if (!r.consultor) { r.consultor = eu.usuario; r.consultorNome = eu.nome; }
         historico(r, eu.nome, 'Iniciou o atendimento');
@@ -872,6 +876,7 @@ module.exports = async function handler(req, res) {
         if (erro) return res.status(409).json({ erro: 'Não dá para reativar: ' + erro.toLowerCase() });
       }
       r.status = novo; r.statusPor = eu.nome; r.statusEm = Date.now();
+      if (novo !== 'aguardando' || antes !== 'aguardando') delete r.emAtendimento;
       historico(r, eu.nome, 'Status: ' + novo);
       await salvar(r);
       if (novo === 'cancelado' && antes !== 'cancelado' && b.avisar) { try { await emailCliente('cancelado', r, c); } catch (e) {} }
