@@ -727,11 +727,46 @@ module.exports = async function handler(req, res) {
       if (!data) faltando.push('dia');
       if (!hora) faltando.push('horário');
       if (faltando.length) return res.status(200).json({ ok: false, mensagem: 'Não agendei ainda. Falta pedir ao cliente: ' + faltando.join(', ') + '.' });
-      // já tem atendimento marcado com esse WhatsApp?
+      // já tem atendimento marcado (ou um "não atendeu" recente) com esse WhatsApp? Então a IA REMARCA esse mesmo agendamento.
       const fone = dados.whatsapp.replace(/\D/g, '').slice(-11);
       const hojeStr = ymd(agoraBR());
-      const ja = reservas.find((r) => ['aguardando', 'pendente'].includes(r.status) && r.data >= hojeStr && String(r.whatsapp || '').replace(/\D/g, '').slice(-11) === fone && !(r.status === 'pendente' && (r.expiraEm || 0) < Date.now()));
-      if (ja) return res.status(200).json({ ok: false, jaAgendado: true, mensagem: 'Esse cliente já tem atendimento marcado ' + comArtigo(dataBonita(ja.data)) + ' às ' + ja.hora + '. Para trocar o horário, ele pode usar este link: ' + linkGerenciar(ja) });
+      const limiteNA = ymd(new Date(agoraBR().getTime() - 30 * 86400e3));
+      const mesmoFone = (x) => String(x.whatsapp || '').replace(/\D/g, '').slice(-11) === fone;
+      const ja = reservas.filter((x) => mesmoFone(x) && (
+        (['aguardando', 'pendente'].includes(x.status) && x.data >= hojeStr && !(x.status === 'pendente' && (x.expiraEm || 0) < Date.now())) ||
+        (x.status === 'nao-atendeu' && x.data >= limiteNA)))
+        .sort((x, y) => (y.criadoEm || 0) - (x.criadoEm || 0))[0];
+      if (ja) {
+        const primeiro = String(ja.nome || dados.nome).split(' ')[0];
+        if (ja.data === data && ja.hora === hora && ja.status !== 'nao-atendeu') {
+          return res.status(200).json({ ok: true, id: ja.id, data: ja.data, hora: ja.hora, mensagem: primeiro + ', seu atendimento já está marcado ' + comArtigo(dataBonita(ja.data)) + ' às ' + ja.hora + ' (horário de Brasília). Até lá! 💚' + (linkDaChamada(ja, c) ? ' Link da chamada: ' + linkDaChamada(ja, c) : '') });
+        }
+        const curta = (d) => dataBonita(d).replace(/\/\d{4}$/, '');
+        const antes = curta(ja.data) + ' às ' + ja.hora;
+        let rr;
+        try {
+          const atual = JSON.parse(await redis(['HGET', K.reservas, ja.id]));
+          atual.status = atual.status || 'aguardando';
+          if (atual.status === 'nao-atendeu') atual.status = 'aguardando';
+          if (dados.email && !atual.email) atual.email = dados.email;
+          rr = await remarcar(c, atual, data, hora, 'IA TousChat');
+          historico(rr, 'IA TousChat', 'Remarcado pela IA da TousChat (WhatsApp) a pedido do cliente');
+          await salvar(rr);
+        } catch (e) {
+          const dia = montarAgenda(c, await todasReservas(), ja.id).find((d) => d.data === data);
+          const outros = dia ? livresDoDia(dia) : [];
+          return res.status(200).json({ ok: false, mensagem: 'Não consegui remarcar: ' + e.message + (outros.length ? ' Horários livres nesse dia: ' + outros.join(', ') + '. Ofereça um deles ao cliente.' : ' Consulte os horários livres de novo e ofereça outro dia ao cliente.') });
+        }
+        let emailOk = false;
+        try { emailOk = await emailCliente('remarcado', rr, c); } catch (e) { emailOk = false; }
+        const chamada = linkDaChamada(rr, c);
+        return res.status(200).json({
+          ok: true, remarcado: true, id: rr.id, data: rr.data, hora: rr.hora,
+          mensagem: 'Pronto, ' + primeiro + '! Remarquei seu atendimento de ' + antes + ' para ' + curta(rr.data) + ' às ' + rr.hora + ' (horário de Brasília). 💚' +
+            (emailOk ? ' Você vai receber a confirmação no e-mail ' + rr.email + '.' : '') + (chamada ? ' Link da chamada: ' + chamada : ''),
+          linkChamada: chamada || '', emailEnviado: emailOk,
+        });
+      }
       let r;
       try {
         r = await criarReserva({ c, data, hora, tipoId: limpa(b.tipo, 30), dados, origem: 'touschat', hist: { quem: 'IA TousChat', texto: 'Agendado pela IA da TousChat (WhatsApp)' } });
