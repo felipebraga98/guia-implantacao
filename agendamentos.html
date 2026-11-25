@@ -14,7 +14,7 @@ html{scrollbar-gutter:stable}
 :root{
   --green:#00a63e; --green-deep:#007a2e; --green-soft:#e6f6ec; --green-tint:#f2faf5; --forest:#0f3b22; --yellow:#ffd23f;
   --card:#fff; --ink:#14251b; --muted:#4f6357; --line:#d7e6dc; --off:#f1f4f2;
-  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fdecec; --blue:#1d4ed8; --blue-soft:#e8efff; --violet:#6d28d9; --violet-soft:#f1eafe;
+  --warn:#9a5b00; --warn-soft:#fff3dc; --bad:#b3261e; --bad-soft:#fdecec; --blue:#1d4ed8; --blue-soft:#e8efff; --violet:#6d28d9; --violet-soft:#f1eafe; --amarelo:#eab308; --amarelo-soft:#fff7cc;
   --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
   color-scheme:light;
@@ -104,7 +104,8 @@ a.btn{text-decoration:none;display:inline-block}
 .ev b{display:block;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
 .ev.s-atendido{background:var(--green-soft);border-left-color:var(--green)}
-.ev.s-nao-atendeu{background:var(--warn-soft);border-left-color:#d97706}
+.ev.s-nao-atendeu{background:var(--bad-soft);border-left-color:var(--bad)}
+.ev.em-atend{background:var(--amarelo-soft);border-left-color:var(--amarelo)}
 .ev.s-cancelado{background:var(--off);border-left-color:#9aa8a0;text-decoration:line-through;opacity:.7}
 .ev.s-pendente{background:var(--violet-soft);border-left-color:var(--violet)}
 .legenda{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:.82rem;color:var(--muted)}
@@ -126,7 +127,10 @@ a.btn{text-decoration:none;display:inline-block}
 .tag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.75rem;font-weight:700;margin-left:6px;vertical-align:middle;white-space:nowrap}
 .t-aguardando{background:var(--blue-soft);color:var(--blue)}
 .t-atendido{background:var(--green-soft);color:var(--green-deep)}
-.t-nao-atendeu{background:var(--warn-soft);color:var(--warn)}
+.t-nao-atendeu{background:var(--bad-soft);color:var(--bad)}
+.t-emat{background:var(--amarelo-soft);color:#7a5a00}
+.item.em-atend{box-shadow:inset 4px 0 0 var(--amarelo);padding-left:10px}
+.item.nao-atendeu{box-shadow:inset 4px 0 0 var(--bad);padding-left:10px}
 .t-cancelado{background:var(--bad-soft);color:var(--bad)}
 .t-pendente{background:var(--violet-soft);color:var(--violet)}
 .t-cons{background:var(--off);color:var(--ink)}
@@ -278,8 +282,8 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       </div>
       <div class="grade-box"><div class="grade" id="grade"></div></div>
       <div class="legenda">
-        <span><i style="background:var(--blue)"></i>Aguardando</span><span><i style="background:var(--green)"></i>Atendido</span>
-        <span><i style="background:#d97706"></i>Não atendeu</span><span><i style="background:var(--violet)"></i>Esperando confirmação do e-mail</span>
+        <span><i style="background:var(--blue)"></i>Aguardando (vai ser atendido)</span><span><i style="background:var(--amarelo)"></i>Em atendimento (já puxado por alguém)</span>
+        <span><i style="background:var(--bad)"></i>Não atendeu / precisa reagendar</span><span><i style="background:var(--green)"></i>Atendido (concluído)</span><span><i style="background:var(--violet)"></i>Esperando confirmação do e-mail</span>
         <span><i style="background:#9aa8a0"></i>Cancelado</span><span>Clique num horário vazio para agendar ou bloquear.</span>
       </div>
     </section>
@@ -651,7 +655,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         var cls='cel'+(!aberto?' fora':blq?' bloq':(!passou&&!evs.length?' livre':''))+(passou?' passou':'');
         var clicavel=aberto&&!passou&&!evs.length;
         h+='<div class="'+cls+'" data-d="'+d+'" data-h="'+hr+'"'+(clicavel?' tabindex="0" role="button" aria-label="'+(blq?'Horário bloqueado':'Horário livre')+', '+DSL[dow(d)]+' '+br(d)+' às '+hr+'"':'')+'>'+evs.map(function(r){
-          return '<button type="button" class="ev s-'+r.status+'" data-id="'+r.id+'"><b>'+r.hora+' '+esc(r.nome)+'</b><span>'+esc(r.loja)+(r.consultorNome?' · '+esc(r.consultorNome.split(' ')[0]):'')+'</span></button>';
+          var ema=emAt(r);return '<button type="button" class="ev s-'+r.status+(ema?' em-atend':'')+'" data-id="'+r.id+'"'+(ema?' title="Em atendimento com '+esc(r.emAtendimento.por)+'"':'')+'><b>'+r.hora+' '+esc(r.nome)+'</b><span>'+(ema?'🟡 com '+esc(String(r.emAtendimento.por).split(' ')[0]):esc(r.loja)+(r.consultorNome?' · '+esc(r.consultorNome.split(' ')[0]):''))+'</span></button>';
         }).join('')+'</div>';
       });
     });
@@ -704,18 +708,20 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       var g=grupos[d],nome=d===hoje?'Hoje':d===amanha?'Amanhã':'',rot=cap(g[0].rotulo);
       return '<section class="card dia"><h2>'+(nome||rot)+(nome?' <small>'+esc(rot)+'</small>':'')+' <small>· '+g.filter(function(r){return r.status!=='cancelado'}).length+' agendado(s)</small></h2>'+
         g.map(function(r){
-          return '<div class="item '+r.status+'"><div class="h">'+r.hora+'<small>até '+r.fim+'</small></div>'+
-            '<div><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+(r.emAtendimento&&r.status==='aguardando'?'<span class="tag t-atendido">Em atendimento com '+esc(r.emAtendimento.por)+'</span>':'')+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+
+          var ema=emAt(r);
+          return '<div class="item '+r.status+(ema?' em-atend':'')+'"><div class="h">'+r.hora+'<small>até '+r.fim+'</small></div>'+
+            '<div><b>'+esc(r.nome)+'</b> · '+esc(r.loja)+'<span class="tag t-'+r.status+'">'+ROT[r.status]+'</span>'+(ema?'<span class="tag t-emat">🟡 Em atendimento com '+esc(r.emAtendimento.por)+'</span>':'')+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+
             '<div class="ct">'+esc(r.tipoNome||'Atendimento')+' · '+esc(r.whatsapp)+(r.email?' · '+esc(r.email):'')+' · cód. '+esc(r.id)+(r.origem==='equipe'?' · agendado pela equipe':r.origem==='touschat'?' · agendado pela IA (WhatsApp)':'')+'</div>'+
             (r.notas?'<div class="nt">'+esc(r.notas)+'</div>':'')+'</div>'+
             '<div class="acoes"><a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(r)+'">WhatsApp</a>'+(r.salaWhatsMenu&&r.status==='aguardando'?'<a class="btn g sm" target="_blank" rel="noopener" href="'+esc(r.salaWhatsMenu)+'">📹 Chamada</a>':'')+
-            (r.status==='aguardando'?'<button class="btn g sm" type="button" data-st="atendido" data-id="'+r.id+'">✓ Atendido</button><button class="btn g sm" type="button" data-st="nao-atendeu" data-id="'+r.id+'">Não atendeu</button>':'')+
+            (r.status==='aguardando'?(ema?'<button class="btn g sm" type="button" data-puxa="soltar" data-id="'+r.id+'">Soltar</button>':'<button class="btn y sm" type="button" data-puxa="puxar" data-id="'+r.id+'">🟡 Puxar para mim</button>')+'<button class="btn g sm" type="button" data-st="atendido" data-id="'+r.id+'">✓ Atendido</button><button class="btn g sm" type="button" data-st="nao-atendeu" data-id="'+r.id+'">Não atendeu</button>':'')+
             '<button class="btn sm" type="button" data-det="'+r.id+'">Detalhes</button></div></div>';
         }).join('')+'</section>';
     }).join('')||'<section class="card"><p class="vazio">Nenhum agendamento com esses filtros.</p></section>';
   }
   $('lista').addEventListener('click',async function(e){
     var d=e.target.closest('[data-det]');if(d){abreDet(d.dataset.det);return;}
+    var px=e.target.closest('[data-puxa]');if(px){puxa(px.dataset.id,px.dataset.puxa==='soltar',px);return;}
     var b=e.target.closest('[data-st]');if(!b)return;b.disabled=true;
     try{var j=await api('PATCH','status',{id:b.dataset.id,status:b.dataset.st});atualiza(j.reserva);toast('Status atualizado.'+avisoRemarcar(j));}catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
   });
@@ -733,11 +739,12 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function abreDet(id){
     var r=lista.find(function(x){return x.id===id});if(!r)return;atual=r;
     $('dd-tit').textContent=r.nome+' · '+r.loja;
-    $('dd-tags').innerHTML='<span class="tag t-'+r.status+'" style="margin:0">'+ROT[r.status]+'</span>'+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+(r.alarmeParado?'<span class="tag t-cons">Alarme parado por '+esc(r.alarmeParado.por)+'</span>':'');
+    $('dd-tags').innerHTML='<span class="tag t-'+r.status+'" style="margin:0">'+ROT[r.status]+'</span>'+(emAt(r)?'<span class="tag t-emat">🟡 Em atendimento com '+esc(r.emAtendimento.por)+'</span>':'')+(r.consultorNome?'<span class="tag t-cons">'+esc(r.consultorNome)+'</span>':'')+(r.alarmeParado?'<span class="tag t-cons">Alarme parado por '+esc(r.alarmeParado.por)+'</span>':'');
     $('dd-info').innerHTML='<dt>Quando</dt><dd>'+esc(cap(r.rotulo))+', das '+r.hora+' às '+r.fim+'</dd><dt>Tipo</dt><dd>'+esc(r.tipoNome||'Atendimento')+'</dd>'+
       '<dt>WhatsApp</dt><dd>'+esc(r.whatsapp)+'</dd><dt>E-mail</dt><dd>'+esc(r.email||'—')+'</dd><dt>Código</dt><dd>'+esc(r.id)+' · '+(r.origem==='equipe'?'agendado pela equipe':r.origem==='touschat'?'agendado pela IA (WhatsApp)':r.origem==='google'?'importado do Google':'agendado pelo link')+'</dd>'+
       (r.statusPor?'<dt>Status</dt><dd>'+ROT[r.status]+' por '+esc(r.statusPor)+' em '+dataHora(r.statusEm)+'</dd>':'');
     var ac='<a class="btn wa sm" target="_blank" rel="noopener" href="'+wa(r)+'">Chamar no WhatsApp</a>';
+    if(r.status==='aguardando')ac+=emAt(r)?'<button class="btn g sm" type="button" data-puxa="soltar">Soltar (voltar para azul)</button>':'<button class="btn y sm" type="button" data-puxa="puxar">🟡 Puxar para mim</button>';
     if(r.status==='aguardando'||r.status==='pendente')ac+='<button class="btn g sm" type="button" data-s="atendido">✓ Atendido</button><button class="btn g sm" type="button" data-s="nao-atendeu">Não atendeu</button><button class="btn g sm" type="button" data-s="cancelado" style="color:var(--bad)">Cancelar</button>';
     else ac+='<button class="btn g sm" type="button" data-s="aguardando">Voltar para aguardando</button>';
     $('dd-acoes').innerHTML=ac;
@@ -755,6 +762,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(!$('d-det').open)$('d-det').showModal();
   }
   $('dd-acoes').addEventListener('click',async function(e){
+    var px=e.target.closest('button[data-puxa]');if(px&&atual){puxa(atual.id,px.dataset.puxa==='soltar',px);return;}
     var b=e.target.closest('button[data-s]');if(!b||!atual)return;
     var s=b.dataset.s,avisar=false;
     if(s==='cancelado'){var c=await confirma('Cancelar o atendimento de '+atual.nome+'?','O horário volta a ficar livre para outros clientes.','Cancelar atendimento',!!atual.email&&emailOk);if(!c)return;avisar=c.avisar;}
@@ -768,6 +776,14 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     try{var j=await api('PATCH','editar',{id:atual.id,consultor:$('dd-cons').value,linkVideo:$('dd-video').value,notas:$('dd-notas').value,nome:$('dd-nome').value,loja:$('dd-loja').value,whatsapp:$('dd-wa').value,email:$('dd-email').value});
       atualiza(j.reserva);toast('Alterações salvas.');$('d-det').close();}catch(err){if(err.message!=='login')$('dd-msg').textContent=err.message;}
   };
+  function emAt(r){return !!(r&&r.emAtendimento&&r.status==='aguardando');}
+  async function puxa(id,soltar,bt){
+    var r=lista.find(function(x){return x.id===id});
+    if(soltar&&r&&r.emAtendimento&&eu&&r.emAtendimento.usuario&&r.emAtendimento.usuario!==eu.usuario){var c=await confirma('Soltar o cliente?','Ele está em atendimento com '+r.emAtendimento.por+'. Ao soltar, volta para azul (aguardando) para toda a equipe.','Soltar');if(!c)return;}
+    if(bt)bt.disabled=true;
+    try{var j=await api('POST','em-atendimento',soltar?{id:id,desfazer:true}:{id:id});atualiza(j.reserva);if($('d-det').open&&atual&&atual.id===id)abreDet(id);toast(soltar?'Cliente solto: voltou para aguardando.':'Cliente puxado para você (amarelo para toda a equipe).');if(window.WMAlertas)WMAlertas.atualizar();}
+    catch(err){if(err.message!=='login'){toast(err.message);carregar(true);}if(bt)bt.disabled=false;}
+  }
   $('prox-acts').addEventListener('click',async function(e){
     var b=e.target.closest('#b-ematend');if(!b||!proxId)return;b.disabled=true;
     try{var j=await api('POST','em-atendimento',{id:proxId});atualiza(j.reserva);toast('Marcado como em atendimento. O aviso sumiu para toda a equipe.');if(window.WMAlertas)WMAlertas.atualizar();}
