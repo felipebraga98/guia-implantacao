@@ -1,4 +1,4 @@
-// Envio de e-mail pelo Gmail.
+// Envio de e-mail pelo Gmail ou pelo Brevo (serviço de envio grátis, não precisa de senha de app).
 // O e-mail que envia pode ser escolhido pelos administradores na página Agendamentos (fica guardado no banco),
 // ou vir das variáveis EMAIL_USUARIO + EMAIL_SENHA_APP do Vercel. Sem nada disso, os e-mails são pulados.
 
@@ -22,8 +22,11 @@ async function carregar(forcar) {
   return remetente;
 }
 function credenciais() {
-  if (remetente && remetente.usuario && remetente.senha) return { user: remetente.usuario, pass: remetente.senha, nome: remetente.nome || 'WhatsMenu', origem: 'painel' };
-  if (process.env.EMAIL_USUARIO && process.env.EMAIL_SENHA_APP) return { user: process.env.EMAIL_USUARIO, pass: process.env.EMAIL_SENHA_APP, nome: 'WhatsMenu', origem: 'vercel' };
+  if (remetente && remetente.usuario && remetente.senha) {
+    const brevo = remetente.servico === 'brevo';
+    return { user: remetente.usuario, login: brevo ? (remetente.login || remetente.usuario) : remetente.usuario, pass: remetente.senha, nome: remetente.nome || 'WhatsMenu', origem: 'painel', servico: brevo ? 'brevo' : 'gmail' };
+  }
+  if (process.env.EMAIL_USUARIO && process.env.EMAIL_SENHA_APP) return { user: process.env.EMAIL_USUARIO, login: process.env.EMAIL_USUARIO, pass: process.env.EMAIL_SENHA_APP, nome: 'WhatsMenu', origem: 'vercel', servico: 'gmail' };
   return null;
 }
 function emailConfigurado() { return !!credenciais(); }
@@ -33,9 +36,11 @@ async function enviarEmail({ para, assunto, texto, html, anexos }) {
   const cr = credenciais();
   if (!cr || !para) return false;
   const nodemailer = require('nodemailer');
-  const k = cr.user + '|' + cr.pass;
+  const k = cr.servico + '|' + cr.login + '|' + cr.pass;
   if (!transporte || chaveTransporte !== k) {
-    transporte = nodemailer.createTransport({ service: 'gmail', auth: { user: cr.user, pass: cr.pass } });
+    transporte = cr.servico === 'brevo'
+      ? nodemailer.createTransport({ host: 'smtp-relay.brevo.com', port: 587, secure: false, auth: { user: cr.login, pass: cr.pass } })
+      : nodemailer.createTransport({ service: 'gmail', auth: { user: cr.login, pass: cr.pass } });
     chaveTransporte = k;
   }
   await transporte.sendMail({
@@ -57,7 +62,7 @@ async function salvarRemetente(dados) {
 }
 function infoRemetente() {
   const cr = credenciais();
-  return { usuario: cr ? cr.user : '', nome: cr ? cr.nome : 'WhatsMenu', origem: cr ? cr.origem : 'nenhum', temSenha: !!(remetente && remetente.senha) };
+  return { usuario: cr ? cr.user : '', nome: cr ? cr.nome : 'WhatsMenu', origem: cr ? cr.origem : 'nenhum', servico: cr ? cr.servico : 'gmail', login: cr && cr.servico === 'brevo' ? cr.login : '', temSenha: !!(remetente && remetente.senha) };
 }
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

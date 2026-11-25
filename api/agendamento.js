@@ -470,7 +470,7 @@ function validaCliente(d) {
   return '';
 }
 
-async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, consultor, ignorarAntecedencia }) {
+async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, consultor, ignorarAntecedencia, hist }) {
   return comTrava(data, async () => {
     const reservas = await todasReservas();
     const erro = horarioLivre(c, reservas, data, hora, null, ignorarAntecedencia);
@@ -486,7 +486,7 @@ async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, c
     if (r.status === 'pendente') r.expiraEm = Date.now() + 30 * 60e3;
     await garantirSala(r);
     if (consultor) { r.consultor = consultor.usuario; r.consultorNome = consultor.nome; }
-    historico(r, eu ? eu.nome : 'Cliente', eu ? 'Agendado pela equipe' : 'Agendado pelo link');
+    if (hist) historico(r, hist.quem, hist.texto); else historico(r, eu ? eu.nome : 'Cliente', eu ? 'Agendado pela equipe' : 'Agendado pelo link');
     await salvar(r);
     await redis(['HSET', K.tokens, r.token, r.id]);
     return r;
@@ -514,6 +514,60 @@ async function usuariosEquipe() {
     try { const u = JSON.parse(arr[i + 1]); if (!u.bloqueado) out.push({ usuario: u.usuario, nome: u.nome || u.usuario }); } catch (e) {}
   }
   return out.sort((a, b) => a.nome.localeCompare(b.nome));
+}
+
+// ---------- IA da TousChat (habilidade "Acionar API") ----------
+const CHAVE_IA = 'agenda:ia:chave';
+async function chaveIA(gerarNova) {
+  let k = gerarNova ? '' : await redis(['GET', CHAVE_IA]);
+  if (!k) { k = 'wmia-' + crypto.randomBytes(18).toString('hex'); await redis(['SET', CHAVE_IA, k]); }
+  return k;
+}
+function chaveRecebida(req, b) {
+  const h = req.headers || {};
+  const auth = String(h.authorization || h.Authorization || '').replace(/^Bearer\s+/i, '').trim();
+  return auth || String(h['x-chave'] || '').trim() || String(b.chave || '').trim() || param(req, 'chave');
+}
+// junta o que veio no corpo e na URL (a TousChat pode mandar de um jeito ou de outro)
+function camposIA(req) {
+  const b = Object.assign({}, lerBody(req));
+  try { new URL(req.url, 'http://x').searchParams.forEach((v, k) => { if (b[k] == null || b[k] === '') b[k] = v; }); } catch (e) {}
+  return b;
+}
+// entende "2026-11-25", "25/11", "25/11/2026", "25-11", "hoje", "amanhã"
+function dataIA(v) {
+  const t = String(v || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (!t) return '';
+  const hoje = agoraBR(); hoje.setUTCHours(0, 0, 0, 0);
+  if (t === 'hoje') return ymd(hoje);
+  if (t === 'amanha') return ymd(new Date(hoje.getTime() + 86400e3));
+  if (t === 'depois de amanha') return ymd(new Date(hoje.getTime() + 2 * 86400e3));
+  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0');
+  m = t.match(/(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?/);
+  if (m) {
+    let ano = m[3] ? (m[3].length === 2 ? '20' + m[3] : m[3]) : String(hoje.getUTCFullYear());
+    let d = ano + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+    if (!m[3] && d < ymd(hoje)) d = (+ano + 1) + d.slice(4); // 05/01 dito em dezembro = ano que vem
+    return d;
+  }
+  return '';
+}
+// entende "10:00", "10h", "10h30", "10", "9:30"
+function horaIA(v) {
+  const m = String(v || '').trim().toLowerCase().match(/^(\d{1,2})(?:\s*[:h]\s*(\d{2}))?\s*h?(?:rs?)?$/);
+  if (!m || +m[1] > 23) return '';
+  return m[1].padStart(2, '0') + ':' + (m[2] || '00');
+}
+function dispositivoIA(v) {
+  const t = String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (/celular|telefone|smartphone|iphone|android|mobile|cel\b/.test(t)) return 'celular';
+  if (/comput|pc|notebook|note\b|desktop|laptop|mac/.test(t)) return 'computador';
+  return '';
+}
+function livresDoDia(dia) { return dia.horarios.filter((h) => h.vagas > 0).map((h) => h.hora); }
+function textoHorarios(dias, max) {
+  return dias.map((d) => { const hs = livresDoDia(d); const mostra = max && hs.length > max ? hs.slice(0, max).join(', ') + ' (e mais ' + (hs.length - max) + ')' : hs.join(', '); return '• ' + d.rotulo.replace(/\/\d{4}$/, '') + ': ' + mostra; }).join('\n');
 }
 
 function acaoDe(req) {
@@ -636,6 +690,67 @@ module.exports = async function handler(req, res) {
       const enviados = await enviarLembretes(c, todas);
       const whats = await enviarWhats(c, todas).catch(() => 0);
       return res.status(200).json({ ok: true, enviados, whats });
+    }
+
+    // ===== IA da TousChat: consultar horários e agendar (protegido pela chave) =====
+    if (acao === 'ia-horarios' || acao === 'ia-agendar') {
+      const b = camposIA(req);
+      const chave = chaveRecebida(req, b);
+      const certa = await redis(['GET', CHAVE_IA]);
+      if (!certa || !chave || chave !== certa) return res.status(401).json({ ok: false, mensagem: 'Chave da agenda inválida. Confira a chave em Agendamentos › Configurações › WhatsApp (TousChat).' });
+      const reservas = await todasReservas();
+      const agenda = montarAgenda(c, reservas).filter((d) => livresDoDia(d).length);
+
+      if (acao === 'ia-horarios') {
+        const data = dataIA(b.data || b.dia);
+        if (data) {
+          const dia = agenda.find((d) => d.data === data);
+          if (dia) return res.status(200).json({ ok: true, mensagem: 'Horários livres ' + comArtigo(dia.rotulo.replace(/\/\d{4}$/, '')) + ': ' + livresDoDia(dia).join(', ') + '.', dias: [{ data: dia.data, dia: dia.rotulo, horarios: livresDoDia(dia) }] });
+          const prox = agenda.filter((d) => d.data > data).slice(0, 3);
+          return res.status(200).json({ ok: true, mensagem: 'Não há horários livres em ' + dataBonita(data).replace(/\/\d{4}$/, '') + '.' + (prox.length ? ' Próximos dias com horário:\n' + textoHorarios(prox, 8) : ''), dias: prox.map((d) => ({ data: d.data, dia: d.rotulo, horarios: livresDoDia(d) })) });
+        }
+        const n = Math.min(14, Math.max(1, parseInt(b.dias, 10) || 5));
+        const lista = agenda.slice(0, n);
+        if (!lista.length) return res.status(200).json({ ok: true, mensagem: 'No momento não há horários livres na agenda. Ofereça falar com a equipe de Implantação.', dias: [] });
+        return res.status(200).json({ ok: true, mensagem: 'Horários livres (horário de Brasília):\n' + textoHorarios(lista, 8), dias: lista.map((d) => ({ data: d.data, dia: d.rotulo, horarios: livresDoDia(d) })) });
+      }
+
+      // ia-agendar
+      const data = dataIA(b.data || b.dia), hora = horaIA(b.hora || b.horario);
+      const disp = dispositivoIA(b.dispositivo || b.aparelho);
+      const dados = dadosCliente({ nome: b.nome, whatsapp: b.whatsapp || b.telefone || b.celular, email: b.email, dispositivo: disp });
+      const faltando = [];
+      if (dados.nome.length < 2) faltando.push('nome completo');
+      if (dados.whatsapp.replace(/\D/g, '').length < 10) faltando.push('WhatsApp com DDD');
+      if (!EMAIL_RE.test(dados.email)) faltando.push('e-mail');
+      if (!disp) faltando.push('se vai usar computador ou celular');
+      if (!data) faltando.push('dia');
+      if (!hora) faltando.push('horário');
+      if (faltando.length) return res.status(200).json({ ok: false, mensagem: 'Não agendei ainda. Falta pedir ao cliente: ' + faltando.join(', ') + '.' });
+      // já tem atendimento marcado com esse WhatsApp?
+      const fone = dados.whatsapp.replace(/\D/g, '').slice(-11);
+      const hojeStr = ymd(agoraBR());
+      const ja = reservas.find((r) => ['aguardando', 'pendente'].includes(r.status) && r.data >= hojeStr && String(r.whatsapp || '').replace(/\D/g, '').slice(-11) === fone && !(r.status === 'pendente' && (r.expiraEm || 0) < Date.now()));
+      if (ja) return res.status(200).json({ ok: false, jaAgendado: true, mensagem: 'Esse cliente já tem atendimento marcado ' + comArtigo(dataBonita(ja.data)) + ' às ' + ja.hora + '. Para trocar o horário, ele pode usar este link: ' + linkGerenciar(ja) });
+      let r;
+      try {
+        r = await criarReserva({ c, data, hora, tipoId: limpa(b.tipo, 30), dados, origem: 'touschat', hist: { quem: 'IA TousChat', texto: 'Agendado pela IA da TousChat (WhatsApp)' } });
+      } catch (e) {
+        const dia = montarAgenda(c, await todasReservas()).find((d) => d.data === data);
+        const outros = dia ? livresDoDia(dia) : [];
+        return res.status(200).json({ ok: false, mensagem: 'Não consegui agendar: ' + e.message + (outros.length ? ' Horários livres nesse dia: ' + outros.join(', ') + '.' : ' Consulte os horários livres de novo e ofereça outro dia.') });
+      }
+      let emailOk = false;
+      try { emailOk = c.lembretes.confirmacao ? await emailCliente('confirmado', r, c) : false; } catch (e) { emailOk = false; }
+      try { await avisaDiscord(r); } catch (e) {}
+      const chamada = linkDaChamada(r, c);
+      return res.status(200).json({
+        ok: true, id: r.id, data: r.data, hora: r.hora,
+        mensagem: 'Agendado! ' + r.nome.split(' ')[0] + ', seu atendimento com a equipe WhatsMenu ficou marcado ' + comArtigo(dataBonita(r.data)) + ' às ' + r.hora + ' (horário de Brasília).' +
+          (emailOk ? ' Você vai receber a confirmação no e-mail ' + r.email + '.' : '') +
+          (chamada ? ' Link da chamada: ' + chamada : '') + ' Para remarcar ou cancelar: ' + linkGerenciar(r),
+        linkChamada: chamada || '', linkGerenciar: linkGerenciar(r), emailEnviado: emailOk,
+      });
     }
 
     // ===== área da equipe =====
@@ -857,13 +972,17 @@ module.exports = async function handler(req, res) {
       const b = lerBody(req);
       if (acao === 'email-remetente') {
         if (b.remover) { await MAIL.salvarRemetente(null); return res.status(200).json(MAIL.infoRemetente()); }
+        const servico = b.servico === 'brevo' ? 'brevo' : 'gmail';
         const usuario = limpa(b.usuario, 120).toLowerCase(), nome = limpa(b.nome, 60) || 'WhatsMenu';
-        const senha = String(b.senha || '').replace(/\s+/g, '').slice(0, 64);
-        if (!EMAIL_RE.test(usuario)) return res.status(400).json({ erro: 'Digite o e-mail (Gmail) que vai enviar as mensagens.' });
+        const login = servico === 'brevo' ? limpa(b.login, 120).toLowerCase() : usuario;
+        const senha = String(b.senha || '').replace(/\s+/g, '').slice(0, 200);
+        if (!EMAIL_RE.test(usuario)) return res.status(400).json({ erro: 'Digite o e-mail que vai aparecer como remetente.' });
+        if (servico === 'brevo' && !EMAIL_RE.test(login)) return res.status(400).json({ erro: 'Digite o "Login SMTP" do Brevo (fica em Brevo › SMTP e API › SMTP).' });
         const atual = await MAIL.carregar(true);
-        const senhaFinal = senha || (atual && atual.usuario === usuario ? atual.senha : '');
-        if (!senhaFinal) return res.status(400).json({ erro: 'Digite a senha de app do Gmail desse e-mail.' });
-        await MAIL.salvarRemetente({ usuario, nome, senha: senhaFinal, por: eu.nome, quando: Date.now() });
+        const mesmo = atual && atual.usuario === usuario && (atual.servico || 'gmail') === servico && (servico !== 'brevo' || atual.login === login);
+        const senhaFinal = senha || (mesmo ? atual.senha : '');
+        if (!senhaFinal) return res.status(400).json({ erro: servico === 'brevo' ? 'Cole a chave SMTP do Brevo.' : 'Digite a senha de app do Gmail desse e-mail.' });
+        await MAIL.salvarRemetente({ servico, usuario, login, nome, senha: senhaFinal, por: eu.nome, quando: Date.now() });
         return res.status(200).json(MAIL.infoRemetente());
       }
       // teste: manda um e-mail e devolve o erro do Gmail, se houver
@@ -875,9 +994,18 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ ok: true });
       } catch (e) {
         const m = String(e && e.message || '');
-        const dica = /Invalid login|Username and Password not accepted|535|BadCredentials/i.test(m) ? 'O Gmail recusou o login. Confira o e-mail e use uma SENHA DE APP (não a senha normal da conta).' : m;
+        const brevo = (MAIL.credenciais() || {}).servico === 'brevo';
+        let dica = m;
+        if (/Invalid login|Username and Password not accepted|535|BadCredentials|Authentication failed/i.test(m)) dica = brevo ? 'O Brevo recusou o login. Confira o "Login SMTP" e a chave SMTP (Brevo › SMTP e API › SMTP).' : 'O Gmail recusou o login. Confira o e-mail e use uma SENHA DE APP (não a senha normal da conta).';
+        else if (brevo && /sender|remetente|not (valid|verified)|unauthori[sz]ed/i.test(m)) dica = 'O Brevo não aceitou o remetente. Confirme o e-mail em Brevo › Remetentes (clique no link que chega nesse e-mail). Detalhe: ' + m;
         return res.status(502).json({ erro: dica });
       }
+    }
+
+    if (acao === 'ia-chave') {
+      if (!eu.admin) return res.status(403).json({ erro: 'Só administradores.' });
+      const nova = req.method === 'POST' && lerBody(req).gerar;
+      return res.status(200).json({ chave: await chaveIA(!!nova), site: siteAgenda() });
     }
 
     // ---------- TousChat (só administradores) ----------
