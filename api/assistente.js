@@ -6,6 +6,7 @@
 //   KV_REST_API_URL / KV_REST_API_TOKEN -> opcionais; se existirem, limita 60 perguntas por hora por pessoa
 
 const BASE = require('./_base-conhecimento.js');
+const BASE_TI = require('./_base-informatica.js');
 const crypto = require('crypto');
 const { cfg, redis, equipeLogada, limpa } = require('./_equipe.js');
 const temBanco = () => { const c = cfg(); return !!(c.url && c.token); };
@@ -18,7 +19,12 @@ const LIMITE_HORA = 60;
 
 const INSTRUCOES = `Você é o Assistente WhatsMenu, que ajuda a EQUIPE DE SUPORTE e IMPLANTAÇÃO do WhatsMenu (não o cliente final).
 Responda sempre em português do Brasil, de forma direta e prática, com o caminho exato no menu (ex.: Configurações › Caixas) e passo a passo numerado quando for um procedimento.
-Use SOMENTE as informações da BASE DE CONHECIMENTO abaixo. Se a resposta não estiver na base, diga claramente "Isso não está na minha base" e sugira confirmar com o líder do suporte. Nunca invente telas, botões, preços ou prazos.
+Use SOMENTE as informações das duas bases abaixo: a BASE DE CONHECIMENTO do WhatsMenu e a BASE DE SUPORTE TÉCNICO GERAL (informática, impressoras térmicas 58/80 mm, internet e rede, Windows, navegador, Android, iPhone, Mac, e-mail, acesso remoto, hardware de PDV, nota fiscal, segurança e como analisar prints).
+- Para telas, menus, botões, configurações, planos, preços e prazos DO WHATSMENU, vale só a base do WhatsMenu. Nunca invente telas ou botões do WhatsMenu a partir da base geral.
+- Para problemas fora do sistema (impressora, driver, Windows, internet, celular, navegador, equipamento), use a base de suporte técnico geral.
+- Quando o problema envolver as duas (ex.: impressora não imprime os pedidos), responda primeiro o que conferir no WhatsMenu e depois os passos gerais de diagnóstico, do mais simples para o mais complexo.
+- Em problemas técnicos, comece pelas perguntas de diagnóstico que faltam (se o atendente não informou) e depois dê os passos numerados.
+Se a resposta não estiver em nenhuma das duas bases, diga claramente "Isso não está na minha base" e sugira confirmar com o líder do suporte. Nunca invente telas, botões, preços ou prazos.
 Nunca peça, guarde ou repita senhas, dados de cartão ou dados pessoais de clientes. Se o atendente colar algo assim, avise para não compartilhar.
 Quando fizer sentido, termine com uma sugestão de mensagem curta que o atendente pode mandar para o cliente.
 
@@ -33,7 +39,10 @@ RESPOSTAS RÁPIDAS (AS "BARRAS" /):
 - Quando a pergunta for sobre como fazer algo no sistema e existir uma barra sobre o assunto, responda a dúvida e no final indique a barra correspondente.
 
 ===== BASE DE CONHECIMENTO =====
-${BASE}`;
+${BASE}
+
+===== BASE DE SUPORTE TÉCNICO GERAL =====
+${BASE_TI}`;
 
 function kv() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -193,7 +202,7 @@ module.exports = async function handler(req, res) {
   } else if (img) {
     contents.push({ role: 'user', parts: [
       { inline_data: { mime_type: img.mime, data: img.data } },
-      { text: 'O atendente mandou este print (do painel/PDV WhatsMenu ou de uma conversa com o cliente). Primeiro diga em 1 ou 2 linhas o que aparece no print (tela, erro ou situação). Depois responda à dúvida com o passo a passo para resolver. Não repita nomes, telefones, valores ou outros dados pessoais que aparecerem no print.\n\nDúvida do atendente: ' + (pergunta || 'O que está acontecendo neste print e como resolvo?') }
+      { text: 'O atendente mandou este print ou foto (pode ser do painel/PDV/WhatsMenu Desktop, de uma janela do Windows, do navegador, de um celular Android ou iPhone, de uma conversa com o cliente, ou foto de impressora, cupom ou equipamento). Siga o método da seção T16 da base de suporte técnico: 1) diga em 1 ou 2 linhas onde é e o que aparece, repetindo o texto/código exato do erro se houver; 2) dê a causa mais provável; 3) passe o passo a passo para resolver, do mais simples ao mais complexo; 4) se o print não for suficiente, diga exatamente que outro print ou informação pedir. Se não der para ler ou identificar algo com segurança, diga isso em vez de adivinhar. Não repita nomes, telefones, endereços, e-mails, valores ou outros dados pessoais do print; se aparecer senha, token ou dado de cartão, avise para apagar o print.\n\nDúvida do atendente: ' + (pergunta || 'O que está acontecendo neste print e como resolvo?') }
     ] });
   } else contents.push({ role: 'user', parts: [{ text: pergunta }] });
 
