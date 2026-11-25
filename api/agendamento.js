@@ -693,13 +693,43 @@ module.exports = async function handler(req, res) {
     }
 
     // ===== IA da TousChat: consultar horários e agendar (protegido pela chave) =====
-    if (acao === 'ia-horarios' || acao === 'ia-agendar') {
+    if (acao === 'ia-horarios' || acao === 'ia-agendar' || acao === 'ia-meu-agendamento') {
       const b = camposIA(req);
       const chave = chaveRecebida(req, b);
       const certa = await redis(['GET', CHAVE_IA]);
       if (!certa || !chave || chave !== certa) return res.status(401).json({ ok: false, mensagem: 'Chave da agenda inválida. Confira a chave em Agendamentos › Configurações › WhatsApp (TousChat).' });
       const reservas = await todasReservas();
       const agenda = montarAgenda(c, reservas).filter((d) => livresDoDia(d).length);
+
+      if (acao === 'ia-meu-agendamento') {
+        // procura o agendamento do cliente pelo telefone da conversa (ou pelo e-mail)
+        const dig = (v) => { let d = String(v || '').replace(/\D/g, ''); if (d.length >= 12 && d.startsWith('55')) d = d.slice(2); return d; };
+        const tel = dig(b.telefone || b.whatsapp || b.celular), email = limpa(b.email, 120).toLowerCase();
+        if (tel.length < 8 && !EMAIL_RE.test(email)) return res.status(200).json({ ok: false, encontrado: false, mensagem: 'Não recebi o telefone nem o e-mail do cliente para procurar o agendamento.' });
+        const mesmoTel = (x) => { const t = dig(x.whatsapp); return tel.length >= 8 && t.length >= 8 && t.slice(-8) === tel.slice(-8) && (t.length < 10 || tel.length < 10 || t.slice(0, 2) === tel.slice(0, 2)); };
+        const mesmoEmail = (x) => EMAIL_RE.test(email) && String(x.email || '').toLowerCase() === email;
+        const hojeStr = ymd(agoraBR());
+        const todos = reservas.filter((x) => mesmoTel(x) || mesmoEmail(x));
+        const futuro = todos.filter((x) => ['aguardando', 'pendente'].includes(x.status) && x.data >= hojeStr && !(x.status === 'pendente' && (x.expiraEm || 0) < Date.now()))
+          .sort((x, y) => (x.data + x.hora).localeCompare(y.data + y.hora))[0];
+        if (futuro) {
+          const quando = comArtigo(dataBonita(futuro.data).replace(/\/\d{4}$/, '')) + ' às ' + futuro.hora;
+          const pend = futuro.status === 'pendente';
+          return res.status(200).json({
+            ok: true, encontrado: true, confirmado: !pend, data: futuro.data, hora: futuro.hora, dia: dataBonita(futuro.data),
+            mensagem: pend
+              ? 'Encontrei o agendamento ' + quando + ', mas ele ainda NÃO foi confirmado: o cliente precisa clicar no link de confirmação que chegou no e-mail ' + futuro.email + ' (ver também a caixa de spam). Peça para ele confirmar e avisar.'
+              : 'Agendamento confirmado ' + quando + ' (horário de Brasília). Confirme esse dia e horário com o cliente.',
+            linkChamada: linkDaChamada(futuro, c) || '',
+          });
+        }
+        const ultimo = todos.sort((x, y) => (y.criadoEm || 0) - (x.criadoEm || 0))[0];
+        let extra = '';
+        if (ultimo && ultimo.status === 'cancelado') extra = ' O último agendamento desse cliente foi CANCELADO.';
+        else if (ultimo && ultimo.status === 'nao-atendeu') extra = ' O cliente tinha um atendimento ' + comArtigo(dataBonita(ultimo.data)) + ' e não atendeu; ele precisa reagendar.';
+        else if (ultimo && ultimo.status === 'atendido') extra = ' O último atendimento desse cliente já foi realizado (' + dataBonita(ultimo.data) + ').';
+        return res.status(200).json({ ok: true, encontrado: false, mensagem: 'Não encontrei nenhum agendamento futuro para este cliente.' + extra + ' Diga com gentileza que não localizou o agendamento e peça para ele conferir se concluiu no link até aparecer a tela de "Agendamento confirmado", ou se agendou com outro WhatsApp ou e-mail. Se ele informar outro e-mail, procure de novo com esse e-mail.' });
+      }
 
       if (acao === 'ia-horarios') {
         const data = dataIA(b.data || b.dia);
