@@ -566,8 +566,15 @@ function dispositivoIA(v) {
   return '';
 }
 function livresDoDia(dia) { return dia.horarios.filter((h) => h.vagas > 0).map((h) => h.hora); }
-function textoHorarios(dias, max) {
-  return dias.map((d) => { const hs = livresDoDia(d); const mostra = max && hs.length > max ? hs.slice(0, max).join(', ') + ' (e mais ' + (hs.length - max) + ')' : hs.join(', '); return '• ' + d.rotulo.replace(/\/\d{4}$/, '') + ': ' + mostra; }).join('\n');
+// junta horários seguidos em faixas: "10:00, 10:30, 11:00, 14:00" -> "das 10:00 às 11:00 e 14:00"
+function faixasTexto(hs, passo) {
+  const grupos = [];
+  hs.forEach((h) => { const g = grupos[grupos.length - 1]; if (g && paraMin(h) - paraMin(g[g.length - 1]) === passo) g.push(h); else grupos.push([h]); });
+  const partes = grupos.map((g) => (g.length >= 3 ? 'das ' + g[0] + ' às ' + g[g.length - 1] : g.join(', ')));
+  return partes.length > 1 ? partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1] : partes[0] || '';
+}
+function textoHorarios(dias, passo) {
+  return dias.map((d) => '• ' + d.rotulo.replace(/\/\d{4}$/, '').replace(/^./, (x) => x.toUpperCase()) + ': ' + faixasTexto(livresDoDia(d), passo)).join('\n');
 }
 
 function acaoDe(req) {
@@ -715,11 +722,12 @@ module.exports = async function handler(req, res) {
         if (futuro) {
           const quando = comArtigo(dataBonita(futuro.data).replace(/\/\d{4}$/, '')) + ' às ' + futuro.hora;
           const pend = futuro.status === 'pendente';
+          const disp = /celular/i.test(futuro.loja || '') ? 'celular' : /computador/i.test(futuro.loja || '') ? 'computador' : '';
           return res.status(200).json({
-            ok: true, encontrado: true, confirmado: !pend, data: futuro.data, hora: futuro.hora, dia: dataBonita(futuro.data),
+            ok: true, encontrado: true, confirmado: !pend, data: futuro.data, hora: futuro.hora, dia: dataBonita(futuro.data), dispositivo: disp,
             mensagem: pend
               ? 'Encontrei o agendamento ' + quando + ', mas ele ainda NÃO foi confirmado: o cliente precisa clicar no link de confirmação que chegou no e-mail ' + futuro.email + ' (ver também a caixa de spam). Peça para ele confirmar e avisar.'
-              : 'Agendamento confirmado ' + quando + ' (horário de Brasília). Confirme esse dia e horário com o cliente.',
+              : 'Agendamento confirmado ' + quando + ' (horário de Brasília).' + (disp ? ' No agendamento, o cliente marcou que vai usar: ' + disp + '.' : '') + ' Confirme esse dia e horário com o cliente.',
             linkChamada: linkDaChamada(futuro, c) || '',
           });
         }
@@ -728,21 +736,21 @@ module.exports = async function handler(req, res) {
         if (ultimo && ultimo.status === 'cancelado') extra = ' O último agendamento desse cliente foi CANCELADO.';
         else if (ultimo && ultimo.status === 'nao-atendeu') extra = ' O cliente tinha um atendimento ' + comArtigo(dataBonita(ultimo.data)) + ' e não atendeu; ele precisa reagendar.';
         else if (ultimo && ultimo.status === 'atendido') extra = ' O último atendimento desse cliente já foi realizado (' + dataBonita(ultimo.data) + ').';
-        return res.status(200).json({ ok: true, encontrado: false, mensagem: 'Não encontrei nenhum agendamento futuro para este cliente.' + extra + ' Diga com gentileza que não localizou o agendamento e peça para ele conferir se concluiu no link até aparecer a tela de "Agendamento confirmado", ou se agendou com outro WhatsApp ou e-mail. Se ele informar outro e-mail, procure de novo com esse e-mail.' });
+        return res.status(200).json({ ok: true, encontrado: false, mensagem: 'Não encontrei nenhum agendamento futuro para este cliente.' + extra + ' Diga com gentileza que não localizou o agendamento e ofereça você mesma os dias e horários livres (use a habilidade "Consultar horários da agenda" e envie todos numa única mensagem). Se o cliente disser que agendou com outro e-mail, procure de novo com esse e-mail.' });
       }
 
       if (acao === 'ia-horarios') {
         const data = dataIA(b.data || b.dia);
         if (data) {
           const dia = agenda.find((d) => d.data === data);
-          if (dia) return res.status(200).json({ ok: true, mensagem: 'Horários livres ' + comArtigo(dia.rotulo.replace(/\/\d{4}$/, '')) + ': ' + livresDoDia(dia).join(', ') + '.', dias: [{ data: dia.data, dia: dia.rotulo, horarios: livresDoDia(dia) }] });
+          if (dia) return res.status(200).json({ ok: true, mensagem: 'Horários livres ' + comArtigo(dia.rotulo.replace(/\/\d{4}$/, '')) + ' (horário de Brasília, um atendimento começa a cada ' + c.passo + ' minutos): ' + faixasTexto(livresDoDia(dia), c.passo) + '.', dias: [{ data: dia.data, dia: dia.rotulo, horarios: livresDoDia(dia) }] });
           const prox = agenda.filter((d) => d.data > data).slice(0, 3);
-          return res.status(200).json({ ok: true, mensagem: 'Não há horários livres em ' + dataBonita(data).replace(/\/\d{4}$/, '') + '.' + (prox.length ? ' Próximos dias com horário:\n' + textoHorarios(prox, 8) : ''), dias: prox.map((d) => ({ data: d.data, dia: d.rotulo, horarios: livresDoDia(d) })) });
+          return res.status(200).json({ ok: true, mensagem: 'Não há horários livres em ' + dataBonita(data).replace(/\/\d{4}$/, '') + '.' + (prox.length ? ' Próximos dias com horário:\n' + textoHorarios(prox, c.passo) : ''), dias: prox.map((d) => ({ data: d.data, dia: d.rotulo, horarios: livresDoDia(d) })) });
         }
         const n = Math.min(14, Math.max(1, parseInt(b.dias, 10) || 5));
         const lista = agenda.slice(0, n);
         if (!lista.length) return res.status(200).json({ ok: true, mensagem: 'No momento não há horários livres na agenda. Ofereça falar com a equipe de Implantação.', dias: [] });
-        return res.status(200).json({ ok: true, mensagem: 'Horários livres (horário de Brasília):\n' + textoHorarios(lista, 8), dias: lista.map((d) => ({ data: d.data, dia: d.rotulo, horarios: livresDoDia(d) })) });
+        return res.status(200).json({ ok: true, mensagem: 'Horários livres (horário de Brasília; dentro de cada faixa, um atendimento começa a cada ' + c.passo + ' minutos):\n' + textoHorarios(lista, c.passo), dias: lista.map((d) => ({ data: d.data, dia: d.rotulo, horarios: livresDoDia(d) })) });
       }
 
       // ia-agendar
