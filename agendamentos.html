@@ -413,10 +413,11 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
         <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><input id="w-tel" inputmode="tel" placeholder="Seu WhatsApp com DDD" style="max-width:220px"><button type="button" class="btn y sm" id="w-teste">Enviar teste</button><span class="muted" id="w-teste-st" style="font-size:.88rem"></span></div>
         <p class="muted" style="font-size:.82rem;margin:10px 0 0">Depois de mudar alguma coisa aqui, clique em <b>Salvar configurações</b>.</p>
         <h4 class="cfg-sub">🤖 IA da TousChat agenda pelo WhatsApp</h4>
-        <p class="muted" style="margin:0 0 8px;font-size:.88rem">Na IA da TousChat, crie duas habilidades <b>Acionar API</b>: uma para <b>consultar os horários livres</b> e outra para <b>agendar</b>. Use os endereços e a chave abaixo. O agendamento feito pela IA aparece aqui como "agendado pela IA (WhatsApp)" e o cliente recebe a confirmação por e-mail.</p>
+        <p class="muted" style="margin:0 0 8px;font-size:.88rem">Na IA da TousChat, crie habilidades <b>Acionar API</b> para <b>consultar os horários livres</b>, <b>agendar</b> e <b>buscar o agendamento do cliente</b>. Use os endereços e a chave abaixo. O agendamento feito pela IA aparece aqui como "agendado pela IA (WhatsApp)" e o cliente recebe a confirmação por e-mail.</p>
         <div class="ia-api">
           <div><b>1. Consultar horários</b> <span class="muted">(GET)</span><code class="cp" id="ia-url-h"></code><button type="button" class="btn g sm" data-cp="ia-url-h">Copiar</button></div>
           <div><b>2. Agendar</b> <span class="muted">(POST)</span><code class="cp" id="ia-url-a"></code><button type="button" class="btn g sm" data-cp="ia-url-a">Copiar</button></div>
+          <div><b>3. Buscar agendamento do cliente</b> <span class="muted">(GET, com &amp;telefone=)</span><code class="cp" id="ia-url-b"></code><button type="button" class="btn g sm" data-cp="ia-url-b">Copiar</button></div>
           <div><b>Chave</b> <span class="muted">(cabeçalho <code>Authorization: Bearer …</code>)</span><code class="cp" id="ia-chave">Carregando…</code><button type="button" class="btn g sm" data-cp="ia-chave">Copiar</button> <button type="button" class="btn g sm" id="ia-nova">Gerar chave nova (a antiga para de funcionar)</button></div>
         </div>
       </div>
@@ -932,7 +933,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   }
   $('w-busca').addEventListener('input',function(){opcoesModelos(this.value);});
   async function carregaIA(nova){
-    var base=location.origin+'/api/agendamento?acao=';$('ia-url-h').textContent=base+'ia-horarios';$('ia-url-a').textContent=base+'ia-agendar';
+    var base=location.origin+'/api/agendamento?acao=';$('ia-url-h').textContent=base+'ia-horarios';$('ia-url-a').textContent=base+'ia-agendar';$('ia-url-b').textContent=base+'ia-meu-agendamento&telefone=';
     try{var j=await api(nova?'POST':'GET','ia-chave',nova?{gerar:true}:undefined);$('ia-chave').textContent=j.chave;if(nova)toast('Chave nova gerada. Atualize nas duas habilidades da TousChat.');}catch(err){if(err.message!=='login')$('ia-chave').textContent=err.message;}
   }
   $('ia-nova').onclick=function(){if(confirm('Gerar uma chave nova? A IA da TousChat para de agendar até você colar a chave nova nas habilidades.'))carregaIA(true);};
