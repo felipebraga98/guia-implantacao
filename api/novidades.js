@@ -72,6 +72,44 @@ module.exports = async function handler(req, res) {
     if (!eu) return res.status(401).json({ erro: 'Entre com seu login de administrador.' });
     if (req.method !== 'GET' && !eu.admin) return res.status(403).json({ erro: 'Só administradores podem publicar ou alterar novidades.' });
 
+    // importar cards do GitHub a partir da planilha "Export view data" do quadro
+    if (req.method === 'POST' && acao === 'importar-github') {
+      const GH = require('./github-projeto.js');
+      const b = lerBody(req);
+      const coluna = limpa(b.coluna, 40) || 'Beta';
+      const alvo = GH.semAcento(coluna);
+      const itens = Array.isArray(b.itens) ? b.itens.slice(0, 3000) : [];
+      const res2 = [];
+      // a planilha também alimenta a aba "Cards" (todas as colunas), quando não há leitura automática
+      if (b.publicar || b.salvarCards) {
+        const todos = itens.map((x) => { const u = limpa(x.url, 300); const m = u.match(/github\.com\/([^/]+\/[^/]+)\/(?:issues|pull)\/(\d+)/i);
+          return { titulo: limpa(x.titulo, 200), url: u, numero: m ? +m[2] : 0, repo: limpa(x.repo, 120) || (m ? m[1] : ''), status: limpa(x.status, 60),
+            labels: String(x.labels || '').split(',').map((l) => limpa(l, 60)).filter(Boolean), autor: limpa(x.autor, 60),
+            responsaveis: String(x.responsaveis || '').split(',').map((l) => limpa(l, 60)).filter(Boolean) }; }).filter((x) => x.titulo);
+        if (todos.length && !process.env.GITHUB_TOKEN) await GH.salvarCards(todos, 'planilha');
+      }
+      for (const x of itens) {
+        const it = {
+          id: '', titulo: limpa(x.titulo, 200), url: limpa(x.url, 300), repo: limpa(x.repo, 120), status: limpa(x.status, 60),
+          labels: (Array.isArray(x.labels) ? x.labels : String(x.labels || '').split(',')).map((l) => limpa(l, 60)).filter(Boolean),
+        };
+        const m = it.url.match(/github\.com\/([^/]+\/[^/]+)\/(?:issues|pull)\/(\d+)/i);
+        it.numero = m ? +m[2] : 0; if (!it.repo && m) it.repo = m[1];
+        if (b.salvarCards && !b.publicar) continue;
+        if (!it.titulo || GH.semAcento(it.status) !== alvo) continue;
+        const chave = 'url:' + (it.url || it.titulo).toLowerCase() + '|' + alvo;
+        if (b.publicar) {
+          const novo = await redis(['SADD', GH.CHAVE_PUBLICADOS, chave]);
+          if (novo === 1) { const n = GH.novidadeDe(it, coluna); n.autor = eu.nome + ' (importado do GitHub)'; n.autorUsuario = eu.usuario; await redis(['HSET', CHAVE, n.id, JSON.stringify(n)]); await new Promise((r) => setTimeout(r, 3)); res2.push({ titulo: it.titulo, numero: it.numero, publicado: true }); }
+          else res2.push({ titulo: it.titulo, numero: it.numero, publicado: false, ja: true });
+        } else {
+          const ja = await redis(['SISMEMBER', GH.CHAVE_PUBLICADOS, chave]);
+          res2.push({ titulo: it.titulo, numero: it.numero, url: it.url, ja: ja === 1 || ja === '1' });
+        }
+      }
+      return res.status(200).json({ ok: true, coluna, itens: res2 });
+    }
+
     if (req.method === 'POST') {
       const v = valida(lerBody(req));
       if (v.erro) return res.status(400).json({ erro: v.erro });
