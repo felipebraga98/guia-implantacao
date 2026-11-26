@@ -77,6 +77,24 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .vazio{color:var(--muted);margin:0}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--forest);color:#fff;border-radius:12px;padding:12px 18px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:50;max-width:calc(100vw - 32px)}
 @media (max-width:640px){.post .meta{margin-left:0;width:100%}.novo form{grid-template-columns:1fr}#filtros input{margin-left:0;width:100%}}
+.abas{display:flex;gap:6px;background:rgba(255,255,255,.15);border-radius:12px;padding:4px;align-self:flex-start}
+.abas button{border:0;background:transparent;color:#fff;font:700 .95rem var(--f-body);border-radius:9px;padding:8px 18px;cursor:pointer}
+.abas button[aria-selected="true"]{background:#fff;color:var(--green-deep)}
+.cb-barra{display:grid;grid-template-columns:1fr 220px;gap:10px}
+@media (max-width:640px){.cb-barra{grid-template-columns:1fr}}
+.cb-item{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding:12px 0}
+.cb-item:first-child{border-top:0}
+.cb-item h3{margin:0;font:800 1rem/1.3 var(--f-display)}
+.cb-item h3 a{color:var(--ink);text-decoration:none}.cb-item h3 a:hover{color:var(--green-deep);text-decoration:underline}
+.cb-tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:.78rem}
+.cb-tags span{border-radius:999px;padding:2px 9px;background:#eef2ef;color:var(--muted);font-weight:700}
+.cb-tags .st{background:var(--green-soft);color:var(--green-deep)}
+.cb-tags .st-beta{background:#ede9fe;color:#5b21b6}.cb-tags .st-prod{background:#dcfce7;color:#166534}.cb-tags .st-hom{background:#dbeafe;color:#1e40af}.cb-tags .st-and{background:#fef3c7;color:#92400e}
+.cb-tags .bug{background:#fee2e2;color:#991b1b}
+.cb-meta{font-size:.8rem;color:var(--muted)}
+.cb-cols{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.cb-cols button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:700 .82rem var(--f-body);cursor:pointer;color:var(--ink)}
+.cb-cols button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
 </style>
 </head>
 <body>
@@ -101,6 +119,24 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     </form>
   </dialog>
 
+  <div class="abas" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" id="aba-nov" aria-selected="true">📣 Novidades</button>
+    <button type="button" role="tab" id="aba-cards" aria-selected="false">🗂️ Cards</button>
+  </div>
+
+  <div id="v-cards" hidden style="display:none">
+    <section class="card">
+      <h2>🗂️ Cards do GitHub</h2>
+      <div class="cb-barra">
+        <label>Pesquisar<input id="cb-q" type="search" placeholder="Nome do card, #número, quem abriu, e-mail ou telefone do cliente"></label>
+        <label>Coluna<select id="cb-col"><option value="">Todas as colunas</option></select></label>
+      </div>
+      <div class="cb-cols" id="cb-cols"></div>
+      <p class="hint" id="cb-info" style="margin-top:10px"></p>
+    </section>
+    <section class="card" id="cb-res"></section>
+  </div>
+
   <div id="app" style="display:contents">
     <section class="card novo" id="sec-novo" hidden>
       <h2 id="form-tit">Publicar novidade</h2>
@@ -117,6 +153,24 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       </form>
     </section>
 
+    <section class="card" id="gh-box" hidden style="padding:12px 16px"><div class="barra" style="gap:10px;align-items:center"><span id="gh-st" style="flex:1;min-width:220px;font-size:.88rem"></span><button class="btn" type="button" id="gh-imp">📥 Importar do GitHub</button><button class="btn ghost" type="button" id="gh-sinc">↻ Ler o GitHub agora</button></div></section>
+    <dialog id="d-imp" style="max-width:640px;width:calc(100% - 32px);border:0;border-radius:16px;padding:20px">
+      <h2 style="margin:0 0 6px">📥 Importar cards do GitHub</h2>
+      <ol style="margin:0 0 12px;padding-left:20px;font-size:.9rem;line-height:1.5">
+        <li>No quadro <b>Tarefas TI</b>, clique na setinha <b>▾</b> ao lado do nome da visualização (ex.: "Kanban Bugs") › <b>Export view data</b>. Baixa um arquivo <b>.csv</b>.</li>
+        <li>Escolha esse arquivo aqui embaixo. O guia mostra os cards da coluna escolhida que ainda não viraram novidade.</li>
+        <li>Clique em <b>Publicar</b>.</li>
+      </ol>
+      <div class="barra" style="gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <label style="flex:1;min-width:220px">Arquivo exportado (.csv)<input type="file" id="imp-arq" accept=".csv,text/csv"></label>
+        <label style="width:170px">Coluna<select id="imp-col"><option>Beta</option><option>Produção</option></select></label>
+      </div>
+      <div id="imp-prev" style="margin-top:12px;max-height:46vh;overflow:auto;font-size:.9rem"></div>
+      <div class="barra" style="justify-content:flex-end;gap:8px;margin-top:12px">
+        <button class="btn ghost" type="button" id="imp-fechar">Fechar</button>
+        <button class="btn" type="button" id="imp-pub" disabled>Publicar</button>
+      </div>
+    </dialog>
     <div class="barra" role="group" aria-label="Filtrar por categoria" id="filtros"></div>
     <div id="lista" style="display:contents"></div>
   </div>
@@ -144,16 +198,125 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     $('me-nome').hidden=!e; $('me-nome').textContent=e?e.nome+(adm?' · admin':''):''; $('sair').hidden=!e; $('abrir-login').hidden=!!e;
     $('sec-novo').hidden=!adm;}
 
+  // quadro do GitHub: cards que vão para a coluna configurada viram novidade automática
+  var ghFeito=false;
+  function ghSinc(forcar){
+    return fetch('/api/github-projeto?acao=sincronizar'+(forcar?'&forcar=1':''),{method:'POST',headers:{'Authorization':token?'Bearer '+token:''},cache:'no-store'}).then(function(r){return r.json();}).catch(function(){return {};});
+  }
+  async function ghStatus(){
+    if(!(eu&&eu.admin)){$('gh-box').hidden=true;return;}
+    try{var r=await fetch('/api/github-projeto?acao=status',{headers:{'Authorization':'Bearer '+token},cache:'no-store'});var j=await r.json();if(!r.ok)return;
+      $('gh-box').hidden=false;var i=j.info||{};
+      $('gh-st').innerHTML=!j.configurado?'🔗 <b>GitHub não conectado.</b> Falta a variável <code>GITHUB_TOKEN</code> no Vercel.':
+        (i.erro?'⚠️ <b>GitHub:</b> '+esc(i.erro):'🔗 <b>GitHub conectado</b> · quadro "'+esc(i.projeto||('#'+j.projeto))+'" · cards que vão para <b>'+esc(j.coluna)+'</b> viram novidade')+(i.quando?' · última leitura '+quando(i.quando):'');
+    }catch(e){}
+  }
+  setTimeout(function(){var a='';try{a=localStorage.getItem('nov-aba')||'';}catch(e){}if(a==='cards'||location.hash==='#cards')abaSel('cards');},0);
   async function carregar(){
+    if(!ghFeito){ghFeito=true;ghSinc(false).then(function(j){if(j&&j.novas>0)carregar();});}
     try{
       var j=await api('GET'); lista=j.lista; estado(j.eu); if(token&&!j.eu)guardaToken('');
       if(!cats.length){cats=j.categorias;$('p-cat').innerHTML=cats.map(function(c){return '<option'+(c==='Aviso'?' selected':'')+'>'+c+'</option>'}).join('');filtros();}
       
-      render();
+      render();ghStatus();
       try{localStorage.setItem('nov-visita',String(Date.now()));localStorage.setItem('nov-clicou',String(Date.now()));}catch(e){}
       if(!$('aviso-not')&&'Notification' in window&&Notification.permission==='default'){var a=document.createElement('button');a.id='aviso-not';a.type='button';a.className='btn y';a.style.alignSelf='flex-start';a.textContent='🔔 Avisar quando sair novidade';a.onclick=function(){Notification.requestPermission().then(function(){a.remove();});};$('filtros').before(a);}
     }catch(e){$('lista').innerHTML='<section class="card"><p class="vazio">Não foi possível carregar as novidades agora. Atualize a página em instantes.</p></section>';if(e.message!=='login')toast(e.message);}
   }
+  // ---- importar a planilha "Export view data" do GitHub Projects ----
+  var impItens=[];
+  function lerCSV(t){var linhas=[],campo='',linha=[],q=false;t=t.replace(/^\ufeff/,'');
+    for(var i=0;i<t.length;i++){var ch=t[i];
+      if(q){if(ch==='"'){if(t[i+1]==='"'){campo+='"';i++;}else q=false;}else campo+=ch;}
+      else if(ch==='"')q=true;else if(ch===','){linha.push(campo);campo='';}
+      else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;linha.push(campo);campo='';if(linha.some(function(x){return x!==''}))linhas.push(linha);linha=[];}
+      else campo+=ch;}
+    linha.push(campo);if(linha.some(function(x){return x!==''}))linhas.push(linha);return linhas;}
+  function colIdx(cab,re){for(var i=0;i<cab.length;i++)if(re.test(cab[i].trim()))return i;return -1;}
+  async function impPrevia(){
+    var f=$('imp-arq').files[0];$('imp-pub').disabled=true;if(!f){$('imp-prev').innerHTML='';return;}
+    var linhas=lerCSV(await f.text());if(linhas.length<2){$('imp-prev').innerHTML='<p class="vazio">Arquivo vazio ou em outro formato.</p>';return;}
+    var cab=linhas[0],iT=colIdx(cab,/^(title|t[ií]tulo)$/i),iU=colIdx(cab,/^(url|link)$/i),iS=colIdx(cab,/^status$/i),iL=colIdx(cab,/^(labels?|etiquetas?|r[oó]tulos?)$/i),iR=colIdx(cab,/^(repository|reposit[oó]rio)$/i),iA=colIdx(cab,/^(author|autor|created by|criado por|aberto por)$/i),iP=colIdx(cab,/^(assignees?|respons[aá]ve(l|is))$/i);
+    if(iT<0||iS<0){$('imp-prev').innerHTML='<p class="vazio">Não encontrei as colunas <b>Title</b> e <b>Status</b> na planilha. Use a opção <b>Export view data</b> do quadro.</p>';return;}
+    impItens=linhas.slice(1).map(function(l){return {titulo:l[iT]||'',url:iU>=0?l[iU]||'':'',status:l[iS]||'',labels:iL>=0?l[iL]||'':'',repo:iR>=0?l[iR]||'':'',autor:iA>=0?l[iA]||'':'',responsaveis:iP>=0?l[iP]||'':''};});
+    try{var j=await api('POST',{itens:impItens,coluna:$('imp-col').value,salvarCards:true},'?acao=importar-github');cbDados=null;
+      j=await api('POST',{itens:impItens,coluna:$('imp-col').value},'?acao=importar-github');
+      var novos=j.itens.filter(function(x){return !x.ja}),ja=j.itens.length-novos.length;
+      $('imp-prev').innerHTML='<p style="margin:0 0 8px"><b>'+j.itens.length+'</b> card(s) em <b>'+esc(j.coluna)+'</b> na planilha · <b>'+novos.length+'</b> novo(s) para publicar'+(ja?' · '+ja+' já publicado(s)':'')+'.</p>'+
+        (j.itens.length?'<ul style="margin:0;padding-left:18px">'+j.itens.map(function(x){return '<li style="margin:3px 0'+(x.ja?';opacity:.55':'')+'">'+(x.ja?'✔️ já publicado · ':'🆕 ')+esc(x.titulo)+(x.numero?' <span style="opacity:.7">#'+x.numero+'</span>':'')+'</li>';}).join('')+'</ul>':'<p class="vazio">Nenhum card nessa coluna.</p>');
+      $('imp-pub').disabled=!novos.length;$('imp-pub').textContent=novos.length?'Publicar '+novos.length+' novidade(s)':'Publicar';
+    }catch(e){if(e.message!=='login')$('imp-prev').innerHTML='<p class="vazio">'+esc(e.message)+'</p>';}
+  }
+  $('gh-imp').onclick=function(){$('imp-arq').value='';$('imp-prev').innerHTML='';$('imp-pub').disabled=true;$('imp-pub').textContent='Publicar';try{$('d-imp').showModal();}catch(e){$('d-imp').setAttribute('open','');}};
+  $('imp-fechar').onclick=function(){try{$('d-imp').close();}catch(e){$('d-imp').removeAttribute('open');}};
+  $('imp-arq').addEventListener('change',impPrevia);$('imp-col').addEventListener('change',impPrevia);
+  $('imp-pub').onclick=async function(){this.disabled=true;
+    try{var j=await api('POST',{itens:impItens,coluna:$('imp-col').value,publicar:true},'?acao=importar-github');var n=j.itens.filter(function(x){return x.publicado}).length;
+      toast(n?n+' novidade(s) publicada(s)!':'Nada novo para publicar.');$('imp-fechar').onclick();carregar();}
+    catch(e){if(e.message!=='login')toast(e.message);this.disabled=false;}};
+
+  // ---- aba Cards ----
+  var cbDados=null,cbInfo=null,cbBuscaTexto=false,cbTextoRes=null,cbTextoQ='',cbCol='';
+  try{cbCol=localStorage.getItem('cb-col')||'';}catch(e){}
+  var ORDEM=['novo','backlog','a fazer','todo','to do','iniciado','observacao','em andamento','in progress','homologacao','beta','producao','done','concluido'];
+  function semAc(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+  function stCls(st){var x=semAc(st);return /beta/.test(x)?'st-beta':/produ|done|conclu/.test(x)?'st-prod':/homolog/.test(x)?'st-hom':/andamento|progress/.test(x)?'st-and':'';}
+  function abaSel(qual){var c=qual==='cards';$('aba-nov').setAttribute('aria-selected',String(!c));$('aba-cards').setAttribute('aria-selected',String(c));
+    $('v-cards').hidden=!c;$('app').hidden=c;$('v-cards').style.display=c?'contents':'none';$('app').style.display=c?'none':'contents';
+    try{localStorage.setItem('nov-aba',qual);}catch(e){} if(c)cbCarregar();}
+  $('aba-nov').onclick=function(){abaSel('nov');};$('aba-cards').onclick=function(){abaSel('cards');};
+  async function cbCarregar(forcar){
+    if(!token){$('cb-res').innerHTML='<p class="vazio">Entre com seu login da equipe para ver os cards.</p>';mostraLogin();return;}
+    if(cbDados&&!forcar){cbRender();return;}
+    $('cb-res').innerHTML='<p class="vazio">Carregando cards…</p>';
+    try{var r=await fetch('/api/github-projeto?acao=cards',{headers:{'Authorization':'Bearer '+token},cache:'no-store'});var j=await r.json();
+      if(r.status===401){guardaToken('');estado(null);mostraLogin();return;}if(!r.ok)throw new Error(j.erro||'Erro');
+      cbDados=j.cards||[];cbInfo=j.info;cbBuscaTexto=!!j.buscaTexto;
+      var cols={};cbDados.forEach(function(c){if(c.s)cols[c.s]=(cols[c.s]||0)+1;});
+      var nomes=Object.keys(cols).sort(function(a,b){var ia=ORDEM.indexOf(semAc(a)),ib=ORDEM.indexOf(semAc(b));return (ia<0?50:ia)-(ib<0?50:ib)||a.localeCompare(b);});
+      $('cb-col').innerHTML='<option value="">Todas as colunas ('+cbDados.length+')</option>'+nomes.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+' ('+cols[n]+')</option>';}).join('');
+      $('cb-cols').innerHTML=['<button type="button" data-col="" aria-pressed="'+(!cbCol)+'">Todas</button>'].concat(nomes.map(function(n){return '<button type="button" data-col="'+esc(n)+'" aria-pressed="'+(cbCol===n)+'">'+esc(n)+' · '+cols[n]+'</button>';})).join('');
+      if(cbCol&&!cols[cbCol])cbCol='';$('cb-col').value=cbCol;
+      $('cb-info').innerHTML=cbInfo?('Lista de cards '+(cbInfo.fonte==='automático'?'atualizada automaticamente pelo GitHub':'da última planilha importada')+' em '+quando(cbInfo.quando)+'.'+(cbInfo.fonte!=='automático'?' Para atualizar, use <b>📥 Importar do GitHub</b> (aba Novidades) com a planilha nova.':'')+(cbBuscaTexto?'':' A busca por e-mail e telefone do cliente funciona quando a ligação automática com o GitHub estiver ativa.')):'';
+      cbRender();
+    }catch(e){$('cb-res').innerHTML='<p class="vazio">Não foi possível carregar os cards: '+esc(e.message)+'</p>';}
+  }
+  function pareceContato(q){return /@/.test(q)||q.replace(/\D/g,'').length>=8;}
+  function cardHtml(c){
+    var bug=(c.l||[]).some(function(x){return /bug/i.test(x)});
+    return '<div class="cb-item"><h3>'+(c.u?'<a href="'+esc(c.u)+'" target="_blank" rel="noopener">':'')+(c.n?'#'+c.n+' · ':'')+esc(c.t)+(c.u?'</a>':'')+'</h3>'+
+      '<div class="cb-tags">'+(c.s?'<span class="st '+stCls(c.s)+'">'+esc(c.s)+'</span>':'')+(c.l||[]).map(function(x){return '<span'+(/bug/i.test(x)?' class="bug"':'')+'>'+esc(x)+'</span>';}).join('')+'</div>'+
+      '<div class="cb-meta">'+[c.a?'Aberto por <b>'+esc(c.a)+'</b>':'',(c.p&&c.p.length)?'Responsável: '+esc(c.p.join(', ')):'',c.c?'criado em '+new Date(c.c).toLocaleDateString('pt-BR'):'',c.r?esc(c.r):''].filter(Boolean).join(' · ')+'</div></div>';
+  }
+  function cbRender(){
+    if(!cbDados)return;var q=$('cb-q').value.trim(),qs=semAc(q),num=(q.match(/^#?\s*(\d{1,6})$/)||[])[1];
+    var lista=cbDados.filter(function(c){
+      if(cbCol&&c.s!==cbCol)return false;if(!q)return true;
+      if(num&&String(c.n)===num)return true;
+      return semAc([c.t,c.a,(c.p||[]).join(' '),(c.l||[]).join(' '),c.n?'#'+c.n:''].join(' ')).indexOf(qs)>=0;
+    }).sort(function(a,b){return String(b.m||b.c||'').localeCompare(String(a.m||a.c||''))||(b.n-a.n);});
+    var extra='';
+    if(q&&pareceContato(q)){
+      if(!cbBuscaTexto)extra='<p class="hint" style="margin:0 0 10px">🔎 Para buscar pelo <b>e-mail ou telefone do cliente</b> (que ficam dentro do texto do card), a ligação automática com o GitHub precisa estar ativa (token aprovado).</p>';
+      else if(cbTextoQ!==q){extra='<p class="hint" style="margin:0 0 10px">🔎 Procurando no texto dos cards do GitHub…</p>';cbTexto(q);}
+      else if(cbTextoRes){var achou=cbTextoRes.map(function(x){var c=cbDados.find(function(d){return d.u&&d.u.toLowerCase()===x.u.toLowerCase()})||{t:x.t,n:x.n,u:x.u,a:x.a,s:x.estado==='closed'?'Fechado':'',l:[]};return c;}).filter(function(c){return !cbCol||c.s===cbCol;});
+        extra='<p class="hint" style="margin:0 0 6px">🔎 <b>'+achou.length+'</b> card(s) com "'+esc(q)+'" no texto:</p>'+achou.map(cardHtml).join('')+(lista.length?'<hr style="border:0;border-top:1px dashed var(--line);margin:10px 0">':'');}
+    }
+    $('cb-res').innerHTML=extra+(lista.length?'<p class="hint" style="margin:0 0 6px"><b>'+lista.length+'</b> card(s)'+(cbCol?' em <b>'+esc(cbCol)+'</b>':'')+(q?' para "'+esc(q)+'"':'')+'</p>'+lista.slice(0,200).map(cardHtml).join('')+(lista.length>200?'<p class="hint">Mostrando os 200 mais recentes. Refine a pesquisa.</p>':''):(extra?'':'<p class="vazio">'+(cbDados.length?'Nenhum card encontrado.':'Nenhum card carregado ainda. Use <b>📥 Importar do GitHub</b> na aba Novidades (ou ative a ligação automática).')+'</p>'));
+  }
+  var cbT=null;
+  function cbTexto(q){clearTimeout(cbT);cbT=setTimeout(async function(){
+    try{var r=await fetch('/api/github-projeto?acao=buscar-texto&q='+encodeURIComponent(q),{headers:{'Authorization':'Bearer '+token},cache:'no-store'});var j=await r.json();
+      cbTextoQ=q;cbTextoRes=j.ok?j.itens:[];if(!j.ok&&j.erro)toast(j.erro);cbRender();}catch(e){}},500);}
+  $('cb-q').addEventListener('input',cbRender);
+  function cbColSet(v){cbCol=v;try{localStorage.setItem('cb-col',cbCol);}catch(x){}$('cb-col').value=v;
+    document.querySelectorAll('#cb-cols [data-col]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.col===v));});cbRender();}
+  $('cb-col').addEventListener('change',function(){cbColSet(this.value);});
+  $('cb-cols').addEventListener('click',function(e){var b=e.target.closest('[data-col]');if(b)cbColSet(b.dataset.col);});
+
+  $('gh-sinc').onclick=async function(){this.disabled=true;var j=await ghSinc(true);this.disabled=false;
+    if(j.ok===false&&j.erro)toast(j.erro);else if(j.primeira)toast('Ligado! Primeira leitura feita ('+j.cards+' cards). A partir de agora, cards que mudarem de coluna para a configurada viram novidade.');else toast(j.novas?j.novas+' novidade(s) do GitHub publicada(s).':'Nenhum card novo na coluna configurada.');
+    carregar();};
   function filtros(){
     $('filtros').innerHTML=['Todas'].concat(cats).map(function(c){return '<button type="button" data-c="'+c+'" aria-pressed="'+(c===filtro)+'">'+c+'</button>'}).join('')+'<input type="search" id="busca" placeholder="Buscar nas novidades…" aria-label="Buscar">';
     $('busca').addEventListener('input',function(){busca=this.value.toLowerCase();render();});
