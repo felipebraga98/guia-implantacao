@@ -179,6 +179,11 @@ dialog::backdrop{background:rgba(15,59,34,.6)}
 .horas{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px;max-height:180px;overflow:auto}
 .horas button{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:7px 4px;font:700 .9rem var(--f-body);cursor:pointer}
 .horas button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.horas button.extra{border-style:dashed;border-color:#d97706;background:#fffbeb;color:#92400e}
+.horas button.extra[aria-pressed="true"]{background:#d97706;border-color:#d97706;color:#fff}
+.encx{border:1.5px dashed #d97706;background:#fffbeb;border-radius:10px;padding:10px 12px;display:grid;gap:8px}
+.encx .grid2{margin:0}
+.legx{font-size:.8rem;color:#92400e}
 .hist{margin:0;padding:0;list-style:none;font-size:.84rem;display:grid;gap:4px;max-height:160px;overflow:auto}
 .hist li{color:var(--muted)}.hist b{color:var(--ink)}
 details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
@@ -329,6 +334,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
       <div class="regras">
         <label>Começar um horário a cada<select id="c-passo"><option value="15">15 minutos</option><option value="20">20 minutos</option><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">60 minutos</option></select></label>
         <label>Clientes no mesmo horário<input id="c-vagas" type="number" min="1" max="20"></label>
+        <label title="Vagas a mais em cada horário que só a equipe enxerga, para encaixes. O cliente e a IA não usam.">Vagas extras por horário (só equipe)<input id="c-vagas-eq" type="number" min="0" max="20"></label>
         <label title="Deixe em branco ou 0 para não ter limite">Máximo de atendimentos por dia<input id="c-max" type="number" min="0" max="200" placeholder="Sem limite"></label>
         <label>Intervalo entre atendimentos (min)<input id="c-int" type="number" min="0" max="240" step="5"></label>
         <label>Antecedência mínima (min)<input id="c-ant" type="number" min="0" max="10080" step="15"></label>
@@ -471,8 +477,12 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   <div class="row"><button class="btn" type="button" id="dd-salvar">Salvar alterações</button><span class="msg" id="dd-msg" role="status"></span></div>
   <details id="dd-rem"><summary>Remarcar</summary>
     <div style="display:grid;gap:8px;margin-top:8px">
-      <label>Dia<select id="dr-dia"></select></label>
+      <label id="dr-dia-l">Dia<select id="dr-dia"></select></label>
       <div class="horas" id="dr-horas"></div>
+      <div class="encx">
+        <label class="chk" style="margin:0"><input type="checkbox" id="dr-forcar"><span>⚡ <b>Encaixe livre</b>: qualquer dia e horário</span></label>
+        <div class="grid2" id="dr-fbox" hidden><label>Dia<input type="date" id="dr-f-data"></label><label>Horário<input type="time" id="dr-f-hora" step="300"></label></div>
+      </div>
       <label class="chk"><input type="checkbox" id="dr-avisar" checked> Avisar o cliente por e-mail</label>
       <div class="row"><button class="btn y" type="button" id="dr-ok" disabled>Confirmar novo horário</button></div>
     </div>
@@ -485,11 +495,16 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   <h2>Agendar para um cliente</h2>
   <div class="grid2">
     <label>Tipo<select id="dn-tipo"></select></label>
-    <label>Dia<select id="dn-dia"></select></label>
+    <label id="dn-dia-l">Dia<select id="dn-dia"></select></label>
   </div>
   <div class="horas" id="dn-horas"></div>
+  <p class="legx" id="dn-legx" hidden>Horários tracejados = vagas extras de encaixe (só a equipe vê).</p>
+  <div class="encx">
+    <label class="chk" style="margin:0"><input type="checkbox" id="dn-forcar"><span>⚡ <b>Encaixe livre</b>: agendar em qualquer dia e horário, mesmo lotado ou fora do expediente</span></label>
+    <div class="grid2" id="dn-fbox" hidden><label>Dia<input type="date" id="dn-f-data"></label><label>Horário<input type="time" id="dn-f-hora" step="300"></label></div>
+  </div>
   <div class="grid2">
-    <label>Nome<input id="dn-nome" required maxlength="80"></label><label>Loja<input id="dn-loja" required maxlength="80"></label>
+    <label>Nome<input id="dn-nome" required maxlength="80"></label><label>Vai usar no atendimento (opcional)<select id="dn-disp"><option value="">Não informado</option><option value="computador">💻 Computador</option><option value="celular">📱 Celular</option></select></label>
     <label>WhatsApp<input id="dn-wa" required maxlength="20" placeholder="(13) 99999-9999"></label><label>E-mail (opcional)<input id="dn-email" type="email" maxlength="120"></label>
     <label>Consultor<select id="dn-cons"></select></label>
   </div>
@@ -797,42 +812,56 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function preencheDias(sel,ag){sel.innerHTML=ag.map(function(d){var n=d.horarios.filter(function(h){return h.vagas>0}).length;return '<option value="'+d.data+'"'+(n?'':' disabled')+'>'+cap(d.rotulo)+(n?' · '+n+' livre(s)':' · lotado')+'</option>';}).join('');}
   function preencheHoras(box,dia,sel,onPick){
     var d=agHorarios.find(function(x){return x.data===dia});box.innerHTML='';
-    (d?d.horarios.filter(function(h){return h.vagas>0}):[]).forEach(function(h){var b=document.createElement('button');b.type='button';b.textContent=h.hora;b.setAttribute('aria-pressed',sel===h.hora);b.onclick=function(){onPick(h.hora)};box.appendChild(b);});
+    (d?d.horarios.filter(function(h){return h.vagas>0}):[]).forEach(function(h){var b=document.createElement('button');b.type='button';b.textContent=h.hora;if(h.extra){b.className='extra';b.title='Vaga extra de encaixe ('+h.vagas+' livre'+(h.vagas>1?'s':'')+')';}b.setAttribute('aria-pressed',sel===h.hora);b.onclick=function(){onPick(h.hora)};box.appendChild(b);});
+    var lg=box.id==='dn-horas'?$('dn-legx'):null;if(lg)lg.hidden=!(d&&d.horarios.some(function(h){return h.extra&&h.vagas>0}));
     if(!box.children.length)box.innerHTML='<p class="muted" style="margin:0;grid-column:1/-1">Sem horários livres neste dia.</p>';
   }
   var remHora=null;
   $('dd-rem').addEventListener('toggle',async function(){
-    if(!this.open||!atual)return;remHora=null;$('dr-ok').disabled=true;$('dr-horas').innerHTML='<p class="muted" style="margin:0">Carregando…</p>';
+    if(!this.open||!atual)return;remHora=null;$('dr-ok').disabled=true;$('dr-forcar').checked=false;$('dr-f-data').value='';$('dr-f-hora').value='';encxToggle('dr');$('dr-horas').innerHTML='<p class="muted" style="margin:0">Carregando…</p>';
     try{await carregaHorarios(atual.id);preencheDias($('dr-dia'),agHorarios);var p=agHorarios.find(function(d){return d.horarios.some(function(h){return h.vagas>0})});if(p)$('dr-dia').value=p.data;pintaRem();}catch(err){if(err.message!=='login')toast(err.message);}
   });
   function pintaRem(){preencheHoras($('dr-horas'),$('dr-dia').value,remHora,function(h){remHora=h;$('dr-ok').disabled=false;pintaRem();});}
   $('dr-dia').onchange=function(){remHora=null;$('dr-ok').disabled=true;pintaRem();};
+  function encxToggle(pre){var on=$(pre+'-forcar').checked;$(pre+'-fbox').hidden=!on;$(pre+'-horas').hidden=on;$(pre+'-dia-l').hidden=on;if(pre==='dn')$('dn-legx').hidden=on||$('dn-legx').hidden;
+    if(on&&!$(pre+'-f-data').value)$(pre+'-f-data').value=$(pre+'-dia').value||new Date(Date.now()-3*3600e3).toISOString().slice(0,10);}
+  $('dr-forcar').onchange=function(){encxToggle('dr');$('dr-ok').disabled=!(this.checked||remHora);};
+  $('dn-forcar').onchange=function(){encxToggle('dn');if(!this.checked)pintaNovo();};
+  ['dr-f-data','dr-f-hora'].forEach(function(id){$(id).oninput=function(){$('dr-ok').disabled=!($('dr-f-data').value&&$('dr-f-hora').value);};});
   $('dr-ok').onclick=async function(){
-    if(!atual||!remHora)return;var b=this;b.disabled=true;
-    try{var j=await api('POST','remarcar-equipe',{id:atual.id,data:$('dr-dia').value,hora:remHora,avisar:$('dr-avisar').checked});
+    var forc=$('dr-forcar').checked;
+    if(!atual||(!forc&&!remHora))return;
+    if(forc&&!($('dr-f-data').value&&$('dr-f-hora').value)){toast('Escolha o dia e o horário do encaixe.');return;}
+    var b=this;b.disabled=true;
+    try{var j=await api('POST','remarcar-equipe',forc?{id:atual.id,data:$('dr-f-data').value,hora:$('dr-f-hora').value,forcar:true,avisar:$('dr-avisar').checked}:{id:atual.id,data:$('dr-dia').value,hora:remHora,avisar:$('dr-avisar').checked});
       atualiza(j.reserva);$('d-det').close();toast('Remarcado para '+cap(j.reserva.rotulo)+' às '+j.reserva.hora+(j.emailEnviado?'. Cliente avisado por e-mail.':'.'));}
     catch(err){if(err.message!=='login')toast(err.message);b.disabled=false;}
   };
 
   var novoHora=null;
   async function abreNovo(dia,hora){
-    $('f-novo').reset();$('dn-msg').textContent='';novoHora=hora||null;
+    $('f-novo').reset();$('dn-msg').textContent='';novoHora=hora||null;encxToggle('dn');
     $('dn-tipo').innerHTML=(config.tipos||[]).filter(function(t){return t.ativo}).map(function(t){return '<option value="'+esc(t.id)+'">'+esc(t.nome)+' ('+t.duracao+' min)</option>'}).join('');
     $('dn-cons').value=eu.usuario;$('dn-avisar').checked=emailOk;$('dn-avisar').disabled=!emailOk;
     $('dn-horas').innerHTML='<p class="muted" style="margin:0">Carregando…</p>';
     $('d-novo').showModal();
     try{await carregaHorarios();preencheDias($('dn-dia'),agHorarios);
       if(dia&&agHorarios.some(function(d){return d.data===dia}))$('dn-dia').value=dia;else{var p=agHorarios.find(function(d){return d.horarios.some(function(h){return h.vagas>0})});if(p)$('dn-dia').value=p.data;}
-      pintaNovo();}catch(err){if(err.message!=='login')$('dn-msg').textContent=err.message;}
+      pintaNovo();
+      // clicou num horário da semana que não tem vaga (lotado/fora do expediente)? já abre como encaixe livre
+      if(dia&&hora){var dd=agHorarios.find(function(d){return d.data===dia});var hh=dd&&dd.horarios.find(function(h){return h.hora===hora&&h.vagas>0});if(!hh){$('dn-forcar').checked=true;$('dn-f-data').value=dia;$('dn-f-hora').value=hora;encxToggle('dn');novoHora=null;}}
+      }catch(err){if(err.message!=='login')$('dn-msg').textContent=err.message;}
   }
   function pintaNovo(){preencheHoras($('dn-horas'),$('dn-dia').value,novoHora,function(h){novoHora=h;pintaNovo();});}
   $('dn-dia').onchange=function(){novoHora=null;pintaNovo();};
   $('b-novo').onclick=function(){abreNovo();};
   $('f-novo').addEventListener('submit',async function(e){
     e.preventDefault();$('dn-msg').textContent='';
-    if(!novoHora){$('dn-msg').textContent='Escolha um horário.';return;}
+    var forc=$('dn-forcar').checked;
+    if(forc&&!($('dn-f-data').value&&$('dn-f-hora').value)){$('dn-msg').textContent='Escolha o dia e o horário do encaixe.';return;}
+    if(!forc&&!novoHora){$('dn-msg').textContent='Escolha um horário.';return;}
     $('dn-ok').disabled=true;
-    try{var j=await api('POST','novo',{tipo:$('dn-tipo').value,data:$('dn-dia').value,hora:novoHora,nome:$('dn-nome').value,loja:$('dn-loja').value,whatsapp:$('dn-wa').value,email:$('dn-email').value,consultor:$('dn-cons').value,notas:$('dn-notas').value,avisar:$('dn-avisar').checked});
+    try{var j=await api('POST','novo',{forcar:forc,tipo:$('dn-tipo').value,data:forc?$('dn-f-data').value:$('dn-dia').value,hora:forc?$('dn-f-hora').value:novoHora,nome:$('dn-nome').value,dispositivo:$('dn-disp').value,whatsapp:$('dn-wa').value,email:$('dn-email').value,consultor:$('dn-cons').value,notas:$('dn-notas').value,avisar:$('dn-avisar').checked});
       atualiza(j.reserva);$('d-novo').close();toast('Agendado para '+cap(j.reserva.rotulo)+' às '+j.reserva.hora+(j.emailEnviado?'. E-mail enviado ao cliente.':'.'));}
     catch(err){if(err.message!=='login')$('dn-msg').textContent=err.message;}
     finally{$('dn-ok').disabled=false;}
@@ -988,7 +1017,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
   function montaConfig(){
     cfgEd=clone(config);cfgEd.horarios=cfgEd.horarios||{};sujo=false;$('c-st').textContent='Tudo salvo.';
     pintaDias();
-    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;$('c-alarme').value=cfgEd.alarmeMin||15;$('c-prox').value=String(cfgEd.proxQtd||1);
+    $('c-passo').value=String(cfgEd.passo);$('c-vagas').value=cfgEd.vagas;$('c-vagas-eq').value=cfgEd.vagasEquipe==null?2:cfgEd.vagasEquipe;$('c-max').value=cfgEd.maxPorDia||'';$('c-int').value=cfgEd.intervalo;$('c-ant').value=cfgEd.antecedencia;$('c-dias').value=cfgEd.diasAFrente;$('c-alarme').value=cfgEd.alarmeMin||15;$('c-prox').value=String(cfgEd.proxQtd||1);
     pintaTipos();pintaChips();
     $('c-local').value=cfgEd.local||'';$('c-video').value=cfgEd.linkVideo||'';$('c-sucesso').value=cfgEd.textoSucesso||'';
     var l=cfgEd.lembretes||{};$('c-chamada').checked=cfgEd.chamadaPropria!==false;$('c-l-conf').checked=!!l.confirmacao;$('c-l-vesp').checked=!!l.vespera;$('c-l-hora').checked=!!l.umaHora;$('c-l-nao').checked=l.naoAtendeu!==false;$('c-conf-email').checked=!!cfgEd.confirmarEmail;
@@ -1036,10 +1065,10 @@ details summary{cursor:pointer;font-weight:700;color:var(--green-deep)}
     if(b.dataset.esp)delete cfgEd.especiais[b.dataset.esp];
     if(b.dataset.blq){var p=b.dataset.blq.split('|');cfgEd.bloqueios[p[0]]=cfgEd.bloqueios[p[0]].filter(function(h){return h!==p[1]});if(!cfgEd.bloqueios[p[0]].length)delete cfgEd.bloqueios[p[0]];}
     marcaSujo();pintaChips();});});
-  ['c-passo','c-vagas','c-max','c-int','c-ant','c-dias','c-alarme','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-l-nao','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
+  ['c-passo','c-vagas','c-vagas-eq','c-max','c-int','c-ant','c-dias','c-alarme','c-local','c-video','c-sucesso','c-l-conf','c-l-vesp','c-l-hora','c-l-nao','c-conf-email','c-chamada'].forEach(function(id){$(id).addEventListener('input',marcaSujo);$(id).addEventListener('change',marcaSujo);});
   async function salvaConfig(extra){
     leDias();leTipos();
-    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,proxQtd:+$('c-prox').value||1,
+    var body=Object.assign({},cfgEd,{passo:+$('c-passo').value,vagas:+$('c-vagas').value,vagasEquipe:Math.max(0,+$('c-vagas-eq').value||0),maxPorDia:+$('c-max').value||0,intervalo:+$('c-int').value,antecedencia:+$('c-ant').value,diasAFrente:+$('c-dias').value,alarmeMin:+$('c-alarme').value||15,proxQtd:+$('c-prox').value||1,
       local:$('c-local').value,linkVideo:$('c-video').value,textoSucesso:$('c-sucesso').value,
       lembretes:{confirmacao:$('c-l-conf').checked,vespera:$('c-l-vesp').checked,umaHora:$('c-l-hora').checked,naoAtendeu:$('c-l-nao').checked},confirmarEmail:$('c-conf-email').checked,chamadaPropria:$('c-chamada').checked,whats:leWhats()},extra||{});
     for(var d=0;d<7;d++){var bad=(body.horarios[d]||[]).some(function(f){return min(f[0])>min(f[1])});if(bad){toast(DSL[d]+': o último horário está antes do primeiro.');return;}}
