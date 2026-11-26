@@ -199,10 +199,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (acao === 'cards') {
+      // lista de cards é pública (só título, número, coluna, etiquetas e quem abriu). A busca por e-mail/telefone exige login.
       const eu = await EQUIPE.equipeLogada(req);
-      if (!eu) return res.status(401).json({ erro: 'Entre com seu login da equipe.' });
       const info = JSON.parse((await EQUIPE.redis(['GET', K.cardsInfo])) || 'null');
-      return res.status(200).json({ cards: await lerCards(), info, buscaTexto: !!c.token });
+      return res.status(200).json({ cards: await lerCards(), info, buscaTexto: !!c.token, logado: !!eu });
     }
 
     if (acao === 'buscar-texto') {
