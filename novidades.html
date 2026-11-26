@@ -22,7 +22,9 @@ html{scrollbar-gutter:stable}
 [hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--green);color:var(--ink);font:15px/1.6 var(--f-body);padding:18px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
-.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:12px;transition:max-width .2s}
+body.modo-cards .wrap{max-width:1480px}
+body.modo-cards .cb-grade{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
 #lista{display:flex!important;flex-direction:column;gap:12px}
 header{color:#fff;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
 .back{color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;border:1.5px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 14px;display:inline-block;margin-bottom:12px}
@@ -300,7 +302,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   }
   function semAc(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
   function stCls(st){var g=grupoDe(st);if(g<0){var x=semAc(st);g=/beta/.test(x)?6:/produ/.test(x)?7:/conclu|done|complet/.test(x)?8:/homolog|approv/.test(x)?5:/andamento|progress/.test(x)?4:/observ/.test(x)?3:/fazer|todo|to do/.test(x)?2:/ticket/.test(x)?1:/pend/.test(x)?0:9;}return 'cg'+g;}
-  function abaSel(qual){var c=qual==='cards';$('aba-nov').setAttribute('aria-selected',String(!c));$('aba-cards').setAttribute('aria-selected',String(c));
+  function abaSel(qual){var c=qual==='cards';document.body.classList.toggle('modo-cards',c);$('aba-nov').setAttribute('aria-selected',String(!c));$('aba-cards').setAttribute('aria-selected',String(c));
     $('v-cards').hidden=!c;$('app').hidden=c;$('v-cards').style.display=c?'contents':'none';$('app').style.display=c?'none':'contents';
     try{localStorage.setItem('nov-aba',qual);}catch(e){} if(c)cbCarregar();}
   $('aba-nov').onclick=function(){abaSel('nov');};$('aba-cards').onclick=function(){abaSel('cards');};
