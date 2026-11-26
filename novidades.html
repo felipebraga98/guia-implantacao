@@ -157,12 +157,12 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     <dialog id="d-imp" style="max-width:640px;width:calc(100% - 32px);border:0;border-radius:16px;padding:20px">
       <h2 style="margin:0 0 6px">📥 Importar cards do GitHub</h2>
       <ol style="margin:0 0 12px;padding-left:20px;font-size:.9rem;line-height:1.5">
-        <li>No quadro <b>Tarefas TI</b>, clique na setinha <b>▾</b> ao lado do nome da visualização (ex.: "Kanban Bugs") › <b>Export view data</b>. Baixa um arquivo <b>.csv</b>.</li>
+        <li>No quadro <b>Tarefas TI</b>, clique na setinha <b>▾</b> ao lado do nome da visualização (ex.: "Kanban Bugs") › <b>Export view data</b>. Baixa um arquivo <b>.tsv</b> (ex.: "Tarefas TI - Kanban Bugs.tsv").</li>
         <li>Escolha esse arquivo aqui embaixo. O guia mostra os cards da coluna escolhida que ainda não viraram novidade.</li>
         <li>Clique em <b>Publicar</b>.</li>
       </ol>
       <div class="barra" style="gap:10px;align-items:flex-end;flex-wrap:wrap">
-        <label style="flex:1;min-width:220px">Arquivo exportado (.csv)<input type="file" id="imp-arq" accept=".csv,text/csv"></label>
+        <label style="flex:1;min-width:220px">Arquivo exportado (.tsv ou .csv)<input type="file" id="imp-arq" accept=".tsv,.csv,.txt,text/tab-separated-values,text/csv"></label>
         <label style="width:190px">Publicar cards da coluna<select id="imp-col"><option>Beta</option></select></label>
       </div>
       <div id="imp-prev" style="margin-top:12px;max-height:46vh;overflow:auto;font-size:.9rem"></div>
@@ -226,9 +226,11 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   // ---- importar a planilha "Export view data" do GitHub Projects ----
   var impItens=[];
   function lerCSV(t){var linhas=[],campo='',linha=[],q=false;t=t.replace(/^\ufeff/,'');
+    // o GitHub exporta em .tsv (separado por TAB); também aceita .csv com vírgula ou ponto e vírgula
+    var l0=t.split(/\r?\n/)[0]||'',SEP=(l0.split('\t').length>1)?'\t':(l0.split(';').length>l0.split(',').length?';':',');
     for(var i=0;i<t.length;i++){var ch=t[i];
       if(q){if(ch==='"'){if(t[i+1]==='"'){campo+='"';i++;}else q=false;}else campo+=ch;}
-      else if(ch==='"')q=true;else if(ch===','){linha.push(campo);campo='';}
+      else if(ch==='"')q=true;else if(ch===SEP){linha.push(campo);campo='';}
       else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&t[i+1]==='\n')i++;linha.push(campo);campo='';if(linha.some(function(x){return x!==''}))linhas.push(linha);linha=[];}
       else campo+=ch;}
     linha.push(campo);if(linha.some(function(x){return x!==''}))linhas.push(linha);return linhas;}
@@ -237,7 +239,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     var f=$('imp-arq').files[0];$('imp-pub').disabled=true;if(!f){$('imp-prev').innerHTML='';return;}
     var linhas=lerCSV(await f.text());if(linhas.length<2){$('imp-prev').innerHTML='<p class="vazio">Arquivo vazio ou em outro formato.</p>';return;}
     var cab=linhas[0],iT=colIdx(cab,/^(title|t[ií]tulo)$/i),iU=colIdx(cab,/^(url|link)$/i),iS=colIdx(cab,/^status$/i),iL=colIdx(cab,/^(labels?|etiquetas?|r[oó]tulos?)$/i),iR=colIdx(cab,/^(repository|reposit[oó]rio)$/i),iA=colIdx(cab,/^(author|autor|created by|criado por|aberto por)$/i),iP=colIdx(cab,/^(assignees?|respons[aá]ve(l|is))$/i);
-    if(iT<0||iS<0){$('imp-prev').innerHTML='<p class="vazio">Não encontrei as colunas <b>Title</b> e <b>Status</b> na planilha. Use a opção <b>Export view data</b> do quadro.</p>';return;}
+    if(iT<0||iS<0){$('imp-prev').innerHTML='<p class="vazio">Não encontrei as colunas <b>Title</b> e <b>Status</b> no arquivo. Colunas encontradas: '+esc(cab.join(' | ').slice(0,300))+'. Use a opção <b>Export view data</b> do quadro.</p>';return;}
     var cset={};linhas.slice(1).forEach(function(l){if(l[iS])cset[l[iS]]=1;});
     var sel=$('imp-col'),atual=sel.value||'Beta',opc=listaColunas(cset,cbInfo&&cbInfo.colunas);
     sel.innerHTML=opc.map(function(n){return '<option'+(semAc(n)===semAc(atual)?' selected':'')+'>'+esc(n)+'</option>';}).join('');
