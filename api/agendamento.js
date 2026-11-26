@@ -28,6 +28,7 @@ const PADRAO = {
   horarios: { 0: [], 1: [['10:00', '19:30']], 2: [['10:00', '19:30']], 3: [['10:00', '19:30']], 4: [['10:00', '19:30']], 5: [['10:00', '19:30']], 6: [['10:00', '18:00']] },
   passo: 30,              // de quanto em quanto tempo começa um horário (min)
   vagas: 1,               // clientes no mesmo horário (ex.: número de consultores)
+  vagasEquipe: 2,         // vagas EXTRAS por horário que só a equipe pode usar (encaixes)
   maxPorDia: 0,           // 0 = sem limite
   intervalo: 0,           // folga obrigatória entre atendimentos (min)
   antecedencia: 60,       // antecedência mínima para o cliente marcar (min)
@@ -103,6 +104,7 @@ function normalizaConfig(b, atual) {
   for (let d = 0; d < 7; d++) c.horarios[d] = validaFaixas(b.horarios && b.horarios[d]);
   c.passo = [15, 20, 30, 45, 60].includes(Number(b.passo)) ? Number(b.passo) : atual.passo;
   c.vagas = n(b.vagas, 1, 20, atual.vagas);
+  c.vagasEquipe = n(b.vagasEquipe, 0, 20, atual.vagasEquipe == null ? 2 : atual.vagasEquipe);
   c.maxPorDia = n(b.maxPorDia, 0, 200, atual.maxPorDia);
   c.intervalo = n(b.intervalo, 0, 240, atual.intervalo);
   c.antecedencia = n(b.antecedencia, 0, 10080, atual.antecedencia);
@@ -172,7 +174,7 @@ async function todasReservas() {
 }
 
 /** Monta os dias e horários livres. ignorarId = reserva que está sendo remarcada. */
-function montarAgenda(c, reservas, ignorarId, diasExtras) {
+function montarAgenda(c, reservas, ignorarId, diasExtras, equipe) {
   const porDia = {};
   reservas.forEach((r) => { if (r.id !== ignorarId && ocupa(r)) (porDia[r.data] = porDia[r.data] || []).push(r); });
   const dias = [];
@@ -190,22 +192,28 @@ function montarAgenda(c, reservas, ignorarId, diasExtras) {
         const t = paraMin(h);
         const conflitos = doDia.filter((r) => Math.abs(paraMin(r.hora) - t) < janela).length;
         const livre = !lotadoDia && minutosAte(data, h) >= c.antecedencia ? Math.max(0, c.vagas - conflitos) : 0;
-        return { hora: h, vagas: livre };
+        if (!equipe) return { hora: h, vagas: livre };
+        // equipe: além das vagas normais, tem as vagas extras de encaixe e não respeita o limite do dia
+        const total = minutosAte(data, h) >= c.antecedencia ? Math.max(0, c.vagas + (c.vagasEquipe || 0) - conflitos) : 0;
+        return { hora: h, vagas: total, extra: total > 0 && livre === 0 };
       }),
     });
   }
   return dias;
 }
 
-function horarioLivre(c, reservas, data, hora, ignorarId, ignorarAntecedencia) {
+function horarioLivre(c, reservas, data, hora, ignorarId, ignorarAntecedencia, modo) {
+  // modo 'forcar' = encaixe da equipe: qualquer dia e horário, mesmo lotado ou fora do expediente
+  if (modo === 'forcar') return DATA_RE.test(data) && HORA_RE.test(hora) ? '' : 'Informe dia e horário válidos.';
+  const equipe = modo === 'equipe';
   const hs = horariosDoDia(data, c);
   if (!hs.includes(hora)) return 'Escolha um dia e horário da lista.';
   if (!ignorarAntecedencia && minutosAte(data, hora) < c.antecedencia) return 'Esse horário já passou ou está muito próximo. Escolha outro.';
   const doDia = reservas.filter((r) => r.id !== ignorarId && r.data === data && ocupa(r));
-  if (c.maxPorDia > 0 && doDia.length >= c.maxPorDia) return 'Esse dia já está lotado. Escolha outro.';
+  if (!equipe && c.maxPorDia > 0 && doDia.length >= c.maxPorDia) return 'Esse dia já está lotado. Escolha outro.';
   const t = paraMin(hora);
   const conflitos = doDia.filter((r) => Math.abs(paraMin(r.hora) - t) < c.passo + c.intervalo).length;
-  if (conflitos >= c.vagas) return 'Esse horário acabou de ser ocupado. Escolha outro.';
+  if (conflitos >= c.vagas + (equipe ? (c.vagasEquipe || 0) : 0)) return equipe ? 'Esse horário já usou todas as vagas, inclusive as de encaixe. Marque "Encaixe livre" para agendar mesmo assim.' : 'Esse horário acabou de ser ocupado. Escolha outro.';
   return '';
 }
 
@@ -470,10 +478,10 @@ function validaCliente(d) {
   return '';
 }
 
-async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, consultor, ignorarAntecedencia, hist }) {
+async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, consultor, ignorarAntecedencia, hist, modo }) {
   return comTrava(data, async () => {
     const reservas = await todasReservas();
-    const erro = horarioLivre(c, reservas, data, hora, null, ignorarAntecedencia);
+    const erro = horarioLivre(c, reservas, data, hora, null, ignorarAntecedencia, modo);
     if (erro) { const e = new Error(erro); e.codigo = 409; throw e; }
     const tipo = tipoDe(c, tipoId);
     const r = Object.assign({
@@ -486,17 +494,19 @@ async function criarReserva({ c, data, hora, tipoId, dados, origem, eu, notas, c
     if (r.status === 'pendente') r.expiraEm = Date.now() + 30 * 60e3;
     await garantirSala(r);
     if (consultor) { r.consultor = consultor.usuario; r.consultorNome = consultor.nome; }
-    if (hist) historico(r, hist.quem, hist.texto); else historico(r, eu ? eu.nome : 'Cliente', eu ? 'Agendado pela equipe' : 'Agendado pelo link');
+    if (modo === 'forcar') r.encaixe = true;
+    if (hist) historico(r, hist.quem, hist.texto); else historico(r, eu ? eu.nome : 'Cliente', eu ? (modo === 'forcar' ? 'Agendado pela equipe (encaixe livre)' : 'Agendado pela equipe') : 'Agendado pelo link');
     await salvar(r);
     await redis(['HSET', K.tokens, r.token, r.id]);
     return r;
   });
 }
 
-async function remarcar(c, r, data, hora, quem, ignorarAntecedencia) {
+async function remarcar(c, r, data, hora, quem, ignorarAntecedencia, modo) {
   return comTrava(data, async () => {
     const reservas = await todasReservas();
-    const erro = horarioLivre(c, reservas, data, hora, r.id, ignorarAntecedencia);
+    const erro = horarioLivre(c, reservas, data, hora, r.id, ignorarAntecedencia, modo);
+    if (modo === 'forcar') r.encaixe = true;
     if (erro) { const e = new Error(erro); e.codigo = 409; throw e; }
     historico(r, quem, 'Remarcado de ' + dataBonita(r.data) + ' ' + r.hora + ' para ' + dataBonita(data) + ' ' + hora);
     r.data = data; r.hora = hora;
@@ -913,7 +923,7 @@ module.exports = async function handler(req, res) {
       const reservas = await todasReservas();
       const ignorar = param(req, 'id');
       const cSem = Object.assign({}, c, { antecedencia: 0 });
-      return res.status(200).json({ agenda: montarAgenda(cSem, reservas, ignorar, 45) });
+      return res.status(200).json({ agenda: montarAgenda(cSem, reservas, ignorar, 45, true), vagasEquipe: c.vagasEquipe || 0 });
     }
 
     if (acao === 'status' && req.method === 'PATCH') {
@@ -981,7 +991,7 @@ module.exports = async function handler(req, res) {
       const r = JSON.parse(raw);
       const data = limpa(b.data, 10), hora = limpa(b.hora, 5);
       if (!DATA_RE.test(data) || !HORA_RE.test(hora)) return res.status(400).json({ erro: 'Escolha dia e horário.' });
-      try { await remarcar(c, r, data, hora, eu.nome, true); } catch (e) { return res.status(e.codigo || 500).json({ erro: e.message }); }
+      try { await remarcar(c, r, data, hora, eu.nome, true, b.forcar ? 'forcar' : 'equipe'); } catch (e) { return res.status(e.codigo || 500).json({ erro: e.message }); }
       let avisou = false;
       if (b.avisar) { try { avisou = await emailCliente('remarcado', r, c); } catch (e) {} }
       return res.status(200).json({ reserva: paraEquipe(r, c), emailEnviado: avisou });
@@ -992,12 +1002,13 @@ module.exports = async function handler(req, res) {
       const data = limpa(b.data, 10), hora = limpa(b.hora, 5);
       if (!DATA_RE.test(data) || !HORA_RE.test(hora)) return res.status(400).json({ erro: 'Escolha dia e horário.' });
       const dados = dadosCliente(b);
-      if (dados.nome.length < 2 || dados.loja.length < 2) return res.status(400).json({ erro: 'Preencha o nome e a loja.' });
+      if (dados.nome.length < 2) return res.status(400).json({ erro: 'Preencha o nome do cliente.' });
+      if (!dados.loja) dados.loja = '—';
       if (dados.whatsapp.replace(/\D/g, '').length < 10) return res.status(400).json({ erro: 'Informe o WhatsApp com DDD.' });
       if (dados.email && !EMAIL_RE.test(dados.email)) return res.status(400).json({ erro: 'E-mail inválido.' });
       const consultor = b.consultor ? (await usuariosEquipe()).find((u) => u.usuario === limpa(b.consultor, 30)) : null;
       let r;
-      try { r = await criarReserva({ c, data, hora, tipoId: limpa(b.tipo, 30), dados, origem: 'equipe', eu, notas: limpa(b.notas, 4000), consultor, ignorarAntecedencia: true }); }
+      try { r = await criarReserva({ c, data, hora, tipoId: limpa(b.tipo, 30), dados, origem: 'equipe', eu, notas: limpa(b.notas, 4000), consultor, ignorarAntecedencia: true, modo: b.forcar ? 'forcar' : 'equipe' }); }
       catch (e) { return res.status(e.codigo || 500).json({ erro: e.message }); }
       let avisou = false;
       if (b.avisar && r.email) { try { avisou = await emailCliente('confirmado', r, c); } catch (e) {} }
