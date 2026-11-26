@@ -41,6 +41,7 @@ async function gql(token, query, variables) {
 
 const QUERY = `query($org:String!,$num:Int!,$cursor:String){
   organization(login:$org){ projectV2(number:$num){ title
+    field(name:"Status"){ ... on ProjectV2SingleSelectField{ options{ name } } }
     items(first:100, after:$cursor){ pageInfo{ hasNextPage endCursor }
       nodes{ id
         fieldValueByName(name:"Status"){ ... on ProjectV2ItemFieldSingleSelectValue{ name } }
@@ -56,12 +57,13 @@ const QUERY = `query($org:String!,$num:Int!,$cursor:String){
 
 async function lerQuadro(c) {
   const itens = [];
-  let cursor = null, titulo = '';
+  let cursor = null, titulo = '', colunas = [];
   for (let pagina = 0; pagina < 40; pagina++) {
     const d = await gql(c.token, QUERY, { org: c.org, num: c.projeto, cursor });
     const p = d && d.organization && d.organization.projectV2;
     if (!p) throw new Error('Projeto ' + c.projeto + ' não encontrado na organização ' + c.org + ' (ou o token não tem acesso).');
     titulo = p.title;
+    if (p.field && p.field.options) colunas = p.field.options.map((o) => o.name);
     p.items.nodes.forEach((n) => {
       const ct = n.content || {};
       itens.push({
@@ -80,7 +82,7 @@ async function lerQuadro(c) {
     if (!p.items.pageInfo.hasNextPage) break;
     cursor = p.items.pageInfo.endCursor;
   }
-  return { titulo, itens };
+  return { titulo, itens, colunas };
 }
 
 function novidadeDe(it, coluna) {
@@ -128,7 +130,7 @@ async function sincronizar(c) {
     }
   }
   if (set.length) await EQUIPE.redis(['HSET', K.status].concat(set));
-  await salvarCards(quadro.itens.filter((x) => x.titulo), 'automático');
+  await salvarCards(quadro.itens.filter((x) => x.titulo), 'automático', quadro.colunas);
   for (const n of novas) { await EQUIPE.redis(['HSET', CHAVE_NOV, n.id, JSON.stringify(n)]); await new Promise((r) => setTimeout(r, 3)); }
   const info = { quando: Date.now(), projeto: quadro.titulo, cards: quadro.itens.length, novas: novas.length, primeira, erro: '' };
   await EQUIPE.redis(['SET', K.info, JSON.stringify(info)]);
@@ -140,7 +142,7 @@ function cardLeve(it) {
   return { id: it.id || ('url:' + String(it.url || it.titulo).toLowerCase()), t: it.titulo, n: it.numero || 0, u: it.url || '', s: it.status || '', r: it.repo || '',
     l: (it.labels || []).slice(0, 15), a: it.autor || '', p: (it.responsaveis || []).slice(0, 5), c: it.criadoEm || '', m: it.atualizadoEm || '' };
 }
-async function salvarCards(itens, fonte) {
+async function salvarCards(itens, fonte, colunas) {
   await EQUIPE.redis(['DEL', K.cards]);
   const lista = itens.map(cardLeve);
   for (let i = 0; i < lista.length; i += 150) {
@@ -148,7 +150,9 @@ async function salvarCards(itens, fonte) {
     lista.slice(i, i + 150).forEach((x) => cmd.push(x.id, JSON.stringify(x)));
     await EQUIPE.redis(cmd);
   }
-  await EQUIPE.redis(['SET', K.cardsInfo, JSON.stringify({ quando: Date.now(), fonte, total: lista.length })]);
+  let cols = colunas && colunas.length ? colunas : null;
+  if (!cols) { try { cols = (JSON.parse((await EQUIPE.redis(['GET', K.cardsInfo])) || 'null') || {}).colunas || null; } catch (e) { cols = null; } }
+  await EQUIPE.redis(['SET', K.cardsInfo, JSON.stringify({ quando: Date.now(), fonte, total: lista.length, colunas: cols || [] })]);
 }
 async function lerCards() {
   const arr = (await EQUIPE.redis(['HGETALL', K.cards])) || [];
