@@ -711,10 +711,13 @@ module.exports = async function handler(req, res) {
       if (acao === 'ia-meu-agendamento') {
         // procura o agendamento do cliente pelo telefone da conversa (ou pelo e-mail)
         const dig = (v) => { let d = String(v || '').replace(/\D/g, ''); if (d.length >= 12 && d.startsWith('55')) d = d.slice(2); return d; };
-        const tel = dig(b.telefone || b.whatsapp || b.celular), email = limpa(b.email, 120).toLowerCase();
-        if (tel.length < 8 && !EMAIL_RE.test(email)) return res.status(200).json({ ok: false, encontrado: false, mensagem: 'Não recebi o telefone nem o e-mail do cliente para procurar o agendamento.' });
-        const mesmoTel = (x) => { const t = dig(x.whatsapp); return tel.length >= 8 && t.length >= 8 && t.slice(-8) === tel.slice(-8) && (t.length < 10 || tel.length < 10 || t.slice(0, 2) === tel.slice(0, 2)); };
-        const mesmoEmail = (x) => EMAIL_RE.test(email) && String(x.email || '').toLowerCase() === email;
+        const normEmail = (v) => String(v || '').trim().toLowerCase().replace(/^mailto:/, '');
+        const tel = dig(b.telefone || b.whatsapp || b.celular), email = normEmail(limpa(b.email, 120));
+        const tel2 = dig(b.telefone2 || b.outroTelefone || '');
+        if (tel.length < 8 && tel2.length < 8 && !EMAIL_RE.test(email)) return res.status(200).json({ ok: false, encontrado: false, mensagem: 'Não recebi o telefone nem o e-mail do cliente para procurar o agendamento.' });
+        const telBate = (t, ref) => ref.length >= 8 && t.length >= 8 && t.slice(-8) === ref.slice(-8) && (t.length < 10 || ref.length < 10 || t.slice(0, 2) === ref.slice(0, 2));
+        const mesmoTel = (x) => { const t = dig(x.whatsapp); return telBate(t, tel) || telBate(t, tel2); };
+        const mesmoEmail = (x) => EMAIL_RE.test(email) && normEmail(x.email) === email;
         const hojeStr = ymd(agoraBR());
         const todos = reservas.filter((x) => mesmoTel(x) || mesmoEmail(x));
         const futuro = todos.filter((x) => ['aguardando', 'pendente'].includes(x.status) && x.data >= hojeStr && !(x.status === 'pendente' && (x.expiraEm || 0) < Date.now()))
@@ -731,12 +734,23 @@ module.exports = async function handler(req, res) {
             linkChamada: linkDaChamada(futuro, c) || '',
           });
         }
+        // não achou pelo telefone/e-mail: se o cliente disse o dia e a hora, vê se existe agendamento nesse horário (com outro telefone/e-mail)
+        const dataDita = dataIA(b.data || b.dia), horaDita = horaIA(b.hora || b.horario);
+        if (dataDita) {
+          const noHorario = reservas.filter((x) => x.data === dataDita && (!horaDita || x.hora === horaDita) && ['aguardando', 'pendente'].includes(x.status));
+          if (noHorario.length) {
+            const mascara = (e) => { const [u, d] = String(e || '').split('@'); return u ? u.slice(0, 3) + '***@' + (d || '') : ''; };
+            const iniciais = (n) => String(n || '').trim().split(/\s+/).map((p) => p[0] ? p[0].toUpperCase() + '.' : '').join(' ');
+            const lista = noHorario.slice(0, 3).map((x) => x.hora + ' em nome de ' + iniciais(x.nome) + ' (e-mail ' + mascara(x.email) + ', WhatsApp terminado em ' + dig(x.whatsapp).slice(-4) + ')').join('; ');
+            return res.status(200).json({ ok: true, encontrado: false, possivel: true, mensagem: 'Não achei pelo telefone/e-mail desta conversa, mas EXISTE agendamento ' + comArtigo(dataBonita(dataDita).replace(/\/\d{4}$/, '')) + ': ' + lista + '. O cliente pode ter agendado com OUTRO número ou e-mail. NÃO diga que não localizou: pergunte ao cliente qual e-mail ou WhatsApp ele usou no agendamento e rode "Buscar agendamento do cliente" de novo com esse e-mail. Nunca mostre ao cliente os dados de outra pessoa e NÃO faça novo agendamento antes disso.' });
+          }
+        }
         const ultimo = todos.sort((x, y) => (y.criadoEm || 0) - (x.criadoEm || 0))[0];
         let extra = '';
         if (ultimo && ultimo.status === 'cancelado') extra = ' O último agendamento desse cliente foi CANCELADO.';
         else if (ultimo && ultimo.status === 'nao-atendeu') extra = ' O cliente tinha um atendimento ' + comArtigo(dataBonita(ultimo.data)) + ' e não atendeu; ele precisa reagendar.';
         else if (ultimo && ultimo.status === 'atendido') extra = ' O último atendimento desse cliente já foi realizado (' + dataBonita(ultimo.data) + ').';
-        return res.status(200).json({ ok: true, encontrado: false, mensagem: 'Não encontrei nenhum agendamento futuro para este cliente.' + extra + ' Diga com gentileza que não localizou o agendamento e ofereça você mesma os dias e horários livres (use a habilidade "Consultar horários da agenda" e envie todos numa única mensagem). Se o cliente disser que agendou com outro e-mail, procure de novo com esse e-mail.' });
+        return res.status(200).json({ ok: true, encontrado: false, mensagem: 'Não encontrei nenhum agendamento futuro para este cliente.' + extra + ' Diga com gentileza que não localizou o agendamento e ofereça você mesma os dias e horários livres (use a habilidade "Consultar horários da agenda" e envie todos numa única mensagem). Antes de dizer isso, se o cliente disse que agendou com outro e-mail ou número, procure de novo com esse e-mail.' });
       }
 
       if (acao === 'ia-horarios') {
@@ -770,7 +784,9 @@ module.exports = async function handler(req, res) {
       const hojeStr = ymd(agoraBR());
       const limiteNA = ymd(new Date(agoraBR().getTime() - 30 * 86400e3));
       const mesmoFone = (x) => String(x.whatsapp || '').replace(/\D/g, '').slice(-11) === fone;
-      const ja = reservas.filter((x) => mesmoFone(x) && (
+      const emailNovo = String(dados.email || '').trim().toLowerCase();
+      const mesmoCliente = (x) => mesmoFone(x) || (EMAIL_RE.test(emailNovo) && String(x.email || '').trim().toLowerCase() === emailNovo);
+      const ja = reservas.filter((x) => mesmoCliente(x) && (
         (['aguardando', 'pendente'].includes(x.status) && x.data >= hojeStr && !(x.status === 'pendente' && (x.expiraEm || 0) < Date.now())) ||
         (x.status === 'nao-atendeu' && x.data >= limiteNA)))
         .sort((x, y) => (y.criadoEm || 0) - (x.criadoEm || 0))[0];
