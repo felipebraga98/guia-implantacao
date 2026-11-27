@@ -417,21 +417,22 @@ button{font:inherit;color:inherit}
     '.circ video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}'+
     '.mud{position:absolute;right:4%;bottom:4%;width:30%;height:30%;min-width:20px;min-height:20px;border-radius:50%;background:#dc2626;display:none;align-items:center;justify-content:center;font-size:calc(min(100vw,100vh)*.13);box-shadow:0 0 0 2px #0b3d1f}'+
     '.mud.on{display:flex}'+
-    '.painel{position:fixed;inset:0;display:none;flex-direction:column;gap:8px;padding:10px}'+
+    '.painel{position:fixed;inset:0;display:none;flex-direction:column;justify-content:center;gap:12px;padding:12px 14px}'+
     '.aberto .painel{display:flex}.aberto .bola{display:none}'+
     '.topo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.85rem}.topo span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
-    '.mini{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#16a34a;flex:none;position:relative}.mini video{width:100%;height:100%;object-fit:cover}'+
+    '.mini{width:38px;height:38px;border-radius:50%;overflow:hidden;background:#16a34a;flex:none;position:relative;display:flex;align-items:center;justify-content:center;font-weight:800}.mini video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}'+
     '.x{background:#ffffff22;border:0;color:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:1rem}'+
-    '.bts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}'+
-    '.bts button{width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}'+
+    '.bts{display:flex;gap:min(10px,3vw);justify-content:center;flex-wrap:nowrap}'+
+    '.bts button{flex:none;width:clamp(28px,min(17vw,46vh),58px);height:clamp(28px,min(17vw,46vh),58px);border-radius:50%;border:0;background:#ffffff26;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}'+
     '.bts button:hover{background:#ffffff40}.bts button.off{background:#dc2626}.bts button.sair{background:#dc2626}'+
-    '.bts svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}';
+    '@media (max-height:135px){.topo{display:none}.painel{padding:6px 8px}.bts button{width:clamp(28px,min(17vw,80vh),58px);height:clamp(28px,min(17vw,80vh),58px)}}'+
+    '.bts svg{width:45%;height:45%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}';
   var IC={mic:'<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
     cam:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg>',
     volta:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 11h6M12 8v6"/></svg>',
     sair:'<svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1z"/></svg>'};
-  function inicial(){var n=Object.keys(nomes).map(function(k){return nomes[k]})[0]||'';return (n.trim()[0]||'📞').toUpperCase();}
-  function nomeOutro(){var n=Object.keys(nomes).map(function(k){return nomes[k]});return n.length?n.join(', '):'Chamada WhatsMenu';}
+  function inicial(){var n=Object.keys(nomes).map(function(k){return nomes[k]})[0]||clienteNome||'';return (n.trim()[0]||'📞').toUpperCase();}
+  function nomeOutro(){var n=Object.keys(nomes).map(function(k){return nomes[k]});return n.length?n.join(', '):(clienteNome?'Aguardando '+clienteNome+'…':'Chamada WhatsMenu');}
   window.pipPinta=function(){
     if(!pipWin)return;var d=pipWin.document;
     var micOn=!!micTrack&&micTrack.enabled, camOn=!!camTrack&&camTrack.enabled;
@@ -443,11 +444,12 @@ button{font:inherit;color:inherit}
     var vr=videoRemoto();
     ['pv','pv2'].forEach(function(id){var v=d.getElementById(id);if(!v)return;var src=vr?vr.srcObject:null;if(v.srcObject!==src){v.srcObject=src;if(src)v.play().catch(function(){});}v.style.display=src?'':'none';});
     var ini=d.getElementById('pini');if(ini)ini.textContent=vr?'':inicial();
+    var ini2=d.getElementById('pini2');if(ini2)ini2.textContent=vr?'':inicial();
   };
   function pipTamanho(aberto){
     pipAberto=aberto;if(!pipWin)return;
     pipWin.document.body.classList.toggle('aberto',aberto);
-    try{aberto?pipWin.resizeTo(300,120):pipWin.resizeTo(110,110);}catch(e){}
+    try{aberto?pipWin.resizeTo(320,150):pipWin.resizeTo(110,110);}catch(e){}
   }
   async function abrePip(){
     if(pipWin){try{pipWin.focus();}catch(e){}return;}
@@ -458,12 +460,12 @@ button{font:inherit;color:inherit}
       else toast('A janela flutuante funciona no Google Chrome ou no Edge do computador.');
       return;
     }
-    try{pipWin=await window.documentPictureInPicture.requestWindow({width:110,height:110});}
+    try{pipWin=await window.documentPictureInPicture.requestWindow({width:320,height:150});}
     catch(e){toast('Não foi possível abrir a janela flutuante.');return;}
     var d=pipWin.document;d.title='Chamada WhatsMenu';
     var st=d.createElement('style');st.textContent=PIP_CSS;d.head.appendChild(st);
     d.body.innerHTML='<button class="bola" id="bola" title="Clique para abrir os controles"><div class="circ"><video id="pv" autoplay playsinline muted></video><span id="pini"></span><span class="mud" id="mud">🔇</span></div></button>'+
-      '<div class="painel"><div class="topo"><div class="mini"><video id="pv2" autoplay playsinline muted></video></div><span id="pnome"></span><button class="x" id="pmin" title="Minimizar">–</button></div>'+
+      '<div class="painel"><div class="topo"><div class="mini"><video id="pv2" autoplay playsinline muted></video><b id="pini2"></b></div><span id="pnome"></span><button class="x" id="pmin" title="Minimizar">–</button></div>'+
       '<div class="bts"><button id="pm">'+IC.mic+'</button><button id="pc">'+IC.cam+'</button><button id="pvolta" title="Voltar para a chamada">'+IC.volta+'</button><button class="sair" id="psair" title="Sair da chamada">'+IC.sair+'</button></div></div>';
     d.getElementById('bola').onclick=function(){pipTamanho(true);};
     d.getElementById('pmin').onclick=function(){pipTamanho(false);};
@@ -473,7 +475,7 @@ button{font:inherit;color:inherit}
     d.getElementById('psair').onclick=function(){fechaPip();$('b-sair').click();};
     pipWin.addEventListener('pagehide',function(){pipWin=null;$('b-pip').setAttribute('aria-pressed','false');});
     $('b-pip').setAttribute('aria-pressed','true');
-    pipAberto=false;window.pipPinta();
+    pipTamanho(true);window.pipPinta();
     clearInterval(abrePip.t);abrePip.t=setInterval(function(){if(pipWin)window.pipPinta();else clearInterval(abrePip.t);},1500);
   }
   function fechaPip(){if(pipWin){try{pipWin.close();}catch(e){}pipWin=null;}$('b-pip').setAttribute('aria-pressed','false');}
