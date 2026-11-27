@@ -145,6 +145,7 @@ button{font:inherit;color:inherit}
     <button class="bt" type="button" id="b-tela" aria-pressed="false" aria-label="Compartilhar a tela" title="Compartilhar a tela"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M12 13V7M9 10l3-3 3 3"/></svg></button>
     <button class="bt" type="button" id="b-chat" aria-pressed="false" aria-label="Abrir conversa" title="Conversa"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span class="bolha" id="bolha" hidden></span></button>
     <button class="bt" type="button" id="b-link" aria-label="Copiar link da chamada" title="Copiar link"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+    <button class="bt" type="button" id="b-pip" aria-pressed="false" aria-label="Janela flutuante" title="Janela flutuante (controles por cima das outras janelas)" hidden><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1" fill="currentColor"/></svg></button>
     <button class="bt sair" type="button" id="b-sair" aria-label="Sair da chamada" title="Sair"><svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1z"/></svg></button>
   </div>
   <aside class="chat" id="chat" hidden aria-label="Conversa">
@@ -209,6 +210,7 @@ button{font:inherit;color:inherit}
     ['p-mic','b-mic'].forEach(function(id){$(id).classList.toggle('off',!micOn);$(id).setAttribute('aria-label',micOn?'Desligar microfone':'Ligar microfone');$(id).disabled=!micTrack;});
     ['p-cam','b-cam'].forEach(function(id){$(id).classList.toggle('off',!camOn);$(id).setAttribute('aria-label',camOn?'Desligar câmera':'Ligar câmera');$(id).disabled=!camTrack;});
     $('prev-sem').hidden=camOn;
+    if(window.pipPinta)window.pipPinta();
   }
   function alternaMic(){if(!micTrack)return;micTrack.enabled=!micTrack.enabled;pintaBotoes();toast(micTrack.enabled?'Microfone ligado':'Microfone desligado');}
   function alternaCam(){if(!camTrack)return;camTrack.enabled=!camTrack.enabled;pintaBotoes();}
@@ -404,6 +406,90 @@ button{font:inherit;color:inherit}
   $('b-chat').onclick=function(){abreChat($('chat').hidden);};$('chat-x').onclick=function(){abreChat(false);};
   $('b-link').onclick=function(){(navigator.clipboard?navigator.clipboard.writeText(linkConvite()):Promise.reject()).then(function(){toast('Link da chamada copiado.')}).catch(function(){toast(linkConvite());});};
 
+  // ---------- janela flutuante (picture-in-picture) ----------
+  // bolinha compacta por cima das outras janelas; clicando, abre os controles (microfone, câmera, voltar, sair)
+  var pipWin=null, pipAberto=false;
+  var temDocPip=!!(window.documentPictureInPicture&&window.documentPictureInPicture.requestWindow);
+  function videoRemoto(){var v=document.querySelector('.tile video');return v&&v.srcObject?v:null;}
+  var PIP_CSS='*{box-sizing:border-box;margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}html,body{height:100%;background:#0b3d1f;color:#fff;overflow:hidden}'+
+    '.bola{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;background:#0b3d1f;padding:6px}'+
+    '.circ{position:relative;width:min(100vw,100vh);height:min(100vw,100vh);max-width:100%;max-height:100%;border-radius:50%;overflow:hidden;background:#16a34a;display:flex;align-items:center;justify-content:center;font:800 1.6rem system-ui;box-shadow:0 0 0 3px #22c55e}'+
+    '.circ video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}'+
+    '.mud{position:absolute;right:4%;bottom:4%;width:30%;height:30%;min-width:20px;min-height:20px;border-radius:50%;background:#dc2626;display:none;align-items:center;justify-content:center;font-size:calc(min(100vw,100vh)*.13);box-shadow:0 0 0 2px #0b3d1f}'+
+    '.mud.on{display:flex}'+
+    '.painel{position:fixed;inset:0;display:none;flex-direction:column;gap:8px;padding:10px}'+
+    '.aberto .painel{display:flex}.aberto .bola{display:none}'+
+    '.topo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.85rem}.topo span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+    '.mini{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#16a34a;flex:none;position:relative}.mini video{width:100%;height:100%;object-fit:cover}'+
+    '.x{background:#ffffff22;border:0;color:#fff;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:1rem}'+
+    '.bts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}'+
+    '.bts button{width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}'+
+    '.bts button:hover{background:#ffffff40}.bts button.off{background:#dc2626}.bts button.sair{background:#dc2626}'+
+    '.bts svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}';
+  var IC={mic:'<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+    cam:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg>',
+    volta:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 11h6M12 8v6"/></svg>',
+    sair:'<svg viewBox="0 0 24 24"><path d="M3 15c5-5 13-5 18 0l-2 3-4-1v-3a10 10 0 0 0-6 0v3l-4 1z"/></svg>'};
+  function inicial(){var n=Object.keys(nomes).map(function(k){return nomes[k]})[0]||'';return (n.trim()[0]||'📞').toUpperCase();}
+  function nomeOutro(){var n=Object.keys(nomes).map(function(k){return nomes[k]});return n.length?n.join(', '):'Chamada WhatsMenu';}
+  window.pipPinta=function(){
+    if(!pipWin)return;var d=pipWin.document;
+    var micOn=!!micTrack&&micTrack.enabled, camOn=!!camTrack&&camTrack.enabled;
+    var bm=d.getElementById('pm'),bc=d.getElementById('pc');
+    if(bm){bm.classList.toggle('off',!micOn);bm.title=micOn?'Desligar microfone':'Ligar microfone';bm.disabled=!micTrack;}
+    if(bc){bc.classList.toggle('off',!camOn);bc.title=camOn?'Desligar câmera':'Ligar câmera';bc.disabled=!camTrack;}
+    var mu=d.getElementById('mud');if(mu)mu.classList.toggle('on',!micOn);
+    var nm=d.getElementById('pnome');if(nm)nm.textContent=nomeOutro();
+    var vr=videoRemoto();
+    ['pv','pv2'].forEach(function(id){var v=d.getElementById(id);if(!v)return;var src=vr?vr.srcObject:null;if(v.srcObject!==src){v.srcObject=src;if(src)v.play().catch(function(){});}v.style.display=src?'':'none';});
+    var ini=d.getElementById('pini');if(ini)ini.textContent=vr?'':inicial();
+  };
+  function pipTamanho(aberto){
+    pipAberto=aberto;if(!pipWin)return;
+    pipWin.document.body.classList.toggle('aberto',aberto);
+    try{aberto?pipWin.resizeTo(300,120):pipWin.resizeTo(110,110);}catch(e){}
+  }
+  async function abrePip(){
+    if(pipWin){try{pipWin.focus();}catch(e){}return;}
+    if(!entrou)return;
+    if(!temDocPip){
+      // navegador sem janela flutuante completa: usa o vídeo flutuante simples
+      var v=videoRemoto();if(v&&v.requestPictureInPicture){try{await v.requestPictureInPicture();}catch(e){toast('Não foi possível abrir a janela flutuante.');}}
+      else toast('A janela flutuante funciona no Google Chrome ou no Edge do computador.');
+      return;
+    }
+    try{pipWin=await window.documentPictureInPicture.requestWindow({width:110,height:110});}
+    catch(e){toast('Não foi possível abrir a janela flutuante.');return;}
+    var d=pipWin.document;d.title='Chamada WhatsMenu';
+    var st=d.createElement('style');st.textContent=PIP_CSS;d.head.appendChild(st);
+    d.body.innerHTML='<button class="bola" id="bola" title="Clique para abrir os controles"><div class="circ"><video id="pv" autoplay playsinline muted></video><span id="pini"></span><span class="mud" id="mud">🔇</span></div></button>'+
+      '<div class="painel"><div class="topo"><div class="mini"><video id="pv2" autoplay playsinline muted></video></div><span id="pnome"></span><button class="x" id="pmin" title="Minimizar">–</button></div>'+
+      '<div class="bts"><button id="pm">'+IC.mic+'</button><button id="pc">'+IC.cam+'</button><button id="pvolta" title="Voltar para a chamada">'+IC.volta+'</button><button class="sair" id="psair" title="Sair da chamada">'+IC.sair+'</button></div></div>';
+    d.getElementById('bola').onclick=function(){pipTamanho(true);};
+    d.getElementById('pmin').onclick=function(){pipTamanho(false);};
+    d.getElementById('pm').onclick=alternaMic;
+    d.getElementById('pc').onclick=alternaCam;
+    d.getElementById('pvolta').onclick=function(){try{window.focus();}catch(e){}fechaPip();};
+    d.getElementById('psair').onclick=function(){fechaPip();$('b-sair').click();};
+    pipWin.addEventListener('pagehide',function(){pipWin=null;$('b-pip').setAttribute('aria-pressed','false');});
+    $('b-pip').setAttribute('aria-pressed','true');
+    pipAberto=false;window.pipPinta();
+    clearInterval(abrePip.t);abrePip.t=setInterval(function(){if(pipWin)window.pipPinta();else clearInterval(abrePip.t);},1500);
+  }
+  function fechaPip(){if(pipWin){try{pipWin.close();}catch(e){}pipWin=null;}$('b-pip').setAttribute('aria-pressed','false');}
+  $('b-pip').onclick=function(){pipWin?fechaPip():abrePip();};
+  if(temDocPip||document.pictureInPictureEnabled)$('b-pip').hidden=false;
+  // ao sair da aba da chamada, o Chrome pode abrir a bolinha sozinho; também liga os botões nativos de microfone/câmera/desligar
+  try{
+    if(navigator.mediaSession){
+      navigator.mediaSession.setActionHandler('enterpictureinpicture',function(){abrePip();});
+      navigator.mediaSession.setActionHandler('togglemicrophone',function(){alternaMic();});
+      navigator.mediaSession.setActionHandler('togglecamera',function(){alternaCam();});
+      navigator.mediaSession.setActionHandler('hangup',function(){$('b-sair').click();});
+    }
+  }catch(e){}
+  setInterval(function(){try{if(navigator.mediaSession&&navigator.mediaSession.setMicrophoneActive){navigator.mediaSession.setMicrophoneActive(!!micTrack&&micTrack.enabled);navigator.mediaSession.setCameraActive(!!camTrack&&camTrack.enabled);}}catch(e){}},1000);
+
   // ---------- sair ----------
   function avisaSaida(){
     if(!entrou||saindo)return;saindo=true;clearTimeout(timer);
@@ -413,6 +499,7 @@ button{font:inherit;color:inherit}
   window.addEventListener('pagehide',avisaSaida);
   function fim(tit,tx){
     avisaSaida();Object.keys(pcs).forEach(function(id){fecha(id,true);});
+    try{fechaPip();}catch(e){}
     if(local)local.getTracks().forEach(function(t){t.stop();});if(telaTrack)telaTrack.stop();
     $('entrada').hidden=true;$('chamada').hidden=true;$('fim').hidden=false;$('fim-tit').textContent=tit;$('fim-tx').textContent=tx;status('Encerrada','off');
   }
