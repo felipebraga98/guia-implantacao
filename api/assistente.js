@@ -223,7 +223,7 @@ module.exports = async function handler(req, res) {
     const registra = async (p, resp) => {
       if (!temBanco()) return undefined;
       const id = crypto.randomBytes(8).toString('hex');
-      const semResposta = /não está na minha base/i.test(resp);
+      const semResposta = /n[ãa]o (est[áa]|consta) na (minha |nossa )?base|n[ãa]o (encontrei|achei|tenho) (essa|esta|isso|essa informa|nada)|confirme com (o )?(supervisor|l[íi]der|grupo)/i.test(resp);
       await r(['SET', 'ia:resp:' + id, JSON.stringify({ p: String(p).slice(0, 600), r: resp.slice(0, 6000), t: Date.now(), img: !!img, voz: !!audio, semResposta }), 'EX', String(60 * 86400)]);
       await r(['LPUSH', 'ia:log', id]); await r(['LTRIM', 'ia:log', '0', '499']);
       const k = 'ia:total:' + hoje(); await r(['INCR', k]); await r(['EXPIRE', k, String(40 * 86400)]);
